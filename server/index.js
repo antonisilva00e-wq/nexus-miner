@@ -24,6 +24,24 @@ async function main() {
   const { createSchema } = require('./database/schema');
   createSchema(db);
 
+  // Auto-seed if no users exist (first run on fresh server)
+  const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get().count;
+  if (userCount === 0) {
+    console.log('[SEED] Banco vazio — criando dados iniciais...');
+    const { createSchema: seedSchema } = require('./database/schema');
+    seedSchema(db);
+    const bcrypt = require('bcryptjs');
+    const { v4: uuidv4 } = require('uuid');
+    const adminId = uuidv4();
+    const managerId = uuidv4();
+    const sellerId = uuidv4();
+    db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(adminId, 'Administrador', 'admin@nexusminer.com', 'admin', bcrypt.hashSync('admin123', 12), 'admin');
+    db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(managerId, 'Gerente Comercial', 'gerente@nexusminer.com', 'gerente', bcrypt.hashSync('manager123', 12), 'manager');
+    db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(sellerId, 'Vendedor', 'vendedor@nexusminer.com', 'vendedor', bcrypt.hashSync('seller123', 12), 'seller');
+    db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('company_name', 'Nexus Miner');
+    console.log('[SEED] Usuários criados: admin/gerente/vendedor');
+  }
+
   const app = express();
 
   // ============================================================
