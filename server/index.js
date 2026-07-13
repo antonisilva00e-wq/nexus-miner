@@ -24,17 +24,20 @@ async function main() {
   const { createSchema } = require('./database/schema');
   createSchema(db);
 
-  // Auto-seed admin user if missing (runs every boot, idempotent)
-  const bcrypt = require('bcryptjs');
-  const { v4: uuidv4 } = require('uuid');
-  const existingAdmin = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
-  if (!existingAdmin) {
-    console.log('[SEED] Admin não encontrado — criando...');
-    db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Administrador', 'admin@nexusminer.com', 'admin', bcrypt.hashSync('admin123', 12), 'admin');
-    db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Gerente Comercial', 'gerente@nexusminer.com', 'gerente', bcrypt.hashSync('manager123', 12), 'manager');
-    db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Vendedor', 'vendedor@nexusminer.com', 'vendedor', bcrypt.hashSync('seller123', 12), 'seller');
-    db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('company_name', 'Nexus Miner');
-    console.log('[SEED] Usuários criados com sucesso');
+  // Auto-seed admin user if missing
+  try {
+    const existingAdmin = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
+    if (!existingAdmin) {
+      const bcrypt = require('bcryptjs');
+      const { v4: uuidv4 } = require('uuid');
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Administrador', 'admin@nexusminer.com', 'admin', bcrypt.hashSync('admin123', 12), 'admin');
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Gerente Comercial', 'gerente@nexusminer.com', 'gerente', bcrypt.hashSync('manager123', 12), 'manager');
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Vendedor', 'vendedor@nexusminer.com', 'vendedor', bcrypt.hashSync('seller123', 12), 'seller');
+      db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('company_name', 'Nexus Miner');
+      console.log('[SEED] Usuários criados');
+    }
+  } catch (e) {
+    console.error('[SEED] Erro:', e.message);
   }
 
   const app = express();
@@ -281,6 +284,7 @@ async function main() {
 }
 
 main().catch(err => {
-  console.error('Failed to start server:', err.message);
+  console.error('FATAL:', err.message);
+  console.error(err.stack);
   process.exit(1);
 });
