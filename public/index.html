@@ -164,13 +164,5 @@
 
   <!-- OneSignal Web Push SDK (local) -->
   <script src="/js/onesignal.sdk.js" defer></script>
-  <script>
-    // PWA Service Worker registration
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').then(reg => {
-        console.log('[SW] Registrado:', reg.scope);
-      }).catch(err => console.error('[SW] Erro:', err));
-    }
-  </script>
 </body>
 </html>

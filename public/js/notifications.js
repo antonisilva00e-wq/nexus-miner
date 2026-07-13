@@ -35,7 +35,9 @@ const Notifications = {
         appId: onesignalAppId,
         notifyButton: { enable: false },
         allowLocalhostAsSecureOrigin: true,
-        welcomeNotification: { disable: true }
+        welcomeNotification: { disable: true },
+        serviceWorkerUrl: '/OneSignalSDKWorker.js',
+        serviceWorkerParam: { scope: '/' }
       });
 
       this.onesignalReady = true;
