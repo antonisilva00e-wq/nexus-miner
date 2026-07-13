@@ -1,0 +1,277 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <defs>
+    <linearGradient id="hoodDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1040;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0d0825;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#050312;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="hoodInner" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0520;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#020108;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="eyeFire" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="25%" style="stop-color:#93c5fd;stop-opacity:1" />
+      <stop offset="55%" style="stop-color:#3b82f6;stop-opacity:0.9" />
+      <stop offset="80%" style="stop-color:#1d4ed8;stop-opacity:0.7" />
+      <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:0.3" />
+    </radialGradient>
+    <radialGradient id="eyeAura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:0.5" />
+      <stop offset="60%" style="stop-color:#3b82f6;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:0" />
+    </radialGradient>
+    <linearGradient id="flame1" x1="50%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:0.6" />
+      <stop offset="40%" style="stop-color:#3b82f6;stop-opacity:0.4" />
+      <stop offset="70%" style="stop-color:#60a5fa;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#93c5fd;stop-opacity:0" />
+    </linearGradient>
+    <linearGradient id="clawGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2e1065;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1a0a3e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f0524;stop-opacity:1" />
+    </linearGradient>
+    <filter id="eyeGlow" x="-200%" y="-200%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="5" result="b1"/>
+      <feGaussianBlur stdDeviation="12" result="b2"/>
+      <feGaussianBlur stdDeviation="20" result="b3"/>
+      <feMerge>
+        <feMergeNode in="b3"/>
+        <feMergeNode in="b2"/>
+        <feMergeNode in="b1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="flameFilter" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="smokeFilter">
+      <feGaussianBlur stdDeviation="15"/>
+    </filter>
+    <filter id="deepShadow">
+      <feDropShadow dx="0" dy="10" stdDeviation="20" flood-color="#1e3a8a" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- === SMOKE / MIST BACKGROUND === -->
+  <ellipse cx="200" cy="420" rx="180" ry="80" fill="#1e3a8a" opacity="0.08" filter="url(#smokeFilter)"/>
+  <ellipse cx="160" cy="380" rx="120" ry="60" fill="#3b82f6" opacity="0.05" filter="url(#smokeFilter)"/>
+  <ellipse cx="240" cy="390" rx="100" ry="50" fill="#1d4ed8" opacity="0.06" filter="url(#smokeFilter)"/>
+
+  <!-- === BLUE FLAME AURA === -->
+  <!-- Left flames -->
+  <path d="M60 350 Q40 280 55 220 Q35 260 45 200 Q25 250 40 180 Q20 230 50 150 Q30 200 60 120" 
+        fill="none" stroke="url(#flame1)" stroke-width="12" opacity="0.35" filter="url(#flameFilter)" stroke-linecap="round">
+    <animate attributeName="d" values="M60 350 Q40 280 55 220 Q35 260 45 200 Q25 250 40 180 Q20 230 50 150 Q30 200 60 120;M60 350 Q45 275 50 215 Q30 255 50 195 Q30 245 35 175 Q25 225 55 145 Q35 195 55 115;M60 350 Q40 280 55 220 Q35 260 45 200 Q25 250 40 180 Q20 230 50 150 Q30 200 60 120" dur="4s" repeatCount="indefinite"/>
+  </path>
+  <path d="M75 360 Q55 300 65 240 Q50 280 58 220 Q40 260 55 190" 
+        fill="none" stroke="#60a5fa" stroke-width="8" opacity="0.2" filter="url(#flameFilter)" stroke-linecap="round">
+    <animate attributeName="opacity" values="0.2;0.35;0.15;0.25;0.2" dur="3s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- Right flames -->
+  <path d="M340 350 Q360 280 345 220 Q365 260 355 200 Q375 250 360 180 Q380 230 350 150 Q370 200 340 120" 
+        fill="none" stroke="url(#flame1)" stroke-width="12" opacity="0.35" filter="url(#flameFilter)" stroke-linecap="round">
+    <animate attributeName="d" values="M340 350 Q360 280 345 220 Q365 260 355 200 Q375 250 360 180 Q380 230 350 150 Q370 200 340 120;M340 350 Q355 275 350 215 Q370 255 350 195 Q370 245 365 175 Q375 225 345 145 Q365 195 345 115;M340 350 Q360 280 345 220 Q365 260 355 200 Q375 250 360 180 Q380 230 350 150 Q370 200 340 120" dur="4s" repeatCount="indefinite"/>
+  </path>
+  <path d="M325 360 Q345 300 335 240 Q350 280 342 220 Q360 260 345 190" 
+        fill="none" stroke="#60a5fa" stroke-width="8" opacity="0.2" filter="url(#flameFilter)" stroke-linecap="round">
+    <animate attributeName="opacity" values="0.25;0.15;0.35;0.2;0.25" dur="3.5s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- Top flames -->
+  <path d="M180 80 Q170 40 185 10 Q165 50 180 20 Q175 55 195 30" fill="none" stroke="#3b82f6" stroke-width="6" opacity="0.15" filter="url(#flameFilter)" stroke-linecap="round">
+    <animate attributeName="opacity" values="0.15;0.3;0.1;0.25;0.15" dur="5s" repeatCount="indefinite"/>
+  </path>
+  <path d="M220 80 Q230 40 215 10 Q235 50 220 20 Q225 55 205 30" fill="none" stroke="#3b82f6" stroke-width="6" opacity="0.15" filter="url(#flameFilter)" stroke-linecap="round">
+    <animate attributeName="opacity" values="0.2;0.1;0.3;0.15;0.2" dur="4.5s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- === HOODED CLOAK - MAIN BODY === -->
+  <!-- Outer cloak - tattered -->
+  <path d="
+    M200 60 
+    C130 60 80 100 65 160 
+    L40 340 
+    C38 360 50 370 45 385 C40 400 55 395 50 410 C45 425 60 415 55 430 C50 445 68 438 60 450
+    L80 460 
+    C100 470 120 455 150 465 C170 472 185 458 200 470 
+    C215 458 230 472 250 465 C280 455 300 470 320 460 
+    L340 450 
+    C332 438 350 445 345 430 C340 415 355 425 350 410 C345 395 360 400 355 385 C350 370 362 360 360 340 
+    L335 160 
+    C320 100 270 60 200 60Z" 
+    fill="url(#hoodDark)" filter="url(#deepShadow)"/>
+
+  <!-- Inner darkness of hood -->
+  <path d="
+    M200 80 
+    C145 80 100 115 88 165 
+    L72 300 
+    C75 310 85 315 90 330 
+    L310 330 
+    C315 315 325 310 328 300 
+    L312 165 
+    C300 115 255 80 200 80Z" 
+    fill="url(#hoodInner)"/>
+
+  <!-- === HOOD TOP - Tattered fabric === -->
+  <path d="
+    M200 55 
+    C140 55 90 90 75 150 
+    L68 180 
+    C80 170 95 165 110 168 
+    C120 158 135 152 150 155 
+    C165 148 180 145 200 148 
+    C220 145 235 148 250 155 
+    C265 152 280 158 290 168 
+    C305 165 320 170 332 180 
+    L325 150 
+    C310 90 260 55 200 55Z" 
+    fill="url(#hoodDark)"/>
+
+  <!-- Tattered holes in hood -->
+  <path d="M120 130 Q125 120 135 125 Q130 135 120 130Z" fill="#050312" opacity="0.5"/>
+  <path d="M265 125 Q275 118 280 128 Q270 135 265 125Z" fill="#050312" opacity="0.4"/>
+  <path d="M155 110 Q162 102 168 108 Q160 118 155 110Z" fill="#050312" opacity="0.3"/>
+
+  <!-- Hood seam lines -->
+  <path d="M200 58 Q195 85 192 120 Q190 145 195 165" fill="none" stroke="#2a1560" stroke-width="1.5" opacity="0.4"/>
+  <path d="M200 58 Q205 85 208 120 Q210 145 205 165" fill="none" stroke="#2a1560" stroke-width="1.5" opacity="0.4"/>
+
+  <!-- === TATTERED FABRIC STRIPS === -->
+  <path d="M75 250 Q65 280 58 320 Q52 350 55 380 Q50 400 58 420" fill="none" stroke="#1a0a3e" stroke-width="4" opacity="0.5" stroke-linecap="round"/>
+  <path d="M85 270 Q78 300 72 340 Q68 370 72 400 Q65 425 70 445" fill="none" stroke="#1a0a3e" stroke-width="3" opacity="0.4" stroke-linecap="round"/>
+  <path d="M325 250 Q335 280 342 320 Q348 350 345 380 Q350 400 342 420" fill="none" stroke="#1a0a3e" stroke-width="4" opacity="0.5" stroke-linecap="round"/>
+  <path d="M315 270 Q322 300 328 340 Q332 370 328 400 Q335 425 330 445" fill="none" stroke="#1a0a3e" stroke-width="3" opacity="0.4" stroke-linecap="round"/>
+
+  <!-- === FACE AREA - Dark void === -->
+  <ellipse cx="200" cy="210" rx="72" ry="65" fill="#020108" opacity="0.95"/>
+
+  <!-- === EYES - Burning blue fire === -->
+  <!-- Left eye aura -->
+  <ellipse cx="170" cy="195" rx="35" ry="30" fill="url(#eyeAura)" filter="url(#eyeGlow)"/>
+  <!-- Left eye shape -->
+  <path d="M148 195 Q155 178 170 175 Q185 178 192 195 Q185 212 170 215 Q155 212 148 195Z" fill="#020108"/>
+  <!-- Left eye fire -->
+  <ellipse cx="170" cy="193" rx="16" ry="14" fill="url(#eyeFire)" filter="url(#eyeGlow)"/>
+  <ellipse cx="170" cy="191" rx="8" ry="7" fill="#ffffff" opacity="0.9"/>
+  <!-- Left pupil - vertical slit -->
+  <path d="M168 183 Q170 180 172 183 L174 193 Q170 200 166 193Z" fill="#020108" opacity="0.7"/>
+
+  <!-- Right eye aura -->
+  <ellipse cx="230" cy="195" rx="35" ry="30" fill="url(#eyeAura)" filter="url(#eyeGlow)"/>
+  <!-- Right eye shape -->
+  <path d="M208 195 Q215 178 230 175 Q245 178 252 195 Q245 212 230 215 Q215 212 208 195Z" fill="#020108"/>
+  <!-- Right eye fire -->
+  <ellipse cx="230" cy="193" rx="16" ry="14" fill="url(#eyeFire)" filter="url(#eyeGlow)"/>
+  <ellipse cx="230" cy="191" rx="8" ry="7" fill="#ffffff" opacity="0.9"/>
+  <!-- Right pupil - vertical slit -->
+  <path d="M228 183 Q230 180 232 183 L234 193 Q230 200 226 193Z" fill="#020108" opacity="0.7"/>
+
+  <!-- Eye light rays -->
+  <line x1="170" y1="180" x2="160" y2="160" stroke="#60a5fa" stroke-width="1" opacity="0.15"/>
+  <line x1="170" y1="180" x2="155" y2="170" stroke="#60a5fa" stroke-width="0.8" opacity="0.1"/>
+  <line x1="230" y1="180" x2="240" y2="160" stroke="#60a5fa" stroke-width="1" opacity="0.15"/>
+  <line x1="230" y1="180" x2="245" y2="170" stroke="#60a5fa" stroke-width="0.8" opacity="0.1"/>
+
+  <!-- === MACABRE SMILE === -->
+  <path d="M160 240 Q175 260 200 255 Q225 260 240 240" fill="none" stroke="#0f0524" stroke-width="2"/>
+  <path d="M160 240 Q175 258 200 253 Q225 258 240 240" fill="#020108" opacity="0.8"/>
+  
+  <!-- Smile inner glow -->
+  <path d="M165 242 Q180 255 200 250 Q220 255 235 242" fill="none" stroke="#1e3a8a" stroke-width="0.5" opacity="0.3"/>
+
+  <!-- Upper teeth - sharp fangs -->
+  <polygon points="165,240 172,256 179,240" fill="#e2e8f0" opacity="0.8"/>
+  <polygon points="181,242 188,260 195,242" fill="#cbd5e1" opacity="0.75"/>
+  <polygon points="197,243 204,262 211,243" fill="#e2e8f0" opacity="0.8"/>
+  <polygon points="213,242 220,258 227,242" fill="#cbd5e1" opacity="0.75"/>
+  <polygon points="229,240 234,254 238,240" fill="#e2e8f0" opacity="0.7"/>
+
+  <!-- Lower teeth -->
+  <polygon points="172,244 176,252 180,244" fill="#94a3b8" opacity="0.5"/>
+  <polygon points="192,246 196,256 200,246" fill="#94a3b8" opacity="0.5"/>
+  <polygon points="212,244 216,254 220,244" fill="#94a3b8" opacity="0.5"/>
+
+  <!-- === LEFT CLAW === -->
+  <!-- Arm coming from cloak -->
+  <path d="M65 320 Q50 340 35 360 Q25 375 18 390" fill="none" stroke="url(#clawGrad)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M65 320 Q50 340 35 360 Q25 375 18 390" fill="none" stroke="#1a0a3e" stroke-width="10" stroke-linecap="round"/>
+  
+  <!-- Claw fingers -->
+  <path d="M18 390 Q8 405 2 425 Q0 435 5 440" fill="none" stroke="#2e1065" stroke-width="5" stroke-linecap="round"/>
+  <path d="M22 388 Q18 410 15 430 Q14 440 18 445" fill="none" stroke="#2e1065" stroke-width="5" stroke-linecap="round"/>
+  <path d="M28 392 Q28 415 30 435 Q32 445 28 448" fill="none" stroke="#2e1065" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M34 390 Q38 412 42 430 Q44 438 40 442" fill="none" stroke="#2e1065" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Sharp nail tips -->
+  <path d="M5 440 Q2 448 8 455 Q12 448 8 442" fill="#4c1d95" opacity="0.9"/>
+  <path d="M18 445 Q15 453 21 458 Q25 452 20 447" fill="#4c1d95" opacity="0.9"/>
+  <path d="M28 448 Q26 456 32 460 Q35 454 30 449" fill="#4c1d95" opacity="0.9"/>
+  <path d="M40 442 Q38 450 44 455 Q47 448 42 443" fill="#4c1d95" opacity="0.85"/>
+
+  <!-- === RIGHT CLAW === -->
+  <path d="M335 320 Q350 340 365 360 Q375 375 382 390" fill="none" stroke="url(#clawGrad)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M335 320 Q350 340 365 360 Q375 375 382 390" fill="none" stroke="#1a0a3e" stroke-width="10" stroke-linecap="round"/>
+  
+  <!-- Claw fingers -->
+  <path d="M382 390 Q392 405 398 425 Q400 435 395 440" fill="none" stroke="#2e1065" stroke-width="5" stroke-linecap="round"/>
+  <path d="M378 388 Q382 410 385 430 Q386 440 382 445" fill="none" stroke="#2e1065" stroke-width="5" stroke-linecap="round"/>
+  <path d="M372 392 Q372 415 370 435 Q368 445 372 448" fill="none" stroke="#2e1065" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M366 390 Q362 412 358 430 Q356 438 360 442" fill="none" stroke="#2e1065" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Sharp nail tips -->
+  <path d="M395 440 Q398 448 392 455 Q388 448 392 442" fill="#4c1d95" opacity="0.9"/>
+  <path d="M382 445 Q385 453 379 458 Q375 452 380 447" fill="#4c1d95" opacity="0.9"/>
+  <path d="M372 448 Q374 456 368 460 Q365 454 370 449" fill="#4c1d95" opacity="0.9"/>
+  <path d="M360 442 Q362 450 356 455 Q353 448 358 443" fill="#4c1d95" opacity="0.85"/>
+
+  <!-- === SOUL PARTICLES / FLOATING EMBERS === -->
+  <circle cx="130" cy="150" r="2" fill="#60a5fa" opacity="0.5">
+    <animate attributeName="opacity" values="0.5;0;0.5" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="150;130;150" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="cx" values="130;125;130" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="270" cy="145" r="1.5" fill="#93c5fd" opacity="0.4">
+    <animate attributeName="opacity" values="0.4;0;0.4" dur="4s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="145;125;145" dur="4s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="200" cy="100" r="2.5" fill="#3b82f6" opacity="0.35">
+    <animate attributeName="opacity" values="0.35;0;0.35" dur="3.5s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="100;80;100" dur="3.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="100" cy="300" r="1.5" fill="#60a5fa" opacity="0.3">
+    <animate attributeName="opacity" values="0.3;0;0.3" dur="5s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="300;285;300" dur="5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="300" cy="290" r="2" fill="#93c5fd" opacity="0.25">
+    <animate attributeName="opacity" values="0.25;0;0.25" dur="4.5s" repeatCount="indefinite"/>
+    <animate attributeName="cy" values="290;275;290" dur="4.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="55" cy="200" r="1" fill="#bfdbfe" opacity="0.3">
+    <animate attributeName="opacity" values="0.3;0;0.3" dur="3.8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="345" cy="210" r="1.5" fill="#bfdbfe" opacity="0.25">
+    <animate attributeName="opacity" values="0.25;0;0.25" dur="4.2s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- === BOTTOM WISPY TENDRILS === -->
+  <path d="M80 460 Q60 475 45 490 Q35 500 40 510" fill="none" stroke="#1a0a3e" stroke-width="3" opacity="0.4" stroke-linecap="round">
+    <animate attributeName="d" values="M80 460 Q60 475 45 490 Q35 500 40 510;M80 460 Q65 478 50 492 Q40 502 45 508;M80 460 Q60 475 45 490 Q35 500 40 510" dur="5s" repeatCount="indefinite"/>
+  </path>
+  <path d="M120 468 Q110 485 100 500 Q95 510 100 515" fill="none" stroke="#2e1065" stroke-width="2.5" opacity="0.35" stroke-linecap="round">
+    <animate attributeName="d" values="M120 468 Q110 485 100 500 Q95 510 100 515;M120 468 Q115 488 105 502 Q100 512 105 513;M120 468 Q110 485 100 500 Q95 510 100 515" dur="4.5s" repeatCount="indefinite"/>
+  </path>
+  <path d="M280 468 Q290 485 300 500 Q305 510 300 515" fill="none" stroke="#2e1065" stroke-width="2.5" opacity="0.35" stroke-linecap="round">
+    <animate attributeName="d" values="M280 468 Q290 485 300 500 Q305 510 300 515;M280 468 Q285 488 295 502 Q300 512 295 513;M280 468 Q290 485 300 500 Q305 510 300 515" dur="4.5s" repeatCount="indefinite"/>
+  </path>
+  <path d="M320 460 Q340 475 355 490 Q365 500 360 510" fill="none" stroke="#1a0a3e" stroke-width="3" opacity="0.4" stroke-linecap="round">
+    <animate attributeName="d" values="M320 460 Q340 475 355 490 Q365 500 360 510;M320 460 Q335 478 350 492 Q360 502 355 508;M320 460 Q340 475 355 490 Q365 500 360 510" dur="5s" repeatCount="indefinite"/>
+  </path>
+</svg>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexus Miner - ERP de Prospecção B2B</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nexus Miner">
+  <link rel="apple-touch-icon" href="/assets/icon-192.png">
+
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/kanban.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body>
+  <!-- Login Page -->
+  <div id="page-login" class="page">
+    <div class="bg-grid"></div>
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="login-container">
+      <div class="login-card">
+        <div class="login-logo">
+          <div class="logo-icon-wrapper"><img src="/assets/logo.svg" alt="Logo"></div>
+          <h1>Nexus Miner</h1>
+          <p>Acesso restrito ao administrador</p>
+        </div>
+        <form id="login-form" class="login-form">
+          <div class="form-group">
+            <label for="login-user">Usuário</label>
+            <div class="input-wrapper">
+              <i data-lucide="user"></i>
+              <input type="text" id="login-user" placeholder="Digite seu usuário" autocomplete="username" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="login-pass">Senha</label>
+            <div class="input-wrapper">
+              <i data-lucide="lock"></i>
+              <input type="password" id="login-pass" placeholder="Digite sua senha" autocomplete="current-password" required>
+              <button type="button" class="toggle-password" onclick="toggleLoginPassword()"><i data-lucide="eye" id="login-eye"></i></button>
+            </div>
+          </div>
+          <div class="login-error" id="login-error"><i data-lucide="alert-circle"></i><span id="login-error-text"></span></div>
+          <button type="submit" class="btn-login" id="btn-login"><i data-lucide="log-in" id="login-btn-icon"></i><span id="login-btn-text">Entrar no Painel</span></button>
+        </form>
+        <div class="login-footer"><p>Nexus Miner &copy; 2026 &bull; ERP de Prospecção B2B</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Shell -->
+  <div id="app-shell" class="app-container">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="/assets/logo.svg" alt="Logo" class="sidebar-logo" style="border-radius:12px;">
+        <div>
+          <h2>Nexus Miner</h2>
+          <span class="logo-subtitle">B2B Lead Mining</span>
+        </div>
+      </div>
+      <nav class="sidebar-menu">
+        <a href="#/dashboard" class="menu-item" data-page="dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+        <a href="#/leads" class="menu-item" data-page="leads"><i data-lucide="search-code"></i><span>Minerar Leads</span></a>
+        <a href="#/kanban" class="menu-item" data-page="kanban"><i data-lucide="kanban-square"></i><span>Pipeline Kanban</span></a>
+        <a href="#/clients" class="menu-item" data-page="clients"><i data-lucide="users"></i><span>Clientes</span></a>
+        <a href="#/financial" class="menu-item" data-page="financial"><i data-lucide="dollar-sign"></i><span>Financeiro</span></a>
+        <a href="#/whatsapp" class="menu-item" data-page="whatsapp"><i data-lucide="message-circle"></i><span>WhatsApp</span></a>
+        <a href="#/reports" class="menu-item" data-page="reports"><i data-lucide="bar-chart-3"></i><span>Relatorios</span></a>
+        <a href="#/automation" class="menu-item admin-only" data-page="automation"><i data-lucide="bot"></i><span>Automacao</span></a>
+        <a href="#/plans" class="menu-item" data-page="plans"><i data-lucide="crown"></i><span>Planos</span></a>
+        <a href="#/referrals" class="menu-item" data-page="referrals"><i data-lucide="gift"></i><span>Indicar e Ganhar</span></a>
+        <a href="#/users" class="menu-item admin-only" data-page="users"><i data-lucide="shield"></i><span>Usuarios</span></a>
+        <a href="#/settings" class="menu-item" data-page="settings"><i data-lucide="settings"></i><span>Configuracoes</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <i data-lucide="user-circle"></i>
+          <span id="sidebar-user-name">Admin</span>
+          <span id="sidebar-user-role" class="role-badge">admin</span>
+        </div>
+        <button class="btn-logout" onclick="App.logout()"><i data-lucide="log-out"></i><span>Sair</span></button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="app-header">
+        <div class="header-info">
+          <h1 id="page-title">Dashboard</h1>
+          <p id="page-subtitle"></p>
+        </div>
+      </header>
+
+      <!-- Page containers -->
+      <div id="page-dashboard" class="page-content"></div>
+      <div id="page-leads" class="page-content" style="display:none;"></div>
+      <div id="page-kanban" class="page-content" style="display:none;"></div>
+      <div id="page-clients" class="page-content" style="display:none;"></div>
+      <div id="page-financial" class="page-content" style="display:none;"></div>
+      <div id="page-whatsapp" class="page-content" style="display:none;"></div>
+      <div id="page-reports" class="page-content" style="display:none;"></div>
+      <div id="page-automation" class="page-content" style="display:none;"></div>
+      <div id="page-plans" class="page-content" style="display:none;"></div>
+      <div id="page-referrals" class="page-content" style="display:none;"></div>
+      <div id="page-users" class="page-content" style="display:none;"></div>
+      <div id="page-settings" class="page-content" style="display:none;"></div>
+    </main>
+  </div>
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Modal container -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal-card" id="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title"></h3>
+        <button class="btn-close" onclick="App.closeModal()"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/modal.js"></script>
+  <script src="/js/components/charts.js"></script>
+  <script src="/js/components/ui.js"></script>
+  <script src="/js/pages/dashboard.js"></script>
+  <script src="/js/pages/leads.js"></script>
+  <script src="/js/pages/kanban.js"></script>
+  <script src="/js/pages/clients.js"></script>
+  <script src="/js/pages/financial.js"></script>
+  <script src="/js/pages/whatsapp.js"></script>
+  <script src="/js/pages/reports.js"></script>
+  <script src="/js/pages/automation.js"></script>
+  <script src="/js/pages/plans.js"></script>
+  <script src="/js/pages/referrals.js"></script>
+  <script src="/js/pages/users.js"></script>
+  <script src="/js/pages/settings.js"></script>
+  <script src="/js/app.js"></script>
+  <!-- Real-time notifications -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sonner@1.7.2/dist/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/sonner@1.7.2/dist/sonner.js"></script>
+  <script src="/js/notifications.js"></script>
+
+  <!-- OneSignal Web Push SDK -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    // PWA Service Worker registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(reg => {
+        console.log('[SW] Registrado:', reg.scope);
+      }).catch(err => console.error('[SW] Erro:', err));
+    }
+  </script>
+</body>
+</html>

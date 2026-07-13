@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Miner - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #070913;
+            --bg-secondary: rgba(13, 17, 33, 0.7);
+            --accent-primary: #818cf8;
+            --accent-primary-glow: rgba(129, 140, 248, 0.25);
+            --accent-secondary: #22d3ee;
+            --success: #10b981;
+            --danger: #f43f5e;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(10, 15, 30, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --glass-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.5);
+            --glass-blur: blur(20px);
+            --font-heading: 'Outfit', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(129, 140, 248, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(129, 140, 248, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 0;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            z-index: 0;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .bg-orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.3), transparent);
+            top: -10%; left: -5%;
+            animation-delay: 0s;
+        }
+
+        .bg-orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.2), transparent);
+            bottom: -15%; right: -5%;
+            animation-delay: -4s;
+        }
+
+        .bg-orb-3 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(244, 63, 94, 0.15), transparent);
+            top: 50%; left: 60%;
+            animation-delay: -2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.05); }
+            66% { transform: translate(-20px, 15px) scale(0.95); }
+        }
+
+        /* Login Container */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            padding: 1.5rem;
+        }
+
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            box-shadow: var(--glass-shadow);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Logo */
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo .logo-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 32px var(--accent-primary-glow);
+            animation: pulse-glow 3s ease-in-out infinite;
+            overflow: hidden;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 8px 32px var(--accent-primary-glow); }
+            50% { box-shadow: 0 8px 48px rgba(129, 140, 248, 0.4); }
+        }
+
+        .login-logo .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .login-logo h1 {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.3rem;
+        }
+
+        .login-logo p {
+            color: var(--text-tertiary);
+            font-size: 0.85rem;
+        }
+
+        /* Form */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.45rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            width: 18px;
+            height: 18px;
+            color: var(--text-tertiary);
+            transition: color 0.3s;
+            pointer-events: none;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.8rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--accent-primary);
+            background: rgba(129, 140, 248, 0.06);
+            box-shadow: 0 0 0 3px var(--accent-primary-glow);
+        }
+
+        .input-wrapper input:focus + i,
+        .input-wrapper input:focus ~ i {
+            color: var(--accent-primary);
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            padding: 4px;
+            transition: color 0.3s;
+        }
+
+        .toggle-password:hover {
+            color: var(--accent-primary);
+        }
+
+        .toggle-password i {
+            position: static;
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Login Button */
+        .btn-login {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--accent-primary), #6366f1);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: var(--font-heading);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+
+        .btn-login:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(129, 140, 248, 0.35);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-login i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn-login.loading {
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        .btn-login.loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error message */
+        .login-error {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            border-radius: 10px;
+            color: var(--danger);
+            font-size: 0.82rem;
+            font-weight: 500;
+            animation: shake 0.4s ease-in-out;
+        }
+
+        .login-error.visible {
+            display: flex;
+        }
+
+        .login-error i {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+
+        /* Footer */
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .login-footer p {
+            color: var(--text-tertiary);
+            font-size: 0.75rem;
+        }
+
+        .login-footer .secure-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--success);
+            font-size: 0.72rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .login-footer .secure-badge i {
+            width: 13px;
+            height: 13px;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 2rem 1.5rem;
+                border-radius: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="logo-icon">
+                    <img src="logo.jpg" alt="Nexus Miner Logo">
+                </div>
+                <h1>Nexus Miner</h1>
+                <p>Acesso restrito ao administrador</p>
+            </div>
+
+            <form class="login-form" id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-user">Usuário</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="login-user" placeholder="Digite seu usuário" autocomplete="username" required>
+                        <i data-lucide="user"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-pass">Senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="login-pass" placeholder="Digite sua senha" autocomplete="current-password" required>
+                        <i data-lucide="lock"></i>
+                        <button type="button" class="toggle-password" onclick="togglePasswordVisibility()">
+                            <i data-lucide="eye" id="eye-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="login-error" id="login-error">
+                    <i data-lucide="alert-circle"></i>
+                    <span id="login-error-text">Usuário ou senha incorretos.</span>
+                </div>
+
+                <button type="submit" class="btn-login" id="btn-login">
+                    <i data-lucide="log-in" id="btn-login-icon"></i>
+                    <span id="btn-login-text">Entrar no Painel</span>
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>Painel privado &bull; Acesso exclusivo</p>
+                <div class="secure-badge">
+                    <i data-lucide="shield-check"></i>
+                    <span>Conexão segura</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CREDENCIAIS - ALTERE AQUI
+        // ============================================
+        const VALID_USER = 'j7admin';
+        const VALID_PASS = 'j7docorre';
+        const AUTH_KEY = 'nexusminer_authenticated';
+        // ============================================
+
+        // Check if already logged in
+        if (localStorage.getItem(AUTH_KEY) === 'true') {
+            window.location.href = 'index.html';
+        }
+
+        lucide.createIcons();
+
+        function togglePasswordVisibility() {
+            const input = document.getElementById('login-pass');
+            const icon = document.getElementById('eye-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            const errorBox = document.getElementById('login-error');
+            const btn = document.getElementById('btn-login');
+            const btnText = document.getElementById('btn-login-text');
+            const btnIcon = document.getElementById('btn-login-icon');
+
+            // Hide previous errors
+            errorBox.classList.remove('visible');
+
+            // Loading state
+            btn.classList.add('loading');
+            btnText.textContent = 'Verificando...';
+            btnIcon.setAttribute('data-lucide', 'loader-2');
+            lucide.createIcons();
+
+            // Simulate verification delay for realism
+            setTimeout(() => {
+                // ============================================================
+                // SEGURANÇA: somente VALID_USER + VALID_PASS abre o painel.
+                // Credenciais de clientes (nexusminer_clients) NÃO têm acesso
+                // a este painel de administrador. São chaves completamente
+                // separadas e independentes, usadas apenas para identificação
+                // interna do assinante — nunca autenticam aqui.
+                // ============================================================
+                const isAdmin = (user === VALID_USER && pass === VALID_PASS);
+
+                if (isAdmin) {
+                    // Success - admin only
+                    localStorage.setItem(AUTH_KEY, 'true');
+                    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    btnText.textContent = 'Acesso liberado!';
+                    btnIcon.setAttribute('data-lucide', 'check-circle');
+                    lucide.createIcons();
+
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 600);
+                } else {
+                    // Failed - client credentials or wrong password both rejected
+                    errorBox.classList.add('visible');
+                    document.getElementById('login-error-text').textContent = 
+                        !user || !pass ? 'Preencha todos os campos.' : 'Usuário ou senha incorretos.';
+                    
+                    btn.classList.remove('loading');
+                    btnText.textContent = 'Entrar no Painel';
+                    btnIcon.setAttribute('data-lucide', 'log-in');
+                    lucide.createIcons();
+                }
+            }, 800);
+        }
+    </script>
+</body>
+</html>

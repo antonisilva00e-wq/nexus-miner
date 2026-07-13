@@ -1,0 +1,74 @@
+/* ==========================================================================
+   RESPONSIVE DESIGN - Premium Breakpoints
+   ========================================================================== */
+
+/* Large screens */
+@media (max-width: 1200px) {
+  .chart-grid { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+  .dashboard-charts-grid { grid-template-columns: 1fr; }
+  .dashboard-bottom-grid { grid-template-columns: 1fr; }
+  .dashboard-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .sidebar {
+    width: 70px;
+    padding: 1.5rem 0.5rem;
+    align-items: center;
+  }
+
+  .sidebar-header h2, .logo-subtitle, .menu-item span,
+  .sidebar-footer .user-info span, .sidebar-footer .user-info .role-badge,
+  .sidebar-footer .btn-logout span { display: none; }
+
+  .sidebar-header { justify-content: center; margin-bottom: 2rem; }
+  .menu-item { justify-content: center; padding: 0.7rem; }
+  .menu-item:hover { transform: scale(1.05); }
+  .main-content { margin-left: 70px; padding: 1.5rem; }
+
+  .kanban-board { flex-direction: column; }
+  .kanban-column { min-width: 100%; max-width: 100%; }
+
+  .dashboard-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .filters-bar { flex-direction: column; align-items: stretch; }
+  .search-box { max-width: 100%; }
+  .filters-actions { justify-content: space-between; }
+  .app-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .app-header h1 { font-size: 1.4rem; }
+
+  .dashboard-kpi-grid { grid-template-columns: 1fr; }
+  .quick-actions-bar { flex-direction: column; }
+  .quick-action-btn { justify-content: center; }
+
+  .recent-leads-table { font-size: 0.78rem; }
+  .recent-leads-table th, .recent-leads-table td { padding: 0.5rem 0.6rem; }
+
+  .login-container { padding: 1rem; }
+  .login-card { padding: 1.75rem; }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .login-card { padding: 1.5rem; }
+  .grid-3 { grid-template-columns: 1fr; }
+
+  .dashboard-kpi-grid .kpi-card { padding: 1rem; }
+  .kpi-value { font-size: 1.3rem; }
+  .kpi-icon-large { width: 42px; height: 42px; }
+
+  .main-content { padding: 1rem; }
+  .app-header h1 { font-size: 1.25rem; }
+
+  .toast-container { left: 1rem; right: 1rem; }
+  .toast { min-width: auto; }
+}

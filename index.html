@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Miner - Extrator de Leads e Inteligência B2B</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <script>
+        if (localStorage.getItem('nexusminer_authenticated') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header" style="align-items: center; gap: 0.75rem;">
+                <img src="logo.jpg" alt="Nexus Miner Logo" style="width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 15px rgba(129, 140, 248, 0.3); object-fit: cover;">
+                <div>
+                    <h2 style="font-family: var(--font-heading); font-size: 1.25rem; font-weight: 700; background: linear-gradient(135deg, #fff, var(--accent-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Nexus Miner</h2>
+                    <span class="logo-subtitle" style="letter-spacing: 0.05em; color: var(--accent-secondary);">B2B Lead Mining</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item active" id="menu-search" onclick="switchTab('search')">
+                    <i data-lucide="search-code"></i>
+                    <span>Minerar Leads</span>
+                </a>
+                <a href="#" class="menu-item" id="menu-crm" onclick="switchTab('crm')">
+                    <i data-lucide="kanban-square"></i>
+                    <span>Meu Funil (CRM)</span>
+                </a>
+                <a href="#" class="menu-item" id="menu-clients" onclick="switchTab('clients')">
+                    <i data-lucide="users"></i>
+                    <span>Gerenciar Clientes</span>
+                    <span id="clients-badge" class="sidebar-badge" style="display:none;"></span>
+                </a>
+                <a href="#" class="menu-item" id="menu-settings" onclick="switchTab('settings')">
+                    <i data-lucide="settings"></i>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+
+            <!-- Local Security Badge -->
+            <div class="privacy-badge">
+                <div class="privacy-badge-icon">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <div class="privacy-text">
+                    <strong>Painel Privado</strong>
+                    <span>Dados salvos localmente</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <button onclick="logoutNexusMiner()" style="width:100%;padding:0.65rem 1rem;background:rgba(244,63,94,0.1);border:1px solid rgba(244,63,94,0.2);border-radius:10px;color:#f43f5e;font-family:var(--font-body);font-size:0.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.45rem;transition:all 0.3s;margin-bottom:0.75rem;">
+                    <i data-lucide="log-out" style="width:15px;height:15px;"></i>
+                    <span>Sair do Painel</span>
+                </button>
+                <p>Nexus Miner &copy; 2026</p>
+                <span>Prospecção Inteligente</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-info">
+                    <h1 id="page-title">Minerar Leads</h1>
+                    <p class="text-secondary" id="current-date">Carregando data...</p>
+                </div>
+                <div class="security-indicator-banner">
+                    <i data-lucide="lock"></i>
+                    <span>Apenas você tem acesso a estas informações</span>
+                </div>
+            </header>
+
+            <!-- TAB 1: SEARCH / LEADS MINER -->
+            <div id="tab-search" class="tab-content active">
+                <!-- Search Inputs Panel -->
+                <section class="search-panel">
+                    <form id="search-leads-form" onsubmit="executeLeadSearch(event)">
+                        <div class="search-grid">
+                            <div class="form-group">
+                                <label for="search-keyword">Qual tipo de empresa busca?</label>
+                                <div class="input-wrapper">
+                                    <i data-lucide="briefcase" class="field-icon"></i>
+                                    <input type="text" id="search-keyword" required placeholder="Ex: Imobiliária, Restaurante, Academia, Clínica...">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="search-city">Em qual cidade/região?</label>
+                                <div class="input-wrapper">
+                                    <i data-lucide="map-pin" class="field-icon"></i>
+                                    <input type="text" id="search-city" required placeholder="Ex: São Paulo SP, Curitiba, Rio de Janeiro...">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="search-source">Fonte de Busca</label>
+                                <div class="select-wrapper field-select-wrapper">
+                                    <select id="search-source" onchange="toggleSourceAlert()">
+                                        <option value="free" selected>Gratuita (OpenStreetMap / Local)</option>
+                                        <option value="google">Google Maps API (Requer API Key)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="search-actions">
+                            <span class="source-info-alert" id="source-alert">
+                                <i data-lucide="info"></i>
+                                <span>Usando busca gratuita e base local de alta qualidade. Sem limites.</span>
+                            </span>
+                            <button type="submit" class="btn btn-primary" id="btn-search">
+                                <i data-lucide="send" id="icon-search-btn"></i>
+                                <span id="text-search-btn">Buscar Empresas</span>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Search Results Stats -->
+                <section class="results-stats" id="results-stats-panel" style="display: none;">
+                    <div class="stat-bubble">
+                        <span class="stat-label">Encontradas</span>
+                        <strong id="stat-total-found">0</strong>
+                    </div>
+                    <div class="stat-bubble">
+                        <span class="stat-label">Com Telefone</span>
+                        <strong id="stat-with-phone" class="color-cyan">0</strong>
+                    </div>
+                    <div class="stat-bubble">
+                        <span class="stat-label">Com Site/E-mail</span>
+                        <strong id="stat-with-web" class="color-purple">0</strong>
+                    </div>
+                </section>
+
+                <!-- Leads Grid -->
+                <section class="leads-container">
+                    <div class="leads-grid" id="leads-results-grid">
+                        <!-- Initial state visual -->
+                        <div class="initial-search-state">
+                            <i data-lucide="radar" class="radar-pulse-icon"></i>
+                            <h3>Pronto para prospectar</h3>
+                            <p>Preencha os campos acima para minerar contatos públicos de empresas de forma automatizada.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB 2: CRM / SALES FUNNEL -->
+            <div id="tab-crm" class="tab-content">
+                <!-- CRM Controls -->
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="crm-search-input" placeholder="Filtrar por empresa, telefone ou cidade..." oninput="renderCRM()">
+                    </div>
+                    <div class="filters-actions">
+                        <div class="select-wrapper">
+                            <select id="crm-filter-status" onchange="renderCRM()">
+                                <option value="">Todos os Status</option>
+                                <option value="novo">Novo Lead</option>
+                                <option value="ligado">Contato Feito</option>
+                                <option value="negociando">Em Negociação</option>
+                                <option value="fechado">Fechado (Cliente)</option>
+                                <option value="sem_interesse">Sem Interesse</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary" onclick="exportSavedLeadsToCSV()">
+                            <i data-lucide="download"></i>
+                            <span>Exportar Leads (CSV)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CRM Pipeline Table -->
+                <div class="table-container list-table-container">
+                    <table class="data-table" id="crm-table">
+                        <thead>
+                            <tr>
+                                <th>Empresa / Local</th>
+                                <th>Contatos Rápidos</th>
+                                <th>Status de Prospecção</th>
+                                <th>Notas e Histórico de Contato</th>
+                                <th class="text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="crm-leads-table-body">
+                            <!-- CRM leads injected here -->
+                        </tbody>
+                    </table>
+                    
+                    <div class="empty-state" id="crm-empty-state">
+                        <i data-lucide="user-check"></i>
+                        <p>Nenhum lead salvo no seu funil de prospecção.</p>
+                        <span class="text-secondary text-sm">Pesquise empresas e clique em "Salvar no Funil" para adicioná-las aqui.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: SETTINGS -->
+            <div id="tab-settings" class="tab-content">
+                <div class="settings-grid">
+                    <!-- Google Maps API Card -->
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h3><i data-lucide="key" style="vertical-align: middle; margin-right: 0.5rem; color: var(--accent-primary);"></i> Google Places API</h3>
+                            <p class="text-secondary" style="margin-top: 0.5rem;">Adicione sua chave oficial do Google Maps para fazer buscas em tempo real na base mais atualizada do mundo.</p>
+                        </div>
+                        <div class="settings-form" style="margin-top: 1.5rem;">
+                            <div class="form-group">
+                                <label for="google-api-key">Sua API Key do Google Cloud</label>
+                                <div class="input-wrapper">
+                                    <i data-lucide="shield-check" class="field-icon"></i>
+                                    <input type="password" id="google-api-key" placeholder="AIzaSy...">
+                                </div>
+                                <span class="text-tertiary text-sm" style="margin-top: 0.5rem;">* Sua chave fica salva apenas no seu navegador (localStorage) e é usada para consultas diretas ao Google.</span>
+                            </div>
+                            <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                                <button class="btn btn-primary" onclick="saveGoogleAPIKey()">Salvar Chave</button>
+                                <button class="btn btn-secondary" onclick="clearGoogleAPIKey()">Remover</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clean Database Card -->
+                    <div class="chart-card">
+                        <div class="chart-card-header">
+                            <h3><i data-lucide="trash-2" style="vertical-align: middle; margin-right: 0.5rem; color: var(--danger);"></i> Dados do Sistema</h3>
+                            <p class="text-secondary" style="margin-top: 0.5rem;">Limpar o armazenamento local de leads salvos e histórico.</p>
+                        </div>
+                        <div style="margin-top: 2rem;">
+                            <button class="btn btn-danger" onclick="resetSystemDatabase()">Resetar Banco Local</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: CLIENTS MANAGEMENT -->
+            <div id="tab-clients" class="tab-content">
+
+                <!-- Metrics Row -->
+                <div class="clients-metrics-row">
+                    <div class="client-metric-card">
+                        <div class="cmcard-icon" style="background: linear-gradient(135deg, #818cf8, #6366f1);">
+                            <i data-lucide="users"></i>
+                        </div>
+                        <div class="cmcard-info">
+                            <span class="cmcard-value" id="metric-total">0</span>
+                            <span class="cmcard-label">Total de Clientes</span>
+                        </div>
+                    </div>
+                    <div class="client-metric-card">
+                        <div class="cmcard-icon" style="background: linear-gradient(135deg, #34d399, #059669);">
+                            <i data-lucide="circle-check-big"></i>
+                        </div>
+                        <div class="cmcard-info">
+                            <span class="cmcard-value" id="metric-active">0</span>
+                            <span class="cmcard-label">Clientes Ativos</span>
+                        </div>
+                    </div>
+                    <div class="client-metric-card">
+                        <div class="cmcard-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i data-lucide="clock"></i>
+                        </div>
+                        <div class="cmcard-info">
+                            <span class="cmcard-value" id="metric-expiring">0</span>
+                            <span class="cmcard-label">Vencem em 7 dias</span>
+                        </div>
+                    </div>
+                    <div class="client-metric-card">
+                        <div class="cmcard-icon" style="background: linear-gradient(135deg, #38bdf8, #0284c7);">
+                            <i data-lucide="dollar-sign"></i>
+                        </div>
+                        <div class="cmcard-info">
+                            <span class="cmcard-value" id="metric-mrr">R$ 0</span>
+                            <span class="cmcard-label">Receita Mensal (MRR)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clients Table Card -->
+                <div class="chart-card" style="margin-top: 1.5rem;">
+                    <div class="chart-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+                        <div>
+                            <h3><i data-lucide="users" style="vertical-align:middle; margin-right:0.5rem; color:var(--accent-primary);"></i>Assinantes da Nexus Miner</h3>
+                            <p class="text-secondary" style="margin-top:0.35rem;">Gerencie os logins e planos dos seus clientes.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openClientModal()" style="white-space:nowrap;">
+                            <i data-lucide="user-plus"></i>
+                            <span>Novo Cliente</span>
+                        </button>
+                    </div>
+
+                    <!-- Search / Filter -->
+                    <div style="margin-top:1.25rem; margin-bottom:1rem;">
+                        <div class="input-wrapper" style="max-width:380px;">
+                            <i data-lucide="search" class="field-icon"></i>
+                            <input type="text" id="clients-search" placeholder="Buscar por nome, usuário ou e-mail..." oninput="renderClientsTable()">
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="crm-table" id="clients-table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Login / Usuário</th>
+                                    <th>Plano</th>
+                                    <th>Vencimento</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clients-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="empty-state" id="clients-empty-state">
+                        <i data-lucide="users"></i>
+                        <p>Nenhum cliente cadastrado ainda.</p>
+                        <span class="text-secondary text-sm">Clique em "Novo Cliente" para criar o primeiro acesso.</span>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Client Create / Edit Modal -->
+    <div class="modal-backdrop" id="client-modal-container">
+        <div class="modal-card" style="max-width: 560px;">
+            <div class="modal-header">
+                <h2 id="client-modal-title"><i data-lucide="user-plus" style="vertical-align:middle; margin-right:0.5rem; color:var(--accent-primary);"></i>Novo Cliente</h2>
+                <button class="modal-close-btn" onclick="closeClientModal()"><i data-lucide="x"></i></button>
+            </div>
+            <form id="client-form" onsubmit="saveClient(event)">
+                <input type="hidden" id="client-edit-id">
+                <div class="form-grid" style="margin-bottom:1.25rem;">
+                    <div class="form-group">
+                        <label for="client-name">Nome Completo *</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="user" class="field-icon"></i>
+                            <input type="text" id="client-name" required placeholder="Ex: João da Silva">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="client-email">E-mail</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="mail" class="field-icon"></i>
+                            <input type="email" id="client-email" placeholder="cliente@email.com">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-grid" style="margin-bottom:1.25rem;">
+                    <div class="form-group">
+                        <label for="client-username">Usuário (Login) *</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="at-sign" class="field-icon"></i>
+                            <input type="text" id="client-username" required placeholder="Ex: joaosilva">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="client-password">Senha *</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="lock" class="field-icon"></i>
+                            <input type="text" id="client-password" required placeholder="Mínimo 6 caracteres">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-grid" style="margin-bottom:1.25rem;">
+                    <div class="form-group">
+                        <label for="client-plan">Plano Contratado</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="zap" class="field-icon" style="top:13px;"></i>
+                            <select id="client-plan" style="width:100%;padding:0.85rem 1rem 0.85rem 2.8rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:12px;color:var(--text-primary);font-family:var(--font-body);font-size:0.9rem;outline:none;transition:all 0.3s;height:47px;">
+                                <option value="Starter">Starter - R$ 97/mês</option>
+                                <option value="Pro">Pro - R$ 197/mês</option>
+                                <option value="Business">Business - R$ 397/mês</option>
+                                <option value="Personalizado">Personalizado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="client-price">Valor Mensal (R$)</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="dollar-sign" class="field-icon"></i>
+                            <input type="number" id="client-price" min="0" step="0.01" placeholder="Ex: 197.00">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-grid" style="margin-bottom:1.5rem;">
+                    <div class="form-group">
+                        <label for="client-expiry">Vencimento da Assinatura *</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="calendar" class="field-icon"></i>
+                            <input type="date" id="client-expiry" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="client-phone">WhatsApp do Cliente</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="phone" class="field-icon"></i>
+                            <input type="text" id="client-phone" placeholder="(41) 99999-0000">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding-top:1.25rem; padding-bottom:0;">
+                    <button type="button" class="btn btn-secondary" onclick="closeClientModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i data-lucide="save"></i>
+                        <span>Salvar Cliente</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Client Credentials Modal -->
+    <div class="modal-backdrop" id="credentials-modal-container">
+        <div class="modal-card" style="max-width: 460px; text-align:center;">
+            <div class="modal-header">
+                <h2><i data-lucide="key" style="vertical-align:middle; margin-right:0.5rem; color:var(--accent-secondary);"></i>Credenciais Geradas</h2>
+                <button class="modal-close-btn" onclick="closeCredentialsModal()"><i data-lucide="x"></i></button>
+            </div>
+            <div style="padding:1.5rem 0;">
+                <div style="background:rgba(129,140,248,0.08); border:1px solid rgba(129,140,248,0.2); border-radius:14px; padding:1.5rem; margin-bottom:1rem; text-align:left;">
+                    <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.5rem;">USUÁRIO</p>
+                    <p id="cred-username" style="font-size:1.2rem; font-weight:700; color:var(--accent-primary); letter-spacing:0.05em;"></p>
+                    <p style="font-size:0.8rem; color:var(--text-secondary); margin:1rem 0 0.5rem;">SENHA</p>
+                    <p id="cred-password" style="font-size:1.2rem; font-weight:700; color:var(--accent-secondary); letter-spacing:0.05em;"></p>
+                </div>
+                <p style="font-size:0.8rem; color:var(--text-tertiary);">Envie estas credenciais para o cliente pelo WhatsApp. Salve-as antes de fechar esta janela.</p>
+            </div>
+            <div style="display:flex; gap:0.75rem; justify-content:center;">
+                <button class="btn btn-secondary" onclick="closeCredentialsModal()">Fechar</button>
+                <button class="btn btn-primary" onclick="copyCredentials()">
+                    <i data-lucide="copy"></i>
+                    <span>Copiar Credenciais</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notes Modal -->
+    <div class="modal-backdrop" id="notes-modal-container">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Notas de Prospecção</h3>
+                <button class="btn-close" onclick="closeNotesModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h4 id="notes-company-title" style="color: white; margin-bottom: 0.5rem;">Empresa</h4>
+                <p id="notes-company-address" class="text-secondary text-sm" style="margin-bottom: 1.5rem;">Endereço</p>
+                
+                <input type="hidden" id="notes-lead-id">
+                
+                <div class="form-group">
+                    <label for="lead-notes-textarea">Histórico de Contatos e Observações</label>
+                    <textarea id="lead-notes-textarea" rows="6" style="width: 100%; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--border-radius-sm); padding: 1rem; color: white; font-family: var(--font-body); resize: vertical;" placeholder="Escreva aqui detalhes da ligação, nome de quem atendeu, propostas, etc..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeNotesModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveLeadNotes()">
+                    <i data-lucide="save"></i>
+                    <span>Salvar Notas</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Lead Details Modal -->
+    <div class="modal-backdrop" id="edit-lead-modal-container">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Editar Detalhes do Lead</h3>
+                <button class="btn-close" onclick="closeEditLeadModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form-edit-lead" onsubmit="saveLeadDetails(event)" novalidate style="padding: 0;">
+                    <input type="hidden" id="edit-lead-id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-lead-name">Razão Social / Nome Fantasia *</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="building" class="field-icon"></i>
+                                <input type="text" id="edit-lead-name" required placeholder="Nome da empresa">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label for="edit-lead-cnpj">CNPJ</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="file-text" class="field-icon"></i>
+                                <input type="text" id="edit-lead-cnpj" placeholder="00.000.000/0000-00">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-lead-activity">Atividade Comercial / Categoria</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="tag" class="field-icon"></i>
+                                <input type="text" id="edit-lead-activity" placeholder="Ex: Imobiliária">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label for="edit-lead-phone">WhatsApp / Telefone *</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="phone" class="field-icon"></i>
+                                <input type="text" id="edit-lead-phone" required placeholder="(00) 00000-0000">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-lead-email">E-mail</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="mail" class="field-icon"></i>
+                                <input type="email" id="edit-lead-email" placeholder="contato@empresa.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label for="edit-lead-site">Website</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="globe" class="field-icon"></i>
+                                <input type="text" id="edit-lead-site" placeholder="www.empresa.com">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-lead-bank">Banco da Empresa</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="landmark" class="field-icon" style="top: 13px;"></i>
+                                <select id="edit-lead-bank" style="width: 100%; padding: 0.85rem 1rem 0.85rem 2.8rem; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.9rem; outline: none; transition: all 0.3s; height: 47px;">
+                                    <option value="341|Itaú Unibanco">Itaú Unibanco (341)</option>
+                                    <option value="237|Bradesco">Bradesco (237)</option>
+                                    <option value="001|Banco do Brasil">Banco do Brasil (001)</option>
+                                    <option value="033|Santander">Santander (033)</option>
+                                    <option value="104|Caixa Econômica">Caixa Econômica (104)</option>
+                                    <option value="260|Nubank">Nubank (260)</option>
+                                    <option value="748|Sicredi">Sicredi (748)</option>
+                                    <option value="756|Sicoob">Sicoob (756)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label for="edit-lead-address">Endereço Completo</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="map-pin" class="field-icon"></i>
+                                <input type="text" id="edit-lead-address" placeholder="Rua, número, bairro, cidade - UF">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-lead-owner">Responsável (Dono / Sócio)</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="user-check" class="field-icon"></i>
+                                <input type="text" id="edit-lead-owner" placeholder="Nome do proprietário">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer" style="padding-top: 1.5rem; padding-bottom: 0;">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditLeadModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i data-lucide="save"></i>
+                            <span>Salvar Alterações</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
