@@ -109,13 +109,14 @@ const SettingsPage = {
           : `<span style="color:var(--text-secondary);">Notificações desativadas</span>`;
       }
     } catch {}
-    Notifications.updateButtonState();
+    Notifications.updateButton();
   },
 
   async testPush() {
     try {
       const result = await API.post('/push/test');
       showToast(result.message || 'Notificação de teste enviada!', 'success');
+      Notifications.show({ type: 'lead', title: 'Teste!', message: 'Notificação funcionando!' });
     } catch (err) {
       showToast('Erro: ' + (err.message || 'Nenhum dispositivo registrado'), 'danger');
     }
