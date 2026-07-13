@@ -267,20 +267,16 @@ async function main() {
   });
 
   server.listen(config.port, '0.0.0.0', () => {
-    console.log('\n  ╔══════════════════════════════════════╗');
-    console.log('  ║     NEXUS MINER ERP v2.0             ║');
-    console.log('  ║     Seguranca: ATIVADA               ║');
-    console.log('  ╚══════════════════════════════════════╝');
-    console.log(`\n  Rodando em http://localhost:${config.port}`);
-    console.log(`  Ambiente: ${config.nodeEnv}`);
-    console.log(`  Seguranca: 6 camadas ativas`);
-    console.log(`  Socket.IO: ATIVADO`);
+    console.log(`[OK] Nexus Miner rodando na porta ${config.port}`);
+    console.log(`[OK] Ambiente: ${config.nodeEnv}`);
 
-    // Start auto backup
-    const { startAutoBackup } = require('./services/backupService');
-    startAutoBackup();
-    console.log(`  Backup: automatico (24h)`);
-    console.log('');
+    // Start auto backup (non-blocking)
+    try {
+      const { startAutoBackup } = require('./services/backupService');
+      startAutoBackup();
+    } catch (e) {
+      console.log('[WARN] Backup service não iniciou:', e.message);
+    }
   });
 }
 
