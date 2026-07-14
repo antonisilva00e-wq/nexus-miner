@@ -19,6 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="/js/lucide.min.js"></script>
   <script src="/js/chart.min.js"></script>
+  <script src="/js/jspdf.min.js?v=2"></script>
   <link rel="stylesheet" href="/css/variables.css">
   <link rel="stylesheet" href="/css/layout.css">
   <link rel="stylesheet" href="/css/components.css">
@@ -78,6 +79,7 @@
       <nav class="sidebar-menu">
         <a href="#/dashboard" class="menu-item" data-page="dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
         <a href="#/leads" class="menu-item" data-page="leads"><i data-lucide="search-code"></i><span>Minerar Leads</span></a>
+        <a href="#/map" class="menu-item" data-page="map"><i data-lucide="map-pin"></i><span>Mapa de Leads</span></a>
         <a href="#/kanban" class="menu-item" data-page="kanban"><i data-lucide="kanban-square"></i><span>Pipeline Kanban</span></a>
         <a href="#/clients" class="menu-item" data-page="clients"><i data-lucide="users"></i><span>Clientes</span></a>
         <a href="#/financial" class="menu-item" data-page="financial"><i data-lucide="dollar-sign"></i><span>Financeiro</span></a>
@@ -90,6 +92,9 @@
         <a href="#/settings" class="menu-item" data-page="settings"><i data-lucide="settings"></i><span>Configuracoes</span></a>
       </nav>
       <div class="sidebar-footer">
+        <button id="theme-toggle" onclick="Theme.toggle()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:var(--text-secondary);width:36px;height:36px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-bottom:8px;transition:all 0.2s;" title="Alternar tema">
+          <i data-lucide="sun" style="width:16px;height:16px;"></i>
+        </button>
         <div class="user-info">
           <i data-lucide="user-circle"></i>
           <span id="sidebar-user-name">Admin</span>
@@ -110,6 +115,7 @@
       <!-- Page containers -->
       <div id="page-dashboard" class="page-content"></div>
       <div id="page-leads" class="page-content" style="display:none;"></div>
+      <div id="page-map" class="page-content" style="display:none;"></div>
       <div id="page-kanban" class="page-content" style="display:none;"></div>
       <div id="page-clients" class="page-content" style="display:none;"></div>
       <div id="page-financial" class="page-content" style="display:none;"></div>
@@ -146,6 +152,7 @@
   <script src="/js/components/ui.js?v=2"></script>
   <script src="/js/pages/dashboard.js?v=2"></script>
   <script src="/js/pages/leads.js?v=2"></script>
+  <script src="/js/pages/map.js?v=2"></script>
   <script src="/js/pages/kanban.js?v=2"></script>
   <script src="/js/pages/clients.js?v=2"></script>
   <script src="/js/pages/financial.js?v=2"></script>
@@ -156,6 +163,8 @@
   <script src="/js/pages/referrals.js?v=2"></script>
   <script src="/js/pages/users.js?v=2"></script>
   <script src="/js/pages/settings.js?v=2"></script>
+  <script src="/js/pdf-export.js?v=2"></script>
+  <script src="/js/theme.js?v=2"></script>
   <script src="/js/app.js?v=2"></script>
   <!-- Real-time notifications -->
   <script src="/js/socket.io.min.js"></script>
@@ -163,6 +172,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sonner@1.7.2/dist/sonner.js"></script>
   <script src="/js/notifications.js?v=2"></script>
   <script src="/js/notification-center.js?v=2"></script>
+  <script src="/js/onboarding.js?v=2"></script>
 
   <!-- Force SW update -->
   <script>

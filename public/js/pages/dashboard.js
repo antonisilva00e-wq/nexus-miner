@@ -311,7 +311,30 @@ const DashboardPage = {
   },
 
   exportDashboard() {
-    window.open('/api/dashboard/export', '_blank');
+    // Generate PDF with current data
+    const data = {
+      totalLeads: document.querySelector('[data-counter]')?.dataset?.counter || 0,
+      conversionRate: 0,
+      mrr: 0,
+      activeClients: 0,
+      totalPipeline: 0,
+      newLeadsPeriod: 0,
+      pipeline: []
+    };
+
+    // Try to get real data from the page
+    try {
+      const cards = document.querySelectorAll('.kpi-value');
+      if (cards.length >= 5) {
+        data.totalLeads = parseInt(cards[0]?.textContent) || 0;
+        data.conversionRate = parseFloat(cards[1]?.textContent) || 0;
+        data.mrr = parseInt(cards[2]?.textContent?.replace(/[R$\s.]/g, '')) || 0;
+        data.activeClients = parseInt(cards[3]?.textContent) || 0;
+        data.totalPipeline = parseInt(cards[4]?.textContent) || 0;
+      }
+    } catch {}
+
+    PDFExport.generateDashboardPDF(data);
   },
 
   animateCounters() {

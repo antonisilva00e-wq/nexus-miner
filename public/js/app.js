@@ -5,6 +5,7 @@ const App = {
   pages: {
     dashboard: DashboardPage,
     leads: LeadsPage,
+    map: MapPage,
     kanban: KanbanPage,
     clients: ClientsPage,
     financial: FinancialPage,
@@ -19,6 +20,8 @@ const App = {
 
   init() {
     Auth.init();
+    // Init theme
+    if (typeof Theme !== 'undefined') Theme.init();
 
     // Login form
     const loginForm = document.getElementById('login-form');
@@ -66,6 +69,8 @@ const App = {
     Auth.applyRole();
     document.body.classList.add('logged-in');
     this.navigateTo('dashboard');
+    // Start onboarding for new users
+    if (typeof Onboarding !== 'undefined') Onboarding.init();
   },
 
   navigateTo(pageName) {
