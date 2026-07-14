@@ -66,9 +66,9 @@ router.post('/test', authenticate, async (req, res) => {
     return res.status(400).json({ error: 'Nenhum dispositivo registrado' });
   }
 
-  const subscription = { endpoint: subs[0].endpoint, keys: { p256dh: subs[0].keys_p256dh, auth: subs[0].keys_auth } };
-  try {
-    await sendPush(subscription, { title: '🔔 Nexus Miner', message: 'Notificações funcionando!', url: '/' });
+    const subscription = { endpoint: subs[0].endpoint, keys: { p256dh: subs[0].keys_p256dh, auth: subs[0].keys_auth } };
+    try {
+      await sendPush(subscription, { title: '🔔 Nexus Miner', message: 'Notificações funcionando! Você receberá alertas em tempo real.', url: '/', type: 'info' });
     res.json({ ok: true, message: 'Notificação de teste enviada!' });
   } catch (err) {
     // If subscription is expired/invalid, remove it

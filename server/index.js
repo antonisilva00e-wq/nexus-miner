@@ -55,11 +55,11 @@ async function main() {
   const { sendPush, broadcast } = require('./services/pushService');
 
   // Helper: send push to all subscribers
-  async function pushAll(title, message, url) {
+  async function pushAll(title, message, url, type) {
     try {
       const subs = db.prepare('SELECT * FROM push_subscriptions').all();
       const subscriptions = subs.map(s => ({ endpoint: s.endpoint, keys: { p256dh: s.keys_p256dh, auth: s.keys_auth } }));
-      if (subscriptions.length) await broadcast(subscriptions, { title, message, url });
+      if (subscriptions.length) await broadcast(subscriptions, { title, message, url, type });
     } catch {}
   }
 
@@ -67,21 +67,21 @@ async function main() {
     const { leadId, clientName, value, seller } = req.body;
     const notification = { type: 'sale', title: 'Nova Venda!', message: `${clientName || 'Cliente'} — R$ ${(value || 0).toLocaleString('pt-BR')}`, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('💰 Nova Venda!', notification.message, '/#/financial');
+    await pushAll('💰 Nova Venda!', notification.message, '/#/financial', 'sale');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/commission', async (req, res) => {
     const { sellerName, amount } = req.body;
     const notification = { type: 'commission', title: 'Comissão Recebida!', message: `${sellerName || 'Vendedor'} — R$ ${(amount || 0).toLocaleString('pt-BR')}`, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('🏆 Comissão!', notification.message, '/#/financial');
+    await pushAll('🏆 Comissão!', notification.message, '/#/financial', 'commission');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/lead', async (req, res) => {
     const { leadName, source, score } = req.body;
     const notification = { type: 'lead', title: 'Novo Lead!', message: `${leadName || 'Lead'} — Score: ${score || 0}`, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('🎯 Novo Lead!', notification.message, '/#/leads');
+    await pushAll('🎯 Novo Lead!', notification.message, '/#/leads', 'lead');
     res.json({ ok: true, notification });
   });
 

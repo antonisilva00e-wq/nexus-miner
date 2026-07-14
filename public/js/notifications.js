@@ -158,10 +158,39 @@ const Notifications = {
     return outputArray;
   },
 
-  show({ type, title, message }) {
-    const c = { sale: { icon: '💰', bg: 'linear-gradient(135deg, #10b981, #059669)', border: '#34d399', shadow: 'rgba(16,185,129,.3)' }, commission: { icon: '🏆', bg: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', border: '#a78bfa', shadow: 'rgba(139,92,246,.3)' }, lead: { icon: '🎯', bg: 'linear-gradient(135deg, #3b82f6, #2563eb)', border: '#60a5fa', shadow: 'rgba(59,130,246,.3)' }, info: { icon: 'ℹ️', bg: 'linear-gradient(135deg, #6366f1, #4f46e5)', border: '#818cf8', shadow: 'rgba(99,102,241,.3)' } };
+  show({ type, title, message, timestamp }) {
+    const c = {
+      sale: { icon: '💰', bg: 'linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%)', border: '#34d399', shadow: 'rgba(16,185,129,.4)', label: 'VENDA' },
+      commission: { icon: '🏆', bg: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a78bfa 100%)', border: '#a78bfa', shadow: 'rgba(139,92,246,.4)', label: 'COMISSÃO' },
+      lead: { icon: '🎯', bg: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%)', border: '#60a5fa', shadow: 'rgba(59,130,246,.4)', label: 'LEAD' },
+      info: { icon: 'ℹ️', bg: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%)', border: '#818cf8', shadow: 'rgba(99,102,241,.4)', label: 'INFO' }
+    };
     const s = c[type] || c.info;
-    sonner.toast(message, { title, icon: s.icon, style: { background: s.bg, color: '#fff', border: `1px solid ${s.border}`, borderRadius: '12px', padding: '16px 20px', boxShadow: `0 8px 32px ${s.shadow}` }, duration: 6000, position: 'top-right' });
+    const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    sonner.toast(message, {
+      title: `${s.icon} ${title}`,
+      description: `${s.label} • ${time}`,
+      style: {
+        background: 'rgba(15, 15, 30, 0.95)',
+        color: '#fff',
+        border: `1px solid ${s.border}`,
+        borderRadius: '16px',
+        padding: '20px 24px',
+        fontSize: '14px',
+        lineHeight: '1.5',
+        boxShadow: `0 20px 60px ${s.shadow}, 0 0 40px ${s.shadow}`,
+        backdropFilter: 'blur(20px)',
+        minWidth: '340px'
+      },
+      duration: 8000,
+      position: 'top-right',
+      classNames: {
+        toast: 'nexus-toast',
+        title: 'nexus-toast-title',
+        description: 'nexus-toast-desc'
+      }
+    });
   }
 };
 

@@ -9,15 +9,15 @@ if (vapidPublicKey && vapidPrivateKey) {
   console.log('[PUSH] VAPID configurado');
 }
 
-async function sendPush(subscription, { title, message, url }) {
+async function sendPush(subscription, { title, message, url, type }) {
   if (!vapidPublicKey) return null;
-  const payload = JSON.stringify({ title, message, url: url || '/' });
+  const payload = JSON.stringify({ title, message, url: url || '/', type: type || 'info' });
   return webpush.sendNotification(subscription, payload);
 }
 
-async function broadcast(subscriptions, { title, message, url }) {
+async function broadcast(subscriptions, { title, message, url, type }) {
   const results = await Promise.allSettled(
-    subscriptions.map(sub => sendPush(sub, { title, message, url }))
+    subscriptions.map(sub => sendPush(sub, { title, message, url, type }))
   );
   return results;
 }
