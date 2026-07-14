@@ -37,7 +37,19 @@ async function main() {
   app.use(require('cors')({ origin: '*' }));
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-  app.use(express.static(path.join(__dirname, '..', 'public'), { dotfiles: 'deny', index: false }));
+  app.use(express.static(path.join(__dirname, '..', 'public'), {
+    dotfiles: 'deny',
+    index: false,
+    maxAge: 0,
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html') || filePath.endsWith('.js') || filePath.endsWith('.css')) {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+        res.set('Surrogate-Control', 'no-store');
+      }
+    }
+  }));
 
   // 5. Push helper
   global.__notify = (type, title, message, data = {}) => {
