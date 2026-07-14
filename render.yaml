@@ -14,8 +14,10 @@ services:
         generateValue: true
       - key: DB_PATH
         value: ./data/nexusminer.db
-      - key: ONESIGNAL_APP_ID
-        sync: false
-      - key: ONESIGNAL_API_KEY
-        sync: false
+      - key: VAPID_PUBLIC_KEY
+        value: BM82vq0c6Eef9gzlCY2MXShyaSliXjz2WxEGf8A_QVeZtVrAe0sint1usY6fAvEEf1kVDm4ZZ5aGij4dtXTfEoU
+      - key: VAPID_PRIVATE_KEY
+        value: dcIhtVvN7b5zQo5nQYSsrnwr6m0dAQmAm0MUbkx3jaU
+      - key: VAPID_EMAIL
+        value: mailto:admin@nexusminer.com
     autoDeploy: true
