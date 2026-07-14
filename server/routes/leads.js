@@ -3,7 +3,7 @@ const { db } = require('../db');
 const { authenticate } = require('../middleware/auth');
 const { authorize } = require('../middleware/roles');
 const { generateId, paginate } = require('../utils/helpers');
-const { lookupCNPJ, lookupCPF, isValidCPF, searchNearbyBusinesses, mineLeads, generateValidCNPJ } = require('../services/leadService');
+const { lookupCNPJ, lookupCPF, isValidCPF, searchNearbyBusinesses, mineLeads, generateValidCNPJ, generateIndividualPeople } = require('../services/leadService');
 
 const router = express.Router();
 router.use(authenticate);
@@ -242,6 +242,35 @@ router.get('/cpf/:cpf', async (req, res) => {
     res.json({ data, fonte: data.fonte || 'Consulta CPF' });
   } catch (err) {
     res.status(500).json({ error: 'Erro na consulta: ' + err.message });
+  }
+});
+
+// POST /api/leads/mine-individuals - Mine individual people (Pessoa Física)
+router.post('/mine-individuals', async (req, res) => {
+  try {
+    const { category, city, count = 50 } = req.body;
+    if (!city) return res.status(400).json({ error: 'Cidade obrigatoria' });
+
+    const people = generateIndividualPeople(category, city, Math.min(parseInt(count) || 50, 200));
+
+    let saved = 0;
+    for (const p of people) {
+      try {
+        const id = `lead-${Date.now()}-${Math.random().toString(36).substr(2, 8)}`;
+        db.prepare(`INSERT INTO leads (id, name, activity, phone, email, address, city, state, owner, source, score, created_by)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+          .run(id, p.name, p.activity, p.phone, p.email, p.address, p.city, p.state, p.owner, p.source, p.score, req.user.id);
+        saved++;
+      } catch {}
+    }
+
+    if (saved > 0 && global.__notify) {
+      global.__notify('lead', 'PF Mineradas!', `${saved} pessoas geradas para ${city}`, { count: saved });
+    }
+
+    res.json({ total: people.length, saved, people });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro na mineração de PF: ' + err.message });
   }
 });
 

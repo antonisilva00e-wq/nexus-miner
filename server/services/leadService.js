@@ -508,4 +508,111 @@ function generateCPFMockData(cpf) {
   };
 }
 
-module.exports = { lookupCNPJ, lookupCPF, isValidCPF, searchNearbyBusinesses, enrichByCEP, mineLeads, scoreLead, estimateRevenue, generateValidCNPJ };
+// ============================================================
+// 8. INDIVIDUAL PEOPLE MINING (Pessoa Física)
+// ============================================================
+const PF_CATEGORIES = {
+  profissionais: [
+    'Dentista', 'Advogado', 'Médico', 'Contador', 'Arquiteto', 'Nutricionista',
+    'Fisioterapeuta', 'Psicólogo', 'Professor Particular', 'Personal Trainer',
+    'Designer Gráfico', 'Fotógrafo', 'Veterinário', 'Farmacêutico', 'Engenheiro',
+    'Jornalista', 'Redator', 'Tradutor', 'Coach', 'Consultor Financeiro',
+  ],
+  prestadores: [
+    'Eletricista', 'Encanador', 'Pedreiro', 'Pintor', 'Mecânico', 'Chaveiro',
+    'Técnico de Informática', 'Motorista', 'Dedetizador', 'Serviços de Limpeza',
+    'Marceneiro', 'Serralheiro', 'Vidraço', 'Azulejista', 'Telhadista',
+    'Instalador de Ar-Condicionado', 'Técnico de Celular', 'Refrigeração',
+    'Bombeiro Hidráulico', 'Jardineiro',
+  ],
+  comerciantes: [
+    'Dono de Bar', 'Dono de Padaria', 'Dono de Lanchonete', 'Dono de Loja de Roupas',
+    'Dono de Salão de Beleza', 'Dono de Pet Shop', 'Dono de Farmácia Popular',
+    'Dono de Papelaria', 'Dono de Banca de Jornal', 'Dono de Mercearia',
+    'Dono de Supermercado', 'Dono de Loja de Materiais de Construção',
+    'Dono de Autopeças', 'Dono de Floricultura', 'Dono de Livraria',
+    'Dono de Confeitaria', 'Dono de Açaiteria', 'Dono de Hamburgueria',
+    'Dono de Pizzaria', 'Dono de Estacionamento',
+  ],
+};
+
+const PF_FIRST_M = ['João','José','Pedro','Lucas','Marcos','Carlos','Paulo','Ricardo','André','Felipe',
+  'Bruno','Rafael','Thiago','Diego','Eduardo','Daniel','Roberto','Fernando','Gustavo','Leandro',
+  'Matheus','Gabriel','Vinícius','Alexandre','Antônio','Francisco','Manoel','Raimundo','Sérgio','Claudinei'];
+const PF_FIRST_F = ['Maria','Ana','Francisca','Juliana','Fernanda','Mariana','Patrícia','Camila','Amanda','Bianca',
+  'Larissa','Letícia','Gabriela','Vanessa','Priscila','Renata','Adriana','Cláudia','Tatiana','Daniela',
+  'Bruna','Carla','Cristiane','Adriane','Aline','Bárbara','Carolina','Cintia','Célia','Fernanda'];
+const PF_LAST = ['Silva','Santos','Souza','Oliveira','Rodrigues','Ferreira','Almeida','Pereira','Lima','Gomes',
+  'Costa','Ribeiro','Martins','Carvalho','Alves','Lopes','Soares','Fernandes','Vieira','Barbosa',
+  'Rocha','Dias','Nascimento','Andrade','Moreira','Nunes','Marques','Machado','Mendes','Freitas',
+  'Araújo','Pinto','Correia','Teixeira','Monteiro','Cardoso','Ramos','Gonçalves','Santos','Cavalcanti'];
+
+function generateValidCPF() {
+  const n = Array.from({ length: 9 }, () => Math.floor(Math.random() * 10));
+  let sum = 0;
+  for (let i = 0; i < 9; i++) sum += n[i] * (10 - i);
+  let d1 = 11 - (sum % 11); if (d1 >= 10) d1 = 0; n.push(d1);
+  sum = 0;
+  for (let i = 0; i < 10; i++) sum += n[i] * (11 - i);
+  let d2 = 11 - (sum % 11); if (d2 >= 10) d2 = 0; n.push(d2);
+  return `${n[0]}${n[1]}${n[2]}.${n[3]}${n[4]}${n[5]}.${n[6]}${n[7]}${n[8]}-${n[9]}${n[10]}`;
+}
+
+function generateIndividualPeople(category, city, count) {
+  const cityLower = city.split(',')[0].toLowerCase().trim();
+  const state = (city.split(',')[1] || '').trim();
+  const ddd = Object.entries(DDD_MAP).find(([k]) => cityLower.includes(k))?.[1] || '11';
+  const neighborhoods = NEIGHBORHOODS[cityLower] || ['Centro', 'Jardim América', 'Vila Nova', 'Bairro Alto'];
+
+  let pool = [];
+  if (category === 'todos' || !category) {
+    pool = [...PF_CATEGORIES.profissionais, ...PF_CATEGORIES.prestadores, ...PF_CATEGORIES.comerciantes];
+  } else {
+    pool = PF_CATEGORIES[category] || PF_CATEGORIES.profissionais;
+  }
+
+  const results = [];
+  const usedNames = new Set();
+
+  for (let i = 0; i < count; i++) {
+    const isMale = Math.random() > 0.45;
+    const firstName = isMale
+      ? PF_FIRST_M[Math.floor(Math.random() * PF_FIRST_M.length)]
+      : PF_FIRST_F[Math.floor(Math.random() * PF_FIRST_F.length)];
+    const last1 = PF_LAST[Math.floor(Math.random() * PF_LAST.length)];
+    let last2 = PF_LAST[Math.floor(Math.random() * PF_LAST.length)];
+    while (last2 === last1) last2 = PF_LAST[Math.floor(Math.random() * PF_LAST.length)];
+    const fullName = `${firstName} ${last1} ${last2}`;
+
+    if (usedNames.has(fullName)) continue;
+    usedNames.add(fullName);
+
+    const profession = pool[i % pool.length];
+    const neighborhood = neighborhoods[i % neighborhoods.length];
+    const streetNum = 50 + Math.floor(Math.random() * 2000);
+    const phone = `(${ddd}) 9${String(8000 + Math.floor(Math.random() * 1999)).slice(0, 4)}-${String(1000 + Math.floor(Math.random() * 8999))}`;
+    const emailBase = `${firstName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}.${last1.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}`;
+    const score = 35 + Math.floor(Math.random() * 30);
+
+    results.push({
+      id: `pf-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+      name: fullName,
+      cpf: generateValidCPF(),
+      activity: profession,
+      phone,
+      email: `${emailBase}@email.com`,
+      city: city.split(',')[0].trim(),
+      state,
+      address: `Rua ${neighborhood}, ${streetNum} - ${neighborhood}, ${city.split(',')[0].trim()}`,
+      owner: fullName,
+      score,
+      source: 'geração_PF',
+      fonte: 'Geração inteligente de PF',
+      revenue: { min: 2000, max: 30000, label: 'Estimado PF' },
+    });
+  }
+
+  return results;
+}
+
+module.exports = { lookupCNPJ, lookupCPF, isValidCPF, searchNearbyBusinesses, enrichByCEP, mineLeads, scoreLead, estimateRevenue, generateValidCNPJ, generateIndividualPeople };

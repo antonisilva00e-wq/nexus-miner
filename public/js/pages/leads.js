@@ -29,6 +29,39 @@ const LeadsPage = {
 
       <div class="card" style="margin-bottom:1.5rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f472b6,#ec4899);display:flex;align-items:center;justify-content:center;"><i data-lucide="users" style="color:white;width:20px;height:20px;"></i></div>
+          <div><h3 style="color:white;font-size:1.1rem;">Minerar Pessoas Físicas</h3><p style="color:var(--text-tertiary);font-size:0.8rem;">Gere contatos de profissionais, prestadores e comerciantes por cidade</p></div>
+        </div>
+        <div id="pf-category-tabs" style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-primary" onclick="LeadsPage.setPFCategory('profissionais')" id="pf-tab-profissionais" style="font-size:0.8rem;"><i data-lucide="briefcase"></i>Profissionais</button>
+          <button class="btn btn-sm btn-secondary" onclick="LeadsPage.setPFCategory('prestadores')" id="pf-tab-prestadores" style="font-size:0.8rem;"><i data-lucide="wrench"></i>Prestadores</button>
+          <button class="btn btn-sm btn-secondary" onclick="LeadsPage.setPFCategory('comerciantes')" id="pf-tab-comerciantes" style="font-size:0.8rem;"><i data-lucide="store"></i>Comerciantes</button>
+          <button class="btn btn-sm btn-secondary" onclick="LeadsPage.setPFCategory('todos')" id="pf-tab-todos" style="font-size:0.8rem;"><i data-lucide="layers"></i>Todos</button>
+        </div>
+        <form id="pf-mine-form" onsubmit="LeadsPage.mineIndividuals(event)">
+          <div style="display:grid;grid-template-columns:1.5fr auto auto;gap:1rem;align-items:end;">
+            <div class="form-group">
+              <label>Cidade / Estado</label>
+              <input type="text" id="pf-mine-city" placeholder="Ex: Curitiba PR, São Paulo SP..." required style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
+            </div>
+            <div class="form-group">
+              <label>Quantidade</label>
+              <select id="pf-mine-count" style="padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
+                <option value="20">20</option>
+                <option value="50" selected>50</option>
+                <option value="100">100</option>
+                <option value="150">150</option>
+                <option value="200">200</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-pf-mine" style="height:42px;background:linear-gradient(135deg,#ec4899,#be185d);"><i data-lucide="user-plus"></i>Minerar PF</button>
+          </div>
+        </form>
+        <div id="pf-mine-status" style="margin-top:0.75rem;"></div>
+      </div>
+
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
           <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#818cf8,#6366f1);display:flex;align-items:center;justify-content:center;"><i data-lucide="file-search" style="color:white;width:20px;height:20px;"></i></div>
           <div><h3 style="color:white;font-size:1.1rem;">Consulta CNPJ Real</h3><p style="color:var(--text-tertiary);font-size:0.8rem;">Dados direto da Receita Federal via BrasilAPI</p></div>
         </div>
@@ -148,6 +181,53 @@ const LeadsPage = {
 
     btn.disabled = false;
     btn.innerHTML = '<i data-lucide="radar"></i>Minerar';
+    lucide.createIcons();
+  },
+
+  // PF Mining
+  pfCategory: 'profissionais',
+
+  setPFCategory(cat) {
+    this.pfCategory = cat;
+    ['profissionais','prestadores','comerciantes','todos'].forEach(c => {
+      const tab = document.getElementById(`pf-tab-${c}`);
+      if (tab) {
+        tab.className = c === cat ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-secondary';
+      }
+    });
+  },
+
+  async mineIndividuals(e) {
+    e.preventDefault();
+    const city = document.getElementById('pf-mine-city').value.trim();
+    const count = parseInt(document.getElementById('pf-mine-count').value) || 50;
+    if (!city) return;
+
+    const btn = document.getElementById('btn-pf-mine');
+    const status = document.getElementById('pf-mine-status');
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2" class="spin-animation"></i>Minerando...';
+    status.innerHTML = '<p style="color:var(--accent-secondary);font-size:0.85rem;">Gerando contatos de pessoas físicas...</p>';
+    lucide.createIcons();
+
+    try {
+      const data = await API.post('/leads/mine-individuals', { category: this.pfCategory, city, count });
+      const people = data.people || [];
+      this.currentLeads = people;
+      this.renderResults(this.currentLeads);
+      document.getElementById('mine-count').textContent = `${people.length} pessoas encontradas | ${data.saved || 0} salvas no banco | Categoria: ${this.pfCategory}`;
+      status.innerHTML = `<div style="display:flex;gap:0.75rem;margin-top:0.5rem;flex-wrap:wrap;">
+        <span style="background:rgba(236,72,153,0.15);color:#ec4899;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;">${data.saved || 0} salvas automaticamente</span>
+        <span style="background:rgba(129,140,248,0.15);color:#818cf8;padding:4px 12px;border-radius:20px;font-size:0.8rem;">${people.length} contatos gerados</span>
+      </div>`;
+      showToast(`${people.length} pessoas físicas mineradas para ${city}!`, 'success');
+    } catch (err) {
+      status.innerHTML = `<p style="color:#f43f5e;font-size:0.85rem;">Erro: ${err.message}</p>`;
+      showToast('Erro na mineração de PF: ' + err.message, 'danger');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="user-plus"></i>Minerar PF';
     lucide.createIcons();
   },
 
