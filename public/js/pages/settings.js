@@ -21,7 +21,7 @@ const SettingsPage = {
 
         <div class="card">
           <div class="card-header"><h3><i data-lucide="bell"></i>Notificações Push</h3></div>
-          <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1rem;">Receba alertas no celular e PC mesmo com o painel fechado.</p>
+          <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1rem;">Receba alertas no celular e PC mesmo com o painel fechado. Toque no sininho para ver o histórico.</p>
           <div id="push-status" style="margin-bottom:1rem;padding:0.75rem;border-radius:var(--border-radius-sm);background:rgba(255,255,255,0.03);border:1px solid var(--border-color);">
             <span style="color:var(--text-secondary);font-size:0.85rem;">Verificando status...</span>
           </div>
@@ -31,6 +31,9 @@ const SettingsPage = {
             </button>
             <button class="btn btn-secondary" onclick="SettingsPage.testPush()">
               <i data-lucide="send"></i><span>Testar</span>
+            </button>
+            <button class="btn btn-secondary" onclick="NC.open()">
+              <i data-lucide="inbox"></i><span>Centro de Notificações</span>
             </button>
           </div>
         </div>
@@ -116,7 +119,9 @@ const SettingsPage = {
     try {
       const result = await API.post('/push/test');
       showToast(result.message || 'Notificação de teste enviada!', 'success');
-      Notifications.show({ type: 'lead', title: 'Teste!', message: 'Notificação funcionando!' });
+      NC.add('sale', 'Teste de Venda', 'Empresa Tech Solutions — R$ 4.500,00', '/#/financial');
+      setTimeout(() => NC.add('commission', 'Comissão Exemplo', 'João Silva — R$ 225,00 por indicação', '/#/financial'), 1500);
+      setTimeout(() => NC.add('lead', 'Lead Exemplo', 'Startup Inova — Score: 92 (mineração)', '/#/leads'), 3000);
     } catch (err) {
       showToast('Erro: ' + (err.message || 'Nenhum dispositivo registrado'), 'danger');
     }

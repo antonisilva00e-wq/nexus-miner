@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="/css/kanban.css">
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/animations.css">
+  <link rel="stylesheet" href="/css/notifications.css?v=2">
 </head>
 <body>
   <!-- Login Page -->
@@ -161,13 +162,12 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sonner@1.7.2/dist/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/sonner@1.7.2/dist/sonner.js"></script>
   <script src="/js/notifications.js?v=2"></script>
+  <script src="/js/notification-center.js?v=2"></script>
 
-  <!-- Force SW update on new deploy -->
+  <!-- Force SW update -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistration().then(reg => {
-        if (reg) reg.update();
-      });
+      navigator.serviceWorker.getRegistration().then(reg => { if (reg) reg.update(); });
     }
   </script>
 </body>
