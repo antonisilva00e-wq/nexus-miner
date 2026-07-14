@@ -283,7 +283,9 @@ const corsOptions = {
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:3001',
-    ];
+      'https://nexus-miner.onrender.com',
+      process.env.APP_URL,
+    ].filter(Boolean);
 
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
