@@ -10,6 +10,7 @@ const App = {
     clients: ClientsPage,
     financial: FinancialPage,
     whatsapp: WhatsAppPage,
+    telegram: TelegramPage,
     reports: ReportsPage,
     automation: AutomationPage,
     plans: PlansPage,

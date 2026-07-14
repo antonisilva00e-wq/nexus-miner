@@ -107,6 +107,7 @@ async function main() {
     '/api/integrations': './routes/integrations',
     '/api/referrals': './routes/referrals',
     '/api/push': './routes/push',
+    '/api/telegram': './routes/telegram',
   };
   for (const [mount, file] of Object.entries(routeMap)) {
     try { app.use(mount, require(file)); } catch (e) { console.error(`[ROUTE] ${mount}:`, e.message); }
