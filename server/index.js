@@ -52,25 +52,36 @@ async function main() {
   });
 
   // 7. Webhooks
-  const { sendPush } = require('./services/pushService');
+  const { sendPush, broadcast } = require('./services/pushService');
+
+  // Helper: send push to all subscribers
+  async function pushAll(title, message, url) {
+    try {
+      const subs = db.prepare('SELECT * FROM push_subscriptions').all();
+      const subscriptions = subs.map(s => ({ endpoint: s.endpoint, keys: { p256dh: s.keys_p256dh, auth: s.keys_auth } }));
+      if (subscriptions.length) await broadcast(subscriptions, { title, message, url });
+    } catch {}
+  }
+
   app.post('/api/webhook/sale', async (req, res) => {
     const { leadId, clientName, value, seller } = req.body;
     const notification = { type: 'sale', title: 'Nova Venda!', message: `${clientName || 'Cliente'} — R$ ${(value || 0).toLocaleString('pt-BR')}`, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    try { const tokens = db.prepare('SELECT player_id FROM device_tokens').all(); if (tokens.length) await sendPush({ title: '💰 Nova Venda!', message: notification.message, url: '/#/financial', includePlayerIds: tokens.map(t => t.player_id) }); } catch {}
+    await pushAll('💰 Nova Venda!', notification.message, '/#/financial');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/commission', async (req, res) => {
     const { sellerName, amount } = req.body;
     const notification = { type: 'commission', title: 'Comissão Recebida!', message: `${sellerName || 'Vendedor'} — R$ ${(amount || 0).toLocaleString('pt-BR')}`, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    try { const tokens = db.prepare('SELECT player_id FROM device_tokens').all(); if (tokens.length) await sendPush({ title: '🏆 Comissão!', message: notification.message, url: '/#/financial', includePlayerIds: tokens.map(t => t.player_id) }); } catch {}
+    await pushAll('🏆 Comissão!', notification.message, '/#/financial');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/lead', async (req, res) => {
     const { leadName, source, score } = req.body;
     const notification = { type: 'lead', title: 'Novo Lead!', message: `${leadName || 'Lead'} — Score: ${score || 0}`, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
+    await pushAll('🎯 Novo Lead!', notification.message, '/#/leads');
     res.json({ ok: true, notification });
   });
 

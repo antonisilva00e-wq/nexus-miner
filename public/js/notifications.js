@@ -1,101 +1,120 @@
-// Real-time notifications + Push via OneSignal
+// Push notifications using native Web Push API (no OneSignal)
 const Notifications = {
   socket: null,
-  onesignalReady: false,
+  swRegistration: null,
+  vapidPublicKey: null,
 
-  init() {
+  async init() {
     if (this.socket) return;
 
-    // Socket.IO
+    // Socket.IO for real-time
     this.socket = io(window.location.origin, { transports: ['websocket', 'polling'] });
     this.socket.on('connect', () => console.log('[SOCKET] OK'));
     this.socket.on('notification', (data) => this.show(data));
 
-    // OneSignal init (with retry)
-    this.retryInit(0);
-  },
-
-  retryInit(attempt) {
-    if (typeof OneSignal !== 'undefined') {
-      this.initOneSignal();
-    } else if (attempt < 10) {
-      setTimeout(() => this.retryInit(attempt + 1), 500);
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      try {
+        this.swRegistration = await navigator.serviceWorker.register('/sw.js');
+        console.log('[SW] Registrado');
+      } catch (e) {
+        console.error('[SW] Erro:', e);
+      }
     }
-  },
 
-  async initOneSignal() {
+    // Fetch VAPID public key
     try {
-      if (location.protocol !== 'https:' && location.hostname !== 'localhost') return;
+      const res = await fetch('/api/push/vapid-public-key');
+      const data = await res.json();
+      this.vapidPublicKey = data.publicKey;
+    } catch {}
 
-      const res = await fetch('/api/config');
-      const { onesignalAppId } = await res.json();
-      if (!onesignalAppId) return;
-
-      await OneSignal.init({
-        appId: onesignalAppId,
-        notifyButton: { enable: false },
-        allowLocalhostAsSecureOrigin: true,
-        welcomeNotification: { disable: true },
-        serviceWorkerUrl: '/OneSignalSDKWorker.js',
-        serviceWorkerParam: { scope: '/' }
-      });
-
-      this.onesignalReady = true;
-      console.log('[PUSH] OneSignal OK');
-      this.updateButton();
-    } catch (e) {
-      console.error('[PUSH] Erro:', e);
-    }
+    this.updateButton();
   },
 
   async requestPermission() {
-    if (!this.onesignalReady) {
-      showToast('Aguarde o carregamento completo...', 'warning');
-      // Retry in 2 seconds
-      setTimeout(() => this.retryInit(0), 2000);
-      return;
-    }
-
     const user = this.getCurrentUser();
     if (!user) { showToast('Faça login primeiro', 'error'); return; }
+    if (!this.swRegistration) { showToast('Service Worker não disponível', 'error'); return; }
+    if (!this.vapidPublicKey) { showToast('Push não configurado no servidor', 'error'); return; }
 
     try {
-      const perm = await OneSignal.Notifications.requestPermission();
-      if (perm === 'granted') {
-        await this.registerToken();
+      // Request browser permission
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        showToast('Permissão negada', 'error');
+        return;
+      }
+
+      // Subscribe to push
+      const applicationServerKey = this.urlBase64ToUint8Array(this.vapidPublicKey);
+      const subscription = await this.swRegistration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey
+      });
+
+      // Save subscription on server
+      const sub = subscription.toJSON();
+      const res = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('nexus_access_token')
+        },
+        body: JSON.stringify({
+          endpoint: sub.endpoint,
+          keys: sub.keys
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
         showToast('Notificações ativadas!', 'success');
       } else {
-        showToast('Permissão negada', 'error');
+        showToast(data.error || 'Erro ao ativar', 'error');
       }
+      this.updateButton();
     } catch (e) {
       showToast('Erro: ' + e.message, 'error');
     }
   },
 
-  async registerToken() {
+  async unsubscribe() {
+    const user = this.getCurrentUser();
+    if (!user) return;
+
     try {
-      const user = this.getCurrentUser();
-      if (!user) return;
-      const sub = await OneSignal.User.pushSubscription.getSubscriptionId();
-      if (!sub) return;
-      await fetch('/api/push/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('nexus_access_token') },
-        body: JSON.stringify({ playerId: sub, platform: 'web' })
-      });
-    } catch (e) { console.error('[PUSH] register:', e); }
+      const subscription = await this.swRegistration.pushManager.getSubscription();
+      if (subscription) {
+        await fetch('/api/push/unsubscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('nexus_access_token')
+          },
+          body: JSON.stringify({ endpoint: subscription.endpoint })
+        });
+        await subscription.unsubscribe();
+      }
+      showToast('Notificações desativadas', 'info');
+      this.updateButton();
+    } catch (e) {
+      console.error('[PUSH] unsubscribe:', e);
+    }
   },
 
   async testPush() {
     try {
       const res = await fetch('/api/push/test', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('nexus_access_token') }
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('nexus_access_token')
+        }
       });
       const data = await res.json();
       if (res.ok) {
         showToast(data.message, 'success');
-        this.show({ type: 'lead', title: 'Teste!', message: 'Notificação funcionando!' });
       } else {
         showToast(data.error || 'Erro ao enviar', 'error');
       }
@@ -107,14 +126,18 @@ const Notifications = {
   async updateButton() {
     const btn = document.getElementById('btn-push-notifications');
     if (!btn) return;
-    try {
-      const enabled = await OneSignal.Notifications.isPushPermissionGranted();
-      btn.innerHTML = enabled
-        ? '<i data-lucide="bell-off"></i><span>Desativar Notificações</span>'
-        : '<i data-lucide="bell"></i><span>Ativar Notificações</span>';
-      btn.classList.toggle('active', enabled);
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-    } catch {}
+
+    let subscribed = false;
+    if (this.swRegistration) {
+      const sub = await this.swRegistration.pushManager.getSubscription();
+      subscribed = !!sub;
+    }
+
+    btn.innerHTML = subscribed
+      ? '<i data-lucide="bell-off"></i><span>Desativar Notificações</span>'
+      : '<i data-lucide="bell"></i><span>Ativar Notificações</span>';
+    btn.classList.toggle('active', subscribed);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
   },
 
   getCurrentUser() {
@@ -124,6 +147,15 @@ const Notifications = {
       const p = JSON.parse(atob(t.split('.')[1]));
       return { id: p.userId };
     } catch { return null; }
+  },
+
+  urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
   },
 
   show({ type, title, message }) {
