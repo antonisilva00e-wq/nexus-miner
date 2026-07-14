@@ -20,12 +20,13 @@ try { db.prepare('ALTER TABLE clients ADD COLUMN commission_balance REAL DEFAULT
 
 // GET /api/referrals/my-code - Meu código de convite (requer login)
 router.get('/my-code', authenticate, (req, res) => {
+  const baseUrl = process.env.APP_URL || 'https://nexus-miner.onrender.com';
   let client = db.prepare('SELECT invite_code FROM clients WHERE id = ?').get(req.user.id);
   if (!client || !client.invite_code) {
     const code = generateInviteCode(req.user.id);
-    res.json({ code, link: `http://localhost:3000/#/register?ref=${code}` });
+    res.json({ code, link: `${baseUrl}/#/register?ref=${code}` });
   } else {
-    res.json({ code: client.invite_code, link: `http://localhost:3000/#/register?ref=${client.invite_code}` });
+    res.json({ code: client.invite_code, link: `${baseUrl}/#/register?ref=${client.invite_code}` });
   }
 });
 
