@@ -84,9 +84,9 @@ const App = {
       }
     }
 
-    // Only admin can access users page
-    if (pageName === 'users' && !Auth.isAdmin()) {
-      showToast('Apenas o administrador pode gerenciar usuários', 'warning');
+    // Only admin can access users and clients pages
+    if ((pageName === 'users' || pageName === 'clients') && !Auth.isAdmin()) {
+      showToast('Apenas o administrador pode acessar esta página', 'warning');
       return;
     }
 

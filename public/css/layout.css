@@ -242,6 +242,7 @@ body.role-admin .admin-only { display: flex !important; }
 /* Admin-only pages - hide from everyone except admin via CSS */
 body:not(.role-admin) .menu-item[data-page="users"] { display: none !important; }
 body:not(.role-admin) .menu-item[data-page="automation"] { display: none !important; }
+body:not(.role-admin) .menu-item[data-page="clients"] { display: none !important; }
 body:not(.role-admin) #page-users { display: none !important; }
 
 /* ==========================================================================

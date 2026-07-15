@@ -68,7 +68,7 @@ const Auth = {
     document.querySelectorAll('.menu-item').forEach(el => {
       const page = el.dataset.page;
       const clientBlocked = ['automation', 'users', 'financial', 'templates', 'settings', 'clients'];
-      const nonAdminBlocked = ['users']; // Only admin can see users page
+      const nonAdminBlocked = ['users', 'clients']; // Only admin can see users and clients pages
 
       if (isClient && clientBlocked.includes(page)) {
         el.style.display = 'none';
