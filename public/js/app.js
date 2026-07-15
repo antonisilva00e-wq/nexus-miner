@@ -84,6 +84,12 @@ const App = {
       }
     }
 
+    // Only admin can access users page
+    if (pageName === 'users' && !Auth.isAdmin()) {
+      showToast('Apenas o administrador pode gerenciar usuários', 'warning');
+      return;
+    }
+
     // Hide all page-content
     document.querySelectorAll('.page-content').forEach(el => el.style.display = 'none');
 
