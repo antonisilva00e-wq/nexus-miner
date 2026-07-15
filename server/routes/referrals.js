@@ -17,10 +17,11 @@ const router = express.Router();
 try { db.prepare('ALTER TABLE clients ADD COLUMN invite_code TEXT'); } catch {}
 try { db.prepare('ALTER TABLE clients ADD COLUMN referred_by TEXT'); } catch {}
 try { db.prepare('ALTER TABLE clients ADD COLUMN commission_balance REAL DEFAULT 0'); } catch {}
+try { db.prepare('ALTER TABLE users ADD COLUMN invite_code TEXT'); } catch {}
 
 // GET /api/referrals/my-code - Meu código de convite (requer login)
 router.get('/my-code', authenticate, (req, res) => {
-  const baseUrl = process.env.APP_URL || 'https://nexus-miner.onrender.com';
+  const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
   let client = db.prepare('SELECT invite_code FROM clients WHERE id = ?').get(req.user.id);
   if (!client || !client.invite_code) {
     const code = generateInviteCode(req.user.id);
@@ -52,34 +53,39 @@ router.get('/stats', authenticate, authorize('admin'), (req, res) => {
 
 // POST /api/referrals/register - Cadastro via código de convite (público)
 router.post('/register', (req, res) => {
-  const { code, name, email, username, password, plan, price } = req.body;
-  if (!code || !name || !email || !username || !password) {
-    return res.status(400).json({ error: 'Todos os campos sao obrigatorios' });
+  try {
+    const { code, name, email, username, password, plan, price } = req.body;
+    if (!code || !name || !email || !username || !password) {
+      return res.status(400).json({ error: 'Todos os campos sao obrigatorios' });
+    }
+
+    const referrer = getReferrerByCode(code);
+    if (!referrer) return res.status(404).json({ error: 'Codigo de convite invalido' });
+
+    // Verificar se usuario já existe
+    const existing = db.prepare('SELECT id FROM clients WHERE username = ?').get(username);
+    if (existing) return res.status(409).json({ error: 'Usuario ja existe' });
+
+    const result = registerReferral(referrer.id, {
+      name, email, username, password,
+      plan: plan || 'Gratuito',
+      price: price || 0,
+    });
+
+    // Real-time notification for commission
+    if (global.__notify) {
+      global.__notify('commission', 'Comissão Recebida!', `${referrer.name} — R$ ${(result.commission || 0).toLocaleString('pt-BR')} por indicação de ${name}`, { referrerId: referrer.id, newClient: name });
+    }
+
+    res.status(201).json({
+      message: 'Conta criada com sucesso!',
+      commission: result.commission || 0,
+      referredBy: referrer.name,
+    });
+  } catch (err) {
+    console.error('[REFERRAL REGISTER]', err);
+    res.status(500).json({ error: 'Erro interno: ' + err.message });
   }
-
-  const referrer = getReferrerByCode(code);
-  if (!referrer) return res.status(404).json({ error: 'Codigo de convite invalido' });
-
-  // Verificar se usuario já existe
-  const existing = db.prepare('SELECT id FROM clients WHERE username = ?').get(username);
-  if (existing) return res.status(409).json({ error: 'Usuario ja existe' });
-
-  const result = registerReferral(referrer.id, {
-    name, email, username, password,
-    plan: plan || 'Mensal',
-    price: price || 97,
-  });
-
-  // Real-time notification for commission
-  if (global.__notify) {
-    global.__notify('commission', 'Comissão Recebida!', `${referrer.name} — R$ ${result.commission.toLocaleString('pt-BR')} por indicação de ${name}`, { referrerId: referrer.id, newClient: name });
-  }
-
-  res.status(201).json({
-    message: 'Conta criada com sucesso!',
-    commission: result.commission,
-    referredBy: referrer.name,
-  });
 });
 
 module.exports = router;

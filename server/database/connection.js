@@ -60,8 +60,12 @@ function createWrapper(database) {
     prepare(sql) {
       return {
         run(...params) {
-          database.run(sql, params);
+          const stmt = database.prepare(sql);
+          stmt.bind(params);
+          stmt.step();
+          stmt.free();
           saveDatabase();
+          return { changes: database.getRowsModified() };
         },
         get(...params) {
           const stmt = database.prepare(sql);

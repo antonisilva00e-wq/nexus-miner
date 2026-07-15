@@ -15,8 +15,15 @@ function generateInviteCode(clientId) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   for (let i = 0; i < 8; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
 
-  // Salvar no banco
-  db.prepare('UPDATE clients SET invite_code = ? WHERE id = ?').run(code, clientId);
+  // Try clients table first, then users table
+  try {
+    const r1 = db.prepare('UPDATE clients SET invite_code = ? WHERE id = ?').run(code, clientId);
+    if (!r1 || r1.changes === 0) {
+      db.prepare('UPDATE users SET invite_code = ? WHERE id = ?').run(code, clientId);
+    }
+  } catch {
+    try { db.prepare('UPDATE users SET invite_code = ? WHERE id = ?').run(code, clientId); } catch {}
+  }
   return code;
 }
 
@@ -24,7 +31,12 @@ function generateInviteCode(clientId) {
 // OBTER INDICADOR PELO CODIGO
 // ============================================================
 function getReferrerByCode(code) {
-  return db.prepare('SELECT id, name, username FROM clients WHERE invite_code = ?').get(code);
+  // Check clients table first, then users table
+  let referrer = db.prepare('SELECT id, name, username FROM clients WHERE invite_code = ?').get(code);
+  if (!referrer) {
+    referrer = db.prepare('SELECT id, name, username FROM users WHERE invite_code = ?').get(code);
+  }
+  return referrer;
 }
 
 // ============================================================

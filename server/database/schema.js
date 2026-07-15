@@ -205,6 +205,7 @@ function createSchema(db) {
     'ALTER TABLE clients ADD COLUMN referred_by TEXT',
     'ALTER TABLE users ADD COLUMN plan TEXT DEFAULT "free"',
     'ALTER TABLE users ADD COLUMN plan_expiry DATETIME',
+    'ALTER TABLE users ADD COLUMN invite_code TEXT',
   ];
   for (const sql of migrations) {
     try { db.exec(sql); } catch {}
