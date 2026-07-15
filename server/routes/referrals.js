@@ -24,9 +24,9 @@ router.get('/my-code', authenticate, (req, res) => {
   let client = db.prepare('SELECT invite_code FROM clients WHERE id = ?').get(req.user.id);
   if (!client || !client.invite_code) {
     const code = generateInviteCode(req.user.id);
-    res.json({ code, link: `${baseUrl}/#/register?ref=${code}` });
+    res.json({ code, link: `${baseUrl}/register.html?ref=${code}` });
   } else {
-    res.json({ code: client.invite_code, link: `${baseUrl}/#/register?ref=${client.invite_code}` });
+    res.json({ code: client.invite_code, link: `${baseUrl}/register.html?ref=${client.invite_code}` });
   }
 });
 
