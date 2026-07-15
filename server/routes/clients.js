@@ -7,7 +7,7 @@ const { generateId, paginate } = require('../utils/helpers');
 
 const router = express.Router();
 router.use(authenticate);
-router.use(authorize('admin', 'manager'));
+router.use(authorize('admin'));
 
 // GET /api/clients
 router.get('/', (req, res) => {
