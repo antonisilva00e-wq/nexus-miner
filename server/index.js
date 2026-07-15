@@ -29,6 +29,14 @@ async function main() {
       db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('company_name', 'Nexus Miner');
       console.log('[SEED] Usuários criados');
     }
+    // Auto-seed test client
+    const existingClient = db.prepare('SELECT id FROM clients WHERE username = ?').get('cliente1');
+    if (!existingClient) {
+      const bcrypt = require('bcryptjs');
+      const { v4: uuidv4 } = require('uuid');
+      db.prepare('INSERT INTO clients (id, name, email, username, password_hash, plan, active) VALUES (?, ?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Cliente Teste', 'clienteteste@test.com', 'cliente1', bcrypt.hashSync('12345678', 12), 'Gratuito', 1);
+      console.log('[SEED] Cliente teste criado (cliente1 / 12345678)');
+    }
   } catch (e) { console.error('[SEED]', e.message); }
 
   // 4. Express
