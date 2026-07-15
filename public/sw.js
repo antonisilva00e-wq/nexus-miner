@@ -1,5 +1,5 @@
-// Nexus Miner Service Worker v2 — Premium Push Notifications
-const SW_VERSION = '4.0';
+// Nexus Miner Service Worker v5 — Cache bust
+const SW_VERSION = '5.0';
 const CACHE_NAME = `nexus-v${SW_VERSION}`;
 
 // Install — skip waiting to activate immediately
@@ -7,11 +7,11 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate — claim all clients and clean old caches
+// Activate — claim all clients and clean ALL old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
