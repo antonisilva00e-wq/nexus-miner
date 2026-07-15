@@ -233,14 +233,15 @@ a { color: inherit; text-decoration: none; }
 
 .btn-logout i { width: 14px; height: 14px; }
 
-.admin-only { display: none; }
-body.role-admin .admin-only { display: flex; }
+.admin-only { display: none !important; }
+body.role-admin .admin-only { display: flex !important; }
 
 /* Client role restrictions */
 .hidden-for-client { display: none !important; }
 
 /* Admin-only pages - hide from everyone except admin via CSS */
 body:not(.role-admin) .menu-item[data-page="users"] { display: none !important; }
+body:not(.role-admin) .menu-item[data-page="automation"] { display: none !important; }
 body:not(.role-admin) #page-users { display: none !important; }
 
 /* ==========================================================================
