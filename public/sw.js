@@ -1,5 +1,5 @@
 // Nexus Miner Service Worker v2 — Premium Push Notifications
-const SW_VERSION = '3.0';
+const SW_VERSION = '4.0';
 const CACHE_NAME = `nexus-v${SW_VERSION}`;
 
 // Install — skip waiting to activate immediately

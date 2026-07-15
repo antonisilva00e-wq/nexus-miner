@@ -239,6 +239,10 @@ body.role-admin .admin-only { display: flex; }
 /* Client role restrictions */
 .hidden-for-client { display: none !important; }
 
+/* Admin-only pages - hide from everyone except admin via CSS */
+body:not(.role-admin) .menu-item[data-page="users"] { display: none !important; }
+body:not(.role-admin) #page-users { display: none !important; }
+
 /* ==========================================================================
    MAIN CONTENT
    ========================================================================== */
