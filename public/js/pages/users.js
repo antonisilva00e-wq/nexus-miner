@@ -1,13 +1,17 @@
-// Users Page (Admin only)
+// Users Page (Admin/Manager with restrictions)
 const UsersPage = {
   async render() {
-    document.getElementById('page-title').textContent = 'Gerenciar Usuários';
-    document.getElementById('page-subtitle').textContent = 'Administração de acessos';
+    const user = Auth.getUser();
+    const isAdmin = user?.role === 'admin';
+    const isManager = user?.role === 'manager';
+
+    document.getElementById('page-title').textContent = isAdmin ? 'Gerenciar Usuários' : 'Gerenciar Vendedores';
+    document.getElementById('page-subtitle').textContent = isAdmin ? 'Administração de acessos completa' : 'Apenas vendedores';
 
     document.getElementById('page-users').innerHTML = `
       <div class="card">
-        <div class="card-header"><h3><i data-lucide="shield"></i>Usuários do Sistema</h3>
-          <button class="btn btn-primary" onclick="UsersPage.openModal()"><i data-lucide="user-plus"></i>Novo Usuário</button>
+        <div class="card-header"><h3><i data-lucide="shield"></i>${isAdmin ? 'Usuários do Sistema' : 'Vendedores'}</h3>
+          <button class="btn btn-primary" onclick="UsersPage.openModal()"><i data-lucide="user-plus"></i>Novo ${isAdmin ? 'Usuário' : 'Vendedor'}</button>
         </div>
         <div class="table-wrapper">
           <table><thead><tr><th>Nome</th><th>Email</th><th>Usuário</th><th>Role</th><th>Status</th><th>Ações</th></tr></thead>
@@ -22,6 +26,8 @@ const UsersPage = {
   async loadUsers() {
     try {
       const data = await API.get('/users');
+      const user = Auth.getUser();
+      const isAdmin = user?.role === 'admin';
       const roleLabels = { admin: 'Administrador', manager: 'Gerente', seller: 'Vendedor' };
       const roleClasses = { admin: 'badge-danger', manager: 'badge-warning', seller: 'badge-primary' };
 
@@ -33,8 +39,8 @@ const UsersPage = {
           <td><span class="badge ${roleClasses[u.role] || 'badge-primary'}">${roleLabels[u.role] || u.role}</span></td>
           <td><span class="badge ${u.active ? 'badge-success' : 'badge-danger'}">${u.active ? 'Ativo' : 'Inativo'}</span></td>
           <td><div style="display:flex;gap:0.25rem;">
-            <button class="btn btn-sm btn-secondary" onclick="UsersPage.editUser('${u.id}')" title="Editar"><i data-lucide="edit-3"></i></button>
-            ${u.id !== Auth.getUser()?.id ? `<button class="btn btn-sm btn-danger" onclick="UsersPage.deactivateUser('${u.id}')" title="Desativar"><i data-lucide="user-x"></i></button>` : ''}
+            ${u.id !== Auth.getUser()?.id ? `<button class="btn btn-sm btn-secondary" onclick="UsersPage.editUser('${u.id}')" title="Editar"><i data-lucide="edit-3"></i></button>` : ''}
+            ${u.id !== Auth.getUser()?.id && isAdmin ? `<button class="btn btn-sm btn-danger" onclick="UsersPage.deactivateUser('${u.id}')" title="Desativar"><i data-lucide="user-x"></i></button>` : ''}
           </div></td>
         </tr>
       `).join('');
@@ -44,15 +50,23 @@ const UsersPage = {
 
   openModal(userId = null) {
     const isEdit = !!userId;
+    const user = Auth.getUser();
+    const isAdmin = user?.role === 'admin';
+
+    // Managers can only create sellers
+    const roleOptions = isAdmin
+      ? '<option value="seller">Vendedor</option><option value="manager">Gerente</option><option value="admin">Administrador</option>'
+      : '<option value="seller">Vendedor</option>';
+
     Modal.open(
-      isEdit ? '<i data-lucide="edit-3" style="color:var(--accent-secondary);"></i> Editar Usuário' : '<i data-lucide="user-plus" style="color:var(--accent-primary);"></i> Novo Usuário',
+      isEdit ? '<i data-lucide="edit-3" style="color:var(--accent-secondary);"></i> Editar Usuário' : `<i data-lucide="user-plus" style="color:var(--accent-primary);"></i> Novo ${isAdmin ? 'Usuário' : 'Vendedor'}`,
       `<form id="user-form">
         <input type="hidden" id="uf-id" value="${userId || ''}">
         <div class="form-grid"><div class="form-group"><label>Nome *</label><input type="text" id="uf-name" required style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-family:var(--font-body);"></div>
         <div class="form-group"><label>Email *</label><input type="email" id="uf-email" required style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-family:var(--font-body);"></div></div>
         <div class="form-grid"><div class="form-group"><label>Usuário *</label><input type="text" id="uf-username" required style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-family:var(--font-body);"></div>
         <div class="form-group"><label>${isEdit ? 'Nova Senha (opcional)' : 'Senha *'}</label><input type="password" id="uf-password" ${isEdit ? '' : 'required'} style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-family:var(--font-body);"></div></div>
-        <div class="form-group"><label>Role</label><select id="uf-role" style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;"><option value="seller">Vendedor</option><option value="manager">Gerente</option><option value="admin">Administrador</option></select></div>
+        <div class="form-group"><label>Role</label><select id="uf-role" style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;">${roleOptions}</select></div>
       </form>`,
       `<button class="btn btn-secondary" onclick="Modal.close()">Cancelar</button>
        <button class="btn btn-primary" onclick="UsersPage.saveUser()"><i data-lucide="save"></i>Salvar</button>`
