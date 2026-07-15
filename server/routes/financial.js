@@ -6,7 +6,6 @@ const { generateId } = require('../utils/helpers');
 
 const router = express.Router();
 router.use(authenticate);
-router.use(authorize('admin', 'manager'));
 
 // GET /api/financial/dashboard
 router.get('/dashboard', (req, res) => {

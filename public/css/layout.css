@@ -243,7 +243,6 @@ body.role-admin .admin-only { display: flex !important; }
 body:not(.role-admin) .menu-item[data-page="users"] { display: none !important; }
 body:not(.role-admin) .menu-item[data-page="automation"] { display: none !important; }
 body:not(.role-admin) .menu-item[data-page="clients"] { display: none !important; }
-body:not(.role-admin) .menu-item[data-page="financial"] { display: none !important; }
 body:not(.role-admin) .menu-item[data-page="templates"] { display: none !important; }
 body:not(.role-admin) .menu-item[data-page="settings"] { display: none !important; }
 body:not(.role-admin) #page-users { display: none !important; }
