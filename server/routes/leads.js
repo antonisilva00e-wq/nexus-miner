@@ -4,6 +4,7 @@ const { authenticate } = require('../middleware/auth');
 const { authorize } = require('../middleware/roles');
 const { generateId, paginate } = require('../utils/helpers');
 const { lookupCNPJ, lookupCPF, isValidCPF, searchNearbyBusinesses, mineLeads, generateValidCNPJ, generateIndividualPeople } = require('../services/leadService');
+const { invalidateCache } = require('../services/scoringService');
 
 const router = express.Router();
 router.use(authenticate);
@@ -95,6 +96,7 @@ router.post('/', (req, res) => {
   // Broadcast lead created event
   if (global.__broadcast) {
     global.__broadcast('lead:created', { leadId: id, name, activity, source, city, state });
+    invalidateCache();
   }
 
   const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
@@ -136,6 +138,7 @@ router.put('/:id', (req, res) => {
   // Broadcast lead updated event
   if (global.__broadcast) {
     global.__broadcast('lead:updated', { leadId: req.params.id, changes: req.body });
+    invalidateCache();
   }
 
   const updated = db.prepare('SELECT * FROM leads WHERE id = ?').get(req.params.id);
@@ -154,6 +157,7 @@ router.delete('/:id', authorize('admin', 'manager'), (req, res) => {
   // Broadcast lead deleted event
   if (global.__broadcast) {
     global.__broadcast('lead:deleted', { leadId: req.params.id, name: lead.name });
+    invalidateCache();
   }
 
   res.json({ message: 'Lead removido' });

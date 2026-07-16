@@ -4,7 +4,7 @@ const ScoringPage = {
     document.getElementById('page-title').textContent = 'Scoring de Leads';
     document.getElementById('page-subtitle').textContent = 'Classifique e priorize seus leads por potencial de conversao';
 
-    document.getElementById('page-leads').innerHTML = `
+    document.getElementById('page-scoring').innerHTML = `
       <div class="card" style="margin-bottom:1.5rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
           <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;"><i data-lucide="bar-chart-3" style="color:white;width:20px;height:20px;"></i></div>

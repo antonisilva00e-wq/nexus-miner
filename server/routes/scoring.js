@@ -18,7 +18,7 @@ router.get('/stats', (req, res) => {
 // GET /api/scoring/leads - Get all leads with scores
 router.get('/leads', (req, res) => {
   const { level, limit = 50 } = req.query;
-  let leads = scoreAllLeads();
+  let leads = scoreAllLeads(); // Uses cached data
 
   if (level === 'hot') leads = leads.filter(l => l.score >= 80);
   else if (level === 'warm') leads = leads.filter(l => l.score >= 60 && l.score < 80);
