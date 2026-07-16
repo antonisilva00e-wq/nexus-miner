@@ -10,8 +10,8 @@ const { authorize } = require('../middleware/roles');
 const router = express.Router();
 router.use(authenticate);
 
-// GET /api/settings - Get all settings
-router.get('/', authorize('admin'), (req, res) => {
+// GET /api/settings - Get settings (all authenticated users)
+router.get('/', (req, res) => {
   try {
     const settings = db.prepare('SELECT * FROM settings').all();
     const settingsObj = {};

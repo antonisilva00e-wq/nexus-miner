@@ -1,4 +1,4 @@
-﻿// Main App - Simple & Robust
+// Main App - Simple & Robust
 const App = {
   currentPage: null,
 
@@ -81,7 +81,7 @@ const App = {
   navigateTo(pageName) {
     // Block access for clients on restricted pages
     if (Auth.isClient()) {
-      const blocked = ['automation', 'users', 'financial', 'templates', 'settings'];
+      const blocked = ['automation', 'users', 'financial', 'templates'];
       if (blocked.includes(pageName)) {
         showToast('Acesso restrito', 'warning');
         return;
@@ -89,7 +89,7 @@ const App = {
     }
 
     // Only admin can access restricted pages
-    const adminOnly = ['users', 'clients', 'automation', 'templates', 'settings'];
+    const adminOnly = ['users', 'clients', 'automation', 'templates'];
     if (adminOnly.includes(pageName) && !Auth.isAdmin()) {
       showToast('Apenas o administrador pode acessar esta pÃ¡gina', 'warning');
       return;
