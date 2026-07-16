@@ -3,7 +3,10 @@
  * Automatically enriches leads with social media, Google Maps, and business data
  */
 
-const { db } = require('../db');
+// Lazy load database to avoid initialization issues
+function getDb() {
+  return require('../db').db;
+}
 
 // Enrichment sources
 const ENRICHMENT_SOURCES = {
@@ -125,7 +128,7 @@ async function analyzeCompetitors(lead) {
 
   try {
     // Count similar businesses in the same city
-    const similarCount = db.prepare(`
+    const similarCount = getDb().prepare(`
       SELECT COUNT(*) as count FROM leads 
       WHERE city = ? AND activity LIKE ? AND id != ?
     `).get(lead.city, `%${lead.activity}%`, lead.id)?.count || 0;
@@ -224,7 +227,7 @@ async function enrichWithAIScore(lead) {
 // MAIN ENRICHMENT FUNCTION
 // ============================================================
 async function enrichLead(leadId) {
-  const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(leadId);
+  const lead = getDb().prepare('SELECT * FROM leads WHERE id = ?').get(leadId);
   if (!lead) throw new Error('Lead nao encontrado');
 
   console.log(`[Enrichment] Enriching lead: ${lead.name}`);
@@ -248,7 +251,7 @@ async function enrichLead(leadId) {
     enrichment.sources.googleMaps = googleMaps.value;
     // Update lead with map data
     if (googleMaps.value.lat && googleMaps.value.lng) {
-      db.prepare('UPDATE leads SET lat = ?, lng = ? WHERE id = ?')
+      getDb().prepare('UPDATE leads SET lat = ?, lng = ? WHERE id = ?')
         .run(googleMaps.value.lat, googleMaps.value.lng, leadId);
     }
   }
@@ -268,16 +271,16 @@ async function enrichLead(leadId) {
   if (aiScore.status === 'fulfilled' && aiScore.value) {
     enrichment.sources.aiScore = aiScore.value;
     // Update lead score
-    db.prepare('UPDATE leads SET score = ? WHERE id = ?')
+    getDb().prepare('UPDATE leads SET score = ? WHERE id = ?')
       .run(aiScore.value.score, leadId);
   }
 
   // Save enrichment data
-  db.prepare('UPDATE leads SET enrichment = ? WHERE id = ?')
+  getDb().prepare('UPDATE leads SET enrichment = ? WHERE id = ?')
     .run(JSON.stringify(enrichment), leadId);
 
   // Log activity
-  db.prepare('INSERT INTO activities (id, user_id, entity_type, entity_id, action, details) VALUES (?, ?, ?, ?, ?, ?)')
+  getDb().prepare('INSERT INTO activities (id, user_id, entity_type, entity_id, action, details) VALUES (?, ?, ?, ?, ?, ?)')
     .run(require('../utils/helpers').generateId(), lead.created_by || 'system', 'lead', leadId, 'enriched', JSON.stringify({ sources: Object.keys(enrichment.sources) }));
 
   console.log(`[Enrichment] Completed for ${lead.name}: ${Object.keys(enrichment.sources).length} sources`);
@@ -289,7 +292,7 @@ async function enrichLead(leadId) {
 // BATCH ENRICHMENT
 // ============================================================
 async function enrichAllLeads(limit = 50) {
-  const leads = db.prepare('SELECT id, name FROM leads WHERE enrichment IS NULL LIMIT ?').all(limit);
+  const leads = getDb().prepare('SELECT id, name FROM leads WHERE enrichment IS NULL LIMIT ?').all(limit);
   const results = [];
 
   for (const lead of leads) {
@@ -310,10 +313,10 @@ async function enrichAllLeads(limit = 50) {
 // GET ENRICHMENT STATS
 // ============================================================
 function getEnrichmentStats() {
-  const total = db.prepare('SELECT COUNT(*) as count FROM leads').get().count;
-  const enriched = db.prepare('SELECT COUNT(*) as count FROM leads WHERE enrichment IS NOT NULL').get().count;
-  const withScore = db.prepare('SELECT COUNT(*) as count FROM leads WHERE score IS NOT NULL').get().count;
-  const avgScore = db.prepare('SELECT AVG(score) as avg FROM leads WHERE score IS NOT NULL').get().avg || 0;
+  const total = getDb().prepare('SELECT COUNT(*) as count FROM leads').get().count;
+  const enriched = getDb().prepare('SELECT COUNT(*) as count FROM leads WHERE enrichment IS NOT NULL').get().count;
+  const withScore = getDb().prepare('SELECT COUNT(*) as count FROM leads WHERE score IS NOT NULL').get().count;
+  const avgScore = getDb().prepare('SELECT AVG(score) as avg FROM leads WHERE score IS NOT NULL').get().avg || 0;
 
   return {
     totalLeads: total,
