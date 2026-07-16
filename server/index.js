@@ -59,14 +59,15 @@ async function main() {
     }
   }));
 
-  // 5. Push helper - reads template from DB for sale notifications
+  // 5. Push helper - reads template from DB and sends push notifications
+  const { sendPush, broadcast } = require('./services/pushService');
+
   global.__notify = (type, title, message, data = {}) => {
     // For sale notifications, read custom template from settings
     if (type === 'sale') {
       try {
         const template = db.prepare("SELECT value FROM settings WHERE key = 'notification_sale_message'").get();
         if (template && template.value && message) {
-          // Find any currency value in the message and replace {valor}
           const currencyMatch = message.match(/R\$\s*[\d.,]+/);
           if (currencyMatch) {
             message = template.value.replace(/\{valor\}/g, currencyMatch[0]);
@@ -77,12 +78,23 @@ async function main() {
 
     const notification = { type, title, message, timestamp: new Date().toISOString(), data };
 
-    // Send to specific user if userId is provided, otherwise broadcast
+    // Send via Socket.IO (real-time in panel)
     if (data.userId && global.__io) {
       global.__io.to(`user:${data.userId}`).emit('notification', notification);
     } else if (global.__io) {
       global.__io.emit('notification', notification);
     }
+
+    // Send push notification to devices (arrives on phone/desktop)
+    try {
+      const urlMap = { sale: '/#/financial', commission: '/#/financial', lead: '/#/leads', info: '/#/dashboard' };
+      const pushUrl = data.url || urlMap[type] || '/#/dashboard';
+      const subs = db.prepare('SELECT * FROM push_subscriptions').all();
+      if (subs.length) {
+        const subscriptions = subs.map(s => ({ endpoint: s.endpoint, keys: { p256dh: s.keys_p256dh, auth: s.keys_auth } }));
+        broadcast(subscriptions, { title: 'Nexus Miner', message, url: pushUrl, type }).catch(() => {});
+      }
+    } catch {}
 
     return notification;
   };
