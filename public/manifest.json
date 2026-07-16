@@ -1,24 +1,36 @@
 {
-  "name": "Nexus Miner - ERP de Prospecção B2B",
+  "name": "Nexus Miner",
   "short_name": "Nexus Miner",
-  "description": "Plataforma de mineração de leads B2B para o Brasil",
+  "description": "Plataforma de prospecção e gestão B2B",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a1a",
-  "theme_color": "#6366f1",
+  "theme_color": "#0a0a1a",
   "orientation": "any",
   "icons": [
     {
       "src": "/assets/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/assets/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": ["business", "productivity"],
