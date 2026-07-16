@@ -128,14 +128,17 @@ async function main() {
     '/api/referrals': './routes/referrals',
     '/api/push': './routes/push',
     '/api/telegram': './routes/telegram',
+    '/api/scripts': './routes/scripts',
+    '/api/settings': './routes/settings',
   };
   for (const [mount, file] of Object.entries(routeMap)) {
     try { app.use(mount, require(file)); } catch (e) { console.error(`[ROUTE] ${mount}:`, e.message); }
   }
 
-  // 9. SPA
-  app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api')) res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+  // 9. SPA - only serve index.html for non-API GET requests
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
   });
 
   // 10. Error
@@ -146,7 +149,42 @@ async function main() {
   const server = http.createServer(app);
   const io = new Server(server, { cors: { origin: '*' } });
   global.__io = io;
-  io.on('connection', (socket) => { socket.on('disconnect', () => {}); });
+
+  // Socket.IO events
+  io.on('connection', (socket) => {
+    console.log('[WS] Client connected:', socket.id);
+
+    // Join user-specific room
+    socket.on('join', (userId) => {
+      socket.join(`user:${userId}`);
+      console.log(`[WS] User ${userId} joined their room`);
+    });
+
+    // Join admin room
+    socket.on('join-admin', () => {
+      socket.join('admin');
+      console.log('[WS] Admin joined admin room');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('[WS] Client disconnected:', socket.id);
+    });
+  });
+
+  // Helper: notify specific user
+  global.__notifyUser = (userId, type, data) => {
+    if (global.__io) global.__io.to(`user:${userId}`).emit(type, data);
+  };
+
+  // Helper: notify all admins
+  global.__notifyAdmins = (type, data) => {
+    if (global.__io) global.__io.to('admin').emit(type, data);
+  };
+
+  // Helper: broadcast to all clients
+  global.__broadcast = (type, data) => {
+    if (global.__io) global.__io.emit(type, data);
+  };
 
   server.listen(config.port, '0.0.0.0', () => {
     console.log(`[OK] Nexus Miner rodando na porta ${config.port}`);

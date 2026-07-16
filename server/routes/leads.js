@@ -92,6 +92,11 @@ router.post('/', (req, res) => {
     global.__notify('lead', 'Novo Lead!', `${name} — ${activity || source || 'mineração'}`, { leadId: id });
   }
 
+  // Broadcast lead created event
+  if (global.__broadcast) {
+    global.__broadcast('lead:created', { leadId: id, name, activity, source, city, state });
+  }
+
   const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
   res.status(201).json({ lead });
 });
@@ -128,6 +133,11 @@ router.put('/:id', (req, res) => {
   db.prepare('INSERT INTO activities (id, user_id, entity_type, entity_id, action, details) VALUES (?, ?, ?, ?, ?, ?)')
     .run(generateId(), req.user.id, 'lead', req.params.id, 'updated', JSON.stringify(req.body));
 
+  // Broadcast lead updated event
+  if (global.__broadcast) {
+    global.__broadcast('lead:updated', { leadId: req.params.id, changes: req.body });
+  }
+
   const updated = db.prepare('SELECT * FROM leads WHERE id = ?').get(req.params.id);
   res.json({ lead: updated });
 });
@@ -140,6 +150,11 @@ router.delete('/:id', authorize('admin', 'manager'), (req, res) => {
   db.prepare('DELETE FROM leads WHERE id = ?').run(req.params.id);
   db.prepare('INSERT INTO activities (id, user_id, entity_type, entity_id, action, details) VALUES (?, ?, ?, ?, ?, ?)')
     .run(generateId(), req.user.id, 'lead', req.params.id, 'deleted', JSON.stringify({ name: lead.name }));
+
+  // Broadcast lead deleted event
+  if (global.__broadcast) {
+    global.__broadcast('lead:deleted', { leadId: req.params.id, name: lead.name });
+  }
 
   res.json({ message: 'Lead removido' });
 });

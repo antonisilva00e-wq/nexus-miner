@@ -198,6 +198,22 @@ function createSchema(db) {
     CREATE INDEX IF NOT EXISTS idx_messages_sent_lead ON messages_sent(lead_id);
   `);
 
+  // Upgrade requests table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS upgrade_requests (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      user_type TEXT NOT NULL DEFAULT 'client',
+      current_plan TEXT NOT NULL,
+      requested_plan TEXT NOT NULL,
+      status TEXT DEFAULT 'pending',
+      admin_id TEXT,
+      notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      processed_at DATETIME
+    );
+  `);
+
   // Migrations - add missing columns
   const migrations = [
     'ALTER TABLE clients ADD COLUMN commission_balance REAL DEFAULT 0',

@@ -7,6 +7,7 @@ const App = {
     leads: LeadsPage,
     map: MapPage,
     kanban: KanbanPage,
+    scoring: ScoringPage,
     clients: ClientsPage,
     financial: FinancialPage,
     whatsapp: WhatsAppPage,
@@ -108,6 +109,7 @@ const App = {
       dashboard: 'Dashboard',
       leads: 'Minerar Leads',
       kanban: 'Pipeline Kanban',
+      scoring: 'Scoring de Leads',
       clients: 'Gerenciar Clientes',
       financial: 'Financeiro',
       whatsapp: 'WhatsApp',
@@ -117,6 +119,8 @@ const App = {
       referrals: 'Indicar e Ganhar',
       users: 'Gerenciar Usuarios',
       settings: 'Configuracoes',
+      map: 'Mapa de Leads',
+      telegram: 'Telegram',
     };
     document.getElementById('page-title').textContent = titles[pageName] || pageName;
 

@@ -143,6 +143,7 @@ const LeadsPage = {
           <button class="btn btn-sm btn-secondary" onclick="LeadsPage.exportCSV()" title="Exportar leads encontrados"><i data-lucide="download"></i>CSV</button>
           <button class="btn btn-sm btn-secondary" onclick="LeadsPage.exportSocios()" title="Exportar socios reais"><i data-lucide="users"></i>Socios</button>
           <button class="btn btn-sm btn-primary" onclick="LeadsPage.saveAll()"><i data-lucide="save"></i>Salvar Todos</button>
+          <button class="btn btn-sm" id="btn-script-ligacao" onclick="LeadsPage.showScripts()" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:white;padding:6px 12px;border-radius:var(--border-radius-sm);font-size:0.8rem;font-weight:600;cursor:pointer;border:none;"><i data-lucide="phone"></i>Script Ligacao</button>
         </div>
       </div>
 
@@ -163,6 +164,9 @@ const LeadsPage = {
     const keyword = document.getElementById('mine-keyword').value.trim();
     const city = document.getElementById('mine-city').value.trim();
     if (!keyword || !city) return;
+
+    // Store keyword for scripts
+    this.currentKeyword = keyword;
 
     const btn = document.getElementById('btn-mine');
     btn.disabled = true;
@@ -202,6 +206,9 @@ const LeadsPage = {
     const city = document.getElementById('pf-mine-city').value.trim();
     const count = parseInt(document.getElementById('pf-mine-count').value) || 50;
     if (!city) return;
+
+    // Store category for scripts
+    this.currentKeyword = this.pfCategory;
 
     const btn = document.getElementById('btn-pf-mine');
     const status = document.getElementById('pf-mine-status');
@@ -824,5 +831,174 @@ const LeadsPage = {
     const b = banks[code];
     if (!b) return `<div style="width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:var(--text-tertiary);flex-shrink:0;">?</div>`;
     return `<div style="width:26px;height:26px;border-radius:6px;background:${b.bg};border:1px solid ${b.border};display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;color:${b.color};flex-shrink:0;letter-spacing:-0.02em;">${b.letter}</div>`;
+  },
+
+  async showScripts() {
+    const keyword = this.currentKeyword || document.getElementById('mine-keyword')?.value || '';
+    if (!keyword) {
+      showToast('Pesquise um nicho primeiro para ver os scripts', 'warning');
+      return;
+    }
+
+    // Show loading state
+    const scriptBtn = document.getElementById('btn-script-ligacao');
+    const originalText = scriptBtn.innerHTML;
+    scriptBtn.innerHTML = '<i data-lucide="loader-2" class="spin-animation"></i>Carregando...';
+    scriptBtn.disabled = true;
+    lucide.createIcons();
+
+    // For PF scripts, don't send lead name (scripts are generic)
+    // For PJ scripts, send first lead name for personalization
+    const isPF = ['profissionais', 'prestadores', 'comerciantes', 'todos'].includes(keyword);
+    const leadName = isPF ? '' : (this.currentLeads[0]?.name || '');
+
+    try {
+      const data = await API.get(`/scripts/${encodeURIComponent(keyword)}?leadName=${encodeURIComponent(leadName)}`);
+      
+      // Create modal
+      const modal = document.createElement('div');
+      modal.id = 'scripts-modal';
+      modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:10000;padding:2rem;';
+      
+      modal.innerHTML = `
+        <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(245,158,11,0.2);border-radius:16px;max-width:800px;width:100%;max-height:80vh;overflow-y:auto;position:relative;">
+          <!-- Header -->
+          <div style="padding:1.5rem 2rem;border-bottom:1px solid rgba(245,158,11,0.1);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:linear-gradient(135deg,#1a1a2e,#16213e);z-index:1;">
+            <div style="display:flex;align-items:center;gap:1rem;">
+              <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;">
+                <i data-lucide="phone" style="color:white;width:24px;height:24px;"></i>
+              </div>
+              <div>
+                <h2 style="color:white;font-size:1.3rem;font-weight:700;margin:0;">Scripts para Ligacao</h2>
+                <p style="color:var(--text-tertiary);font-size:0.85rem;margin:4px 0 0;">Nicho: <strong style="color:#f59e0b;">${keyword}</strong> | App: <strong style="color:#10b981;">${data.appName}</strong></p>
+              </div>
+            </div>
+            <button onclick="LeadsPage.closeScriptsModal()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:36px;height:36px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">
+              <i data-lucide="x" style="width:20px;height:20px;"></i>
+            </button>
+          </div>
+
+          <!-- App Info -->
+          <div style="padding:1rem 2rem;background:rgba(16,185,129,0.05);border-bottom:1px solid rgba(16,185,129,0.1);">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;">
+                <i data-lucide="smartphone" style="color:white;width:16px;height:16px;"></i>
+              </div>
+              <div>
+                <p style="color:white;font-weight:600;margin:0;font-size:0.95rem;">${data.appName}</p>
+                <p style="color:var(--text-tertiary);font-size:0.8rem;margin:2px 0 0;">${data.appDescription}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scripts -->
+          <div style="padding:1.5rem 2rem;">
+            ${data.scripts.map((script, index) => `
+              <div style="margin-bottom:1.5rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;">
+                <!-- Script Header -->
+                <div style="padding:1rem 1.25rem;background:rgba(245,158,11,0.05);border-bottom:1px solid rgba(245,158,11,0.1);display:flex;justify-content:space-between;align-items:center;">
+                  <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;">${index + 1}</div>
+                    <h3 style="color:white;font-size:0.95rem;font-weight:600;margin:0;">${script.title}</h3>
+                  </div>
+                  <button onclick="LeadsPage.copyScript(${index})" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;padding:6px 12px;border-radius:8px;font-size:0.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.2s;">
+                    <i data-lucide="copy" style="width:14px;height:14px;"></i>Copiar
+                  </button>
+                </div>
+                
+                <!-- Script Content -->
+                <div style="padding:1.25rem;" id="script-content-${index}">
+                  <!-- Greeting -->
+                  <div style="margin-bottom:1rem;">
+                    <p style="color:var(--text-tertiary);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;margin:0 0 6px;">ABERTURA</p>
+                    <p style="color:#22d3ee;font-size:0.9rem;line-height:1.6;margin:0;padding:0.75rem;background:rgba(34,211,238,0.05);border-radius:8px;border-left:3px solid #22d3ee;">${script.greeting}</p>
+                  </div>
+                  
+                  <!-- Body -->
+                  <div style="margin-bottom:1rem;">
+                    <p style="color:var(--text-tertiary);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;margin:0 0 6px;">CONTEUDO</p>
+                    <p style="color:white;font-size:0.88rem;line-height:1.7;margin:0;padding:1rem;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid rgba(255,255,255,0.06);">${script.body}</p>
+                  </div>
+                  
+                  <!-- Closing -->
+                  <div>
+                    <p style="color:var(--text-tertiary);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;margin:0 0 6px;">FECHAMENTO</p>
+                    <p style="color:#10b981;font-size:0.9rem;line-height:1.6;margin:0;padding:0.75rem;background:rgba(16,185,129,0.05);border-radius:8px;border-left:3px solid #10b981;font-weight:500;">${script.closing}</p>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Footer -->
+          <div style="padding:1rem 2rem;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;">
+            <p style="color:var(--text-tertiary);font-size:0.75rem;margin:0;">${data.scripts.length} scripts disponiveis | App: ${data.appName}</p>
+            <button onclick="LeadsPage.closeScriptsModal()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:white;padding:8px 16px;border-radius:8px;font-size:0.85rem;cursor:pointer;transition:all 0.2s;">Fechar</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+      lucide.createIcons();
+
+      // Close on background click
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) this.closeScriptsModal();
+      });
+
+      // Close on ESC
+      document.addEventListener('keydown', this._escHandler = (e) => {
+        if (e.key === 'Escape') this.closeScriptsModal();
+      });
+
+    } catch (err) {
+      showToast('Erro ao carregar scripts: ' + err.message, 'danger');
+    }
+
+    // Restore button
+    scriptBtn.innerHTML = originalText;
+    scriptBtn.disabled = false;
+    lucide.createIcons();
+  },
+
+  closeScriptsModal() {
+    const modal = document.getElementById('scripts-modal');
+    if (modal) {
+      modal.style.opacity = '0';
+      modal.style.transition = 'opacity 0.2s';
+      setTimeout(() => modal.remove(), 200);
+    }
+    if (this._escHandler) {
+      document.removeEventListener('keydown', this._escHandler);
+      this._escHandler = null;
+    }
+  },
+
+  copyScript(index) {
+    const contentEl = document.getElementById(`script-content-${index}`);
+    if (!contentEl) return;
+
+    // Extract text content
+    const paragraphs = contentEl.querySelectorAll('p');
+    let text = '';
+    paragraphs.forEach(p => {
+      if (!p.textContent.match(/^(ABERTURA|CONTEUDO|FECHAMENTO)$/)) {
+        text += p.textContent + '\n\n';
+      }
+    });
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(text.trim()).then(() => {
+      showToast('Script copiado para a area de transferencia!', 'success');
+    }).catch(() => {
+      // Fallback
+      const textarea = document.createElement('textarea');
+      textarea.value = text.trim();
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      showToast('Script copiado!', 'success');
+    });
   }
 };

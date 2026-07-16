@@ -27,6 +27,20 @@ router.get('/', (req, res) => {
   res.json({ stages, stageOrder: STAGES });
 });
 
+// POST /api/pipeline - Create pipeline item (alias for creating lead in pipeline)
+router.post('/', (req, res) => {
+  const { name, cnpj, activity, phone, email, city, state, pipeline_stage, rating, assigned_to } = req.body;
+  if (!name) return res.status(400).json({ error: 'Nome e obrigatorio' });
+
+  const id = generateId();
+  db.prepare(`INSERT INTO leads (id, name, cnpj, activity, phone, email, city, state, pipeline_stage, rating, assigned_to, source, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(id, name, cnpj || null, activity || null, phone || null, email || null, city || null, state || null, pipeline_stage || 'leads', rating || null, assigned_to || req.user.id, 'pipeline', req.user.id);
+
+  const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(id);
+  res.status(201).json({ lead });
+});
+
 // PUT /api/pipeline/:leadId/mover - Move lead between stages
 router.put('/:leadId/mover', (req, res) => {
   const { to_stage } = req.body;
@@ -45,6 +59,11 @@ router.put('/:leadId/mover', (req, res) => {
 
   db.prepare('INSERT INTO activities (id, user_id, entity_type, entity_id, action, details) VALUES (?, ?, ?, ?, ?, ?)')
     .run(generateId(), req.user.id, 'lead', req.params.leadId, 'stage_changed', JSON.stringify({ from: from_stage, to: to_stage, lead_name: lead.name }));
+
+  // Broadcast pipeline change event
+  if (global.__broadcast) {
+    global.__broadcast('pipeline:changed', { leadId: req.params.leadId, from: from_stage, to: to_stage, leadName: lead.name });
+  }
 
   res.json({ message: `Lead movido de "${from_stage}" para "${to_stage}"` });
 });

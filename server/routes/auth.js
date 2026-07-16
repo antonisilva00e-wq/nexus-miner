@@ -175,4 +175,29 @@ router.post('/logout', authenticate, (req, res) => {
   res.json({ message: 'Logout realizado' });
 });
 
+// POST /api/auth/register - Public registration
+router.post('/register', (req, res) => {
+  const { name, email, username, password } = req.body;
+  if (!name || !email || !username || !password) {
+    return res.status(400).json({ error: 'Todos os campos sao obrigatorios' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: 'Senha deve ter pelo menos 6 caracteres' });
+  }
+
+  // Check if username exists in either table
+  const existingUser = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+  const existingClient = db.prepare('SELECT id FROM clients WHERE username = ?').get(username);
+  if (existingUser || existingClient) {
+    return res.status(409).json({ error: 'Usuario ja existe' });
+  }
+
+  const id = generateId();
+  const hash = bcrypt.hashSync(password, 12);
+  db.prepare('INSERT INTO clients (id, name, email, username, password_hash, plan, active) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .run(id, name, email, username, hash, 'Gratuito', 1);
+
+  res.status(201).json({ message: 'Conta criada com sucesso' });
+});
+
 module.exports = router;

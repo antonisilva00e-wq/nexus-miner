@@ -9,9 +9,49 @@ const Notifications = {
 
     // Socket.IO
     this.socket = io(window.location.origin, { transports: ['websocket', 'polling'] });
-    this.socket.on('connect', () => console.log('[SOCKET] OK'));
+    this.socket.on('connect', () => {
+      console.log('[SOCKET] OK');
+      // Join user room
+      const user = this.getCurrentUser();
+      if (user) this.socket.emit('join', user.id);
+    });
+
+    // General notifications
     this.socket.on('notification', (data) => {
       NC.add(data.type, data.title, data.message, data.url);
+    });
+
+    // Lead events - real-time updates
+    this.socket.on('lead:created', (data) => {
+      console.log('[SOCKET] Lead created:', data);
+      NC.add('lead', 'Novo Lead!', `${data.name} foi adicionado`, '/#/leads');
+      // Update dashboard if on that page
+      if (typeof DashboardPage !== 'undefined' && document.getElementById('page-dashboard')) {
+        DashboardPage.refresh?.();
+      }
+    });
+
+    this.socket.on('lead:updated', (data) => {
+      console.log('[SOCKET] Lead updated:', data);
+      // Update kanban if on that page
+      if (typeof KanbanPage !== 'undefined' && document.getElementById('page-kanban')) {
+        KanbanPage.loadPipeline?.();
+      }
+    });
+
+    this.socket.on('lead:deleted', (data) => {
+      console.log('[SOCKET] Lead deleted:', data);
+      NC.add('info', 'Lead Removido', `${data.name} foi removido`, '/#/leads');
+    });
+
+    // Pipeline events
+    this.socket.on('pipeline:changed', (data) => {
+      console.log('[SOCKET] Pipeline changed:', data);
+      NC.add('pipeline', 'Pipeline Atualizado', `${data.leadName} movido de ${data.from} para ${data.to}`, '/#/kanban');
+      // Update kanban if on that page
+      if (typeof KanbanPage !== 'undefined' && document.getElementById('page-kanban')) {
+        KanbanPage.loadPipeline?.();
+      }
     });
 
     // Service Worker

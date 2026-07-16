@@ -84,7 +84,7 @@ const SettingsPage = {
   },
 
   clearGoogleKey() {
-    localStorage.removeItem('nexus_google-key');
+    localStorage.removeItem('nexus_google_key');
     document.getElementById('settings-google-key').value = '';
     showToast('Chave removida', 'info');
   },

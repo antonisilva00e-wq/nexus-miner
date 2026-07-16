@@ -18,9 +18,11 @@ function authenticate(req, res, next) {
       user = db.prepare('SELECT id, name, email, username, plan, active FROM clients WHERE id = ?').get(decoded.userId);
       if (user && user.active) {
         user.role = 'client';
+        user.userType = 'client';
       }
     } else {
       user = db.prepare('SELECT id, name, email, username, role, active FROM users WHERE id = ?').get(decoded.userId);
+      if (user) user.userType = 'user';
     }
 
     if (!user || !user.active) {
