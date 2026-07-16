@@ -1,5 +1,5 @@
-// Nexus Miner Service Worker v5 — Cache bust
-const SW_VERSION = '5.0';
+// Nexus Miner Service Worker v6 — Cache bust
+const SW_VERSION = '6.8';
 const CACHE_NAME = `nexus-v${SW_VERSION}`;
 
 // Install — skip waiting to activate immediately
@@ -34,8 +34,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(`${s.icon} ${data.title}`, {
       body: data.message,
-      icon: '/assets/icon-192.svg',
-      badge: '/assets/icon-192.svg',
+      icon: '/assets/logo.png',
+      badge: '/assets/logo.png',
       vibrate: [100, 50, 100],
       tag: `nexus-${s.tag}-${Date.now()}`,
       renotify: true,

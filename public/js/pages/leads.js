@@ -7,130 +7,169 @@ const LeadsPage = {
     document.getElementById('page-subtitle').textContent = 'Motor de mineração com APIs reais da Receita Federal e OpenStreetMap';
 
     document.getElementById('page-leads').innerHTML = `
-      <div class="card" style="margin-bottom:1.5rem;">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;"><i data-lucide="zap" style="color:white;width:20px;height:20px;"></i></div>
-          <div><h3 style="color:white;font-size:1.1rem;">Motor de Mineração Power</h3><p style="color:var(--text-tertiary);font-size:0.8rem;">BrasilAPI (Receita Federal) + OpenStreetMap Nominatim + ViaCEP</p></div>
+      <div class="service-card">
+        <div class="service-card-grid"></div>
+        <div class="service-card-header">
+          <div class="service-card-icon icon-green"><i data-lucide="zap"></i></div>
+          <div class="service-card-info">
+            <h3 class="service-card-title">Motor de Mineração Power</h3>
+            <p class="service-card-subtitle">BrasilAPI (Receita Federal) + OpenStreetMap Nominatim + ViaCEP</p>
+          </div>
+          <span class="service-card-badge badge-live">API Real</span>
         </div>
-        <form id="mine-form" onsubmit="LeadsPage.mine(event)">
-          <div style="display:grid;grid-template-columns:1.5fr 1fr auto;gap:1rem;align-items:end;">
+        <div class="service-card-body">
+          <form id="mine-form" onsubmit="LeadsPage.mine(event)">
+            <div style="display:grid;grid-template-columns:1.5fr 1fr auto;gap:1rem;align-items:end;">
+              <div class="form-group">
+                <label>Tipo de Empresa</label>
+                <input type="text" id="mine-keyword" placeholder="Ex: Restaurante, Clinica, Imobiliaria, Padaria..." required>
+              </div>
+              <div class="form-group">
+                <label>Cidade / Estado</label>
+                <input type="text" id="mine-city" placeholder="Ex: Curitiba PR, Sao Paulo SP..." required>
+              </div>
+              <button type="submit" class="btn btn-primary" id="btn-mine"><i data-lucide="radar"></i>Minerar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-grid"></div>
+        <div class="service-card-header">
+          <div class="service-card-icon icon-pink"><i data-lucide="users"></i></div>
+          <div class="service-card-info">
+            <h3 class="service-card-title">Minerar Pessoas Fisicas</h3>
+            <p class="service-card-subtitle">Gere contatos de profissionais, prestadores e comerciantes por cidade</p>
+          </div>
+          <span class="service-card-badge badge-ai">IA</span>
+        </div>
+        <div class="service-card-body">
+          <div id="pf-category-tabs" class="pf-tabs">
+            <button class="pf-tab active" onclick="LeadsPage.setPFCategory('profissionais')" id="pf-tab-profissionais"><i data-lucide="briefcase"></i>Profissionais</button>
+            <button class="pf-tab" onclick="LeadsPage.setPFCategory('prestadores')" id="pf-tab-prestadores"><i data-lucide="wrench"></i>Prestadores</button>
+            <button class="pf-tab" onclick="LeadsPage.setPFCategory('comerciantes')" id="pf-tab-comerciantes"><i data-lucide="store"></i>Comerciantes</button>
+            <button class="pf-tab" onclick="LeadsPage.setPFCategory('todos')" id="pf-tab-todos"><i data-lucide="layers"></i>Todos</button>
+          </div>
+          <form id="pf-mine-form" onsubmit="LeadsPage.mineIndividuals(event)">
+            <div style="display:grid;grid-template-columns:1.5fr auto auto;gap:1rem;align-items:end;">
+              <div class="form-group">
+                <label>Cidade / Estado</label>
+                <input type="text" id="pf-mine-city" placeholder="Ex: Curitiba PR, Sao Paulo SP..." required>
+              </div>
+              <div class="form-group">
+                <label>Quantidade</label>
+                <select id="pf-mine-count">
+                  <option value="20">20</option>
+                  <option value="50" selected>50</option>
+                  <option value="100">100</option>
+                  <option value="150">150</option>
+                  <option value="200">200</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-pink" id="btn-pf-mine"><i data-lucide="user-plus"></i>Minerar PF</button>
+            </div>
+          </form>
+          <div id="pf-mine-status" style="margin-top:0.75rem;"></div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-grid"></div>
+        <div class="service-card-header">
+          <div class="service-card-icon icon-purple"><i data-lucide="file-search"></i></div>
+          <div class="service-card-info">
+            <h3 class="service-card-title">Consulta CNPJ Real</h3>
+            <p class="service-card-subtitle">Dados direto da Receita Federal via BrasilAPI</p>
+          </div>
+          <span class="service-card-badge badge-federal">Receita Federal</span>
+        </div>
+        <div class="service-card-body">
+          <div style="display:flex;gap:1rem;align-items:end;">
+            <div class="form-group" style="flex:1;">
+              <label>CNPJ</label>
+              <input type="text" id="cnpj-lookup" placeholder="00.000.000/0000-00">
+            </div>
+            <button class="btn btn-secondary" onclick="LeadsPage.lookupCNPJ()"><i data-lucide="search"></i>Consultar</button>
+          </div>
+          <div id="cnpj-result" style="margin-top:1rem;"></div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-grid"></div>
+        <div class="service-card-header">
+          <div class="service-card-icon icon-cyan"><i data-lucide="shield-check"></i></div>
+          <div class="service-card-info">
+            <h3 class="service-card-title">Validador de CPF</h3>
+            <p class="service-card-subtitle">Validacao matematica completa + estimativa de dados pessoais</p>
+          </div>
+          <span class="service-card-badge badge-free">Gratuito</span>
+        </div>
+        <div class="service-card-body">
+          <div style="display:flex;gap:1rem;align-items:end;">
+            <div class="form-group" style="flex:1;">
+              <label>CPF</label>
+              <input type="text" id="cpf-lookup" placeholder="000.000.000-00" maxlength="14" oninput="LeadsPage.maskCPF(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();LeadsPage.lookupCPF()}" style="font-size:0.95rem;letter-spacing:0.5px;">
+            </div>
+            <button class="btn btn-secondary" onclick="LeadsPage.lookupCPF()" id="btn-cpf-lookup"><i data-lucide="search"></i>Consultar</button>
+          </div>
+          <div id="cpf-result" style="margin-top:1rem;"></div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-grid"></div>
+        <div class="service-card-header">
+          <div class="service-card-icon icon-green"><i data-lucide="users"></i></div>
+          <div class="service-card-info">
+            <h3 class="service-card-title">Pessoas Reais via CNPJ</h3>
+            <p class="service-card-subtitle">Consulte CNPJs e extraia socios reais da Receita Federal</p>
+          </div>
+          <span class="service-card-badge badge-federal">Receita Federal</span>
+        </div>
+        <div class="service-card-body">
+          <div style="margin-bottom:0.75rem;">
+            <label style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:4px;display:block;">Cole os CNPJs (um por linha ou separados por virgula):</label>
+            <textarea id="cnpj-batch" rows="4" placeholder="00.000.000/0000-00&#10;11.111.111/0001-11&#10;22.222.222/0001-22" style="font-family:monospace;font-size:0.85rem;"></textarea>
+          </div>
+          <div style="display:flex;gap:0.75rem;align-items:center;">
+            <button class="btn btn-primary" onclick="LeadsPage.minePeople()" id="btn-mine-people">
+              <i data-lucide="radar"></i>Extrair Pessoas Reais
+            </button>
+            <span id="mine-people-count" style="color:var(--text-secondary);font-size:0.82rem;"></span>
+          </div>
+          <div id="people-results" style="margin-top:1rem;"></div>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-card-grid"></div>
+        <div class="service-card-header">
+          <div class="service-card-icon icon-amber"><i data-lucide="database"></i></div>
+          <div class="service-card-info">
+            <h3 class="service-card-title">Base RF - Dados Abertos</h3>
+            <p class="service-card-subtitle">Busca por cidade + atividade nos dados da Receita Federal</p>
+          </div>
+          <div id="rf-status"></div>
+          <span class="service-card-badge badge-federal">Dados Abertos</span>
+        </div>
+        <div class="service-card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:1rem;align-items:end;">
             <div class="form-group">
-              <label>Tipo de Empresa</label>
-              <input type="text" id="mine-keyword" placeholder="Ex: Restaurante, Clínica, Imobiliária, Padaria..." required style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
+              <label>Cidade</label>
+              <input type="text" id="rf-city" placeholder="Ex: Curitiba, Sao Paulo...">
             </div>
             <div class="form-group">
-              <label>Cidade / Estado</label>
-              <input type="text" id="mine-city" placeholder="Ex: Curitiba PR, São Paulo SP..." required style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
+              <label>CNAE (opcional)</label>
+              <input type="text" id="rf-cnae" placeholder="Ex: 5611-2 (restaurantes)">
             </div>
-            <button type="submit" class="btn btn-primary" id="btn-mine" style="height:42px;"><i data-lucide="radar"></i>Minerar</button>
+            <button class="btn btn-primary" onclick="LeadsPage.searchRF()" id="btn-rf-search">
+              <i data-lucide="search"></i>Buscar
+            </button>
           </div>
-        </form>
-      </div>
-
-      <div class="card" style="margin-bottom:1.5rem;">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f472b6,#ec4899);display:flex;align-items:center;justify-content:center;"><i data-lucide="users" style="color:white;width:20px;height:20px;"></i></div>
-          <div><h3 style="color:white;font-size:1.1rem;">Minerar Pessoas Físicas</h3><p style="color:var(--text-tertiary);font-size:0.8rem;">Gere contatos de profissionais, prestadores e comerciantes por cidade</p></div>
+          <div id="rf-results" style="margin-top:1rem;"></div>
         </div>
-        <div id="pf-category-tabs" style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
-          <button class="btn btn-sm btn-primary" onclick="LeadsPage.setPFCategory('profissionais')" id="pf-tab-profissionais" style="font-size:0.8rem;"><i data-lucide="briefcase"></i>Profissionais</button>
-          <button class="btn btn-sm btn-secondary" onclick="LeadsPage.setPFCategory('prestadores')" id="pf-tab-prestadores" style="font-size:0.8rem;"><i data-lucide="wrench"></i>Prestadores</button>
-          <button class="btn btn-sm btn-secondary" onclick="LeadsPage.setPFCategory('comerciantes')" id="pf-tab-comerciantes" style="font-size:0.8rem;"><i data-lucide="store"></i>Comerciantes</button>
-          <button class="btn btn-sm btn-secondary" onclick="LeadsPage.setPFCategory('todos')" id="pf-tab-todos" style="font-size:0.8rem;"><i data-lucide="layers"></i>Todos</button>
-        </div>
-        <form id="pf-mine-form" onsubmit="LeadsPage.mineIndividuals(event)">
-          <div style="display:grid;grid-template-columns:1.5fr auto auto;gap:1rem;align-items:end;">
-            <div class="form-group">
-              <label>Cidade / Estado</label>
-              <input type="text" id="pf-mine-city" placeholder="Ex: Curitiba PR, São Paulo SP..." required style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
-            </div>
-            <div class="form-group">
-              <label>Quantidade</label>
-              <select id="pf-mine-count" style="padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
-                <option value="20">20</option>
-                <option value="50" selected>50</option>
-                <option value="100">100</option>
-                <option value="150">150</option>
-                <option value="200">200</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-primary" id="btn-pf-mine" style="height:42px;background:linear-gradient(135deg,#ec4899,#be185d);"><i data-lucide="user-plus"></i>Minerar PF</button>
-          </div>
-        </form>
-        <div id="pf-mine-status" style="margin-top:0.75rem;"></div>
-      </div>
-
-      <div class="card" style="margin-bottom:1.5rem;">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#818cf8,#6366f1);display:flex;align-items:center;justify-content:center;"><i data-lucide="file-search" style="color:white;width:20px;height:20px;"></i></div>
-          <div><h3 style="color:white;font-size:1.1rem;">Consulta CNPJ Real</h3><p style="color:var(--text-tertiary);font-size:0.8rem;">Dados direto da Receita Federal via BrasilAPI</p></div>
-        </div>
-        <div style="display:flex;gap:1rem;align-items:end;">
-          <div class="form-group" style="flex:1;">
-            <label>CNPJ</label>
-            <input type="text" id="cnpj-lookup" placeholder="00.000.000/0000-00" style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
-          </div>
-          <button class="btn btn-secondary" onclick="LeadsPage.lookupCNPJ()" style="height:42px;"><i data-lucide="search"></i>Consultar</button>
-        </div>
-        <div id="cnpj-result" style="margin-top:1rem;"></div>
-      </div>
-
-      <div class="card" style="margin-bottom:1.5rem;">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#22d3ee,#06b6d4);display:flex;align-items:center;justify-content:center;"><i data-lucide="shield-check" style="color:white;width:20px;height:20px;"></i></div>
-          <div><h3 style="color:white;font-size:1.1rem;">Validador de CPF</h3><p style="color:var(--text-tertiary);font-size:0.8rem;">Validacao matematica completa + estimativa de dados pessoais</p></div>
-        </div>
-        <div style="display:flex;gap:1rem;align-items:end;">
-          <div class="form-group" style="flex:1;">
-            <label>CPF</label>
-            <input type="text" id="cpf-lookup" placeholder="000.000.000-00" maxlength="14" oninput="LeadsPage.maskCPF(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();LeadsPage.lookupCPF()}" style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);font-size:0.95rem;letter-spacing:0.5px;">
-          </div>
-          <button class="btn btn-secondary" onclick="LeadsPage.lookupCPF()" style="height:42px;" id="btn-cpf-lookup"><i data-lucide="search"></i>Consultar</button>
-        </div>
-        <div id="cpf-result" style="margin-top:1rem;"></div>
-      </div>
-
-      <div class="card" style="margin-bottom:1.5rem;">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;"><i data-lucide="users" style="color:white;width:20px;height:20px;"></i></div>
-          <div><h3 style="color:white;font-size:1.1rem;">Pessoas Reais via CNPJ</h3><p style="color:var(--text-tertiary);font-size:0.8rem;">Consulte CNPJs e extraia socios reais da Receita Federal</p></div>
-        </div>
-        <div style="margin-bottom:0.75rem;">
-          <label style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:4px;display:block;">Cole os CNPJs (um por linha ou separados por virgula):</label>
-          <textarea id="cnpj-batch" rows="4" placeholder="00.000.000/0000-00&#10;11.111.111/0001-11&#10;22.222.222/0001-22" style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:monospace;font-size:0.85rem;resize:vertical;"></textarea>
-        </div>
-        <div style="display:flex;gap:0.75rem;align-items:center;">
-          <button class="btn btn-primary" onclick="LeadsPage.minePeople()" id="btn-mine-people" style="display:inline-flex;align-items:center;gap:6px;">
-            <i data-lucide="radar"></i>Extrair Pessoas Reais
-          </button>
-          <span id="mine-people-count" style="color:var(--text-secondary);font-size:0.82rem;"></span>
-        </div>
-        <div id="people-results" style="margin-top:1rem;"></div>
-      </div>
-
-      <div class="card" style="margin-bottom:1.5rem;">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;"><i data-lucide="database" style="color:white;width:20px;height:20px;"></i></div>
-          <div>
-            <h3 style="color:white;font-size:1.1rem;">Base RF - Dados Abertos</h3>
-            <p style="color:var(--text-tertiary);font-size:0.8rem;">Busca por cidade + atividade nos dados da Receita Federal</p>
-          </div>
-          <div id="rf-status" style="margin-left:auto;"></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:1rem;align-items:end;">
-          <div class="form-group">
-            <label>Cidade</label>
-            <input type="text" id="rf-city" placeholder="Ex: Curitiba, Sao Paulo..." style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
-          </div>
-          <div class="form-group">
-            <label>CNAE (opcional)</label>
-            <input type="text" id="rf-cnae" placeholder="Ex: 5611-2 (restaurantes)" style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
-          </div>
-          <button class="btn btn-primary" onclick="LeadsPage.searchRF()" id="btn-rf-search" style="height:42px;display:inline-flex;align-items:center;gap:6px;">
-            <i data-lucide="search"></i>Buscar
-          </button>
-        </div>
-        <div id="rf-results" style="margin-top:1rem;"></div>
       </div>
 
       <div class="filters-bar">
@@ -196,7 +235,7 @@ const LeadsPage = {
     ['profissionais','prestadores','comerciantes','todos'].forEach(c => {
       const tab = document.getElementById(`pf-tab-${c}`);
       if (tab) {
-        tab.className = c === cat ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-secondary';
+        tab.className = c === cat ? 'pf-tab active' : 'pf-tab';
       }
     });
   },

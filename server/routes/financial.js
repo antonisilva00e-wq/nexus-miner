@@ -72,7 +72,8 @@ router.post('/payments', (req, res) => {
   // Real-time notification for sale
   const client = db.prepare('SELECT name FROM clients WHERE id = ?').get(client_id);
   if (global.__notify) {
-    global.__notify('sale', 'Nova Venda!', `${client?.name || 'Cliente'} — R$ ${parseFloat(amount).toLocaleString('pt-BR')}`, { paymentId: id, clientId: client_id });
+    const formattedVal = parseFloat(amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    global.__notify('sale', 'Venda Aprovada! 🛒', `${formattedVal} — ${client?.name || 'Cliente'}`, { paymentId: id, clientId: client_id });
   }
 
   const payment = db.prepare('SELECT * FROM payments WHERE id = ?').get(id);

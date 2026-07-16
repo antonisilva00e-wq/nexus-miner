@@ -149,6 +149,17 @@ function createSchema(db) {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    -- Transações financeiras (receitas/despesas extras)
+    CREATE TABLE IF NOT EXISTS financial_transactions (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL, -- 'income' ou 'expense'
+      amount REAL NOT NULL,
+      description TEXT,
+      category TEXT,
+      date DATE NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     -- API Keys
     CREATE TABLE IF NOT EXISTS api_keys (
       id TEXT PRIMARY KEY,

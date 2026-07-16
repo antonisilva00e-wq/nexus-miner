@@ -17,7 +17,7 @@ router.get('/stats', (req, res) => {
 });
 
 // POST /api/enrichment/enrich/:id - Enrich a specific lead
-router.post('/enrich/:id', authorize('admin', 'manager'), async (req, res) => {
+router.post('/enrich/:id', authorize('admin', 'manager', 'seller'), async (req, res) => {
   try {
     const enrichment = await enrichLead(req.params.id);
     res.json({ message: 'Lead enriquecido com sucesso', enrichment });

@@ -74,7 +74,8 @@ router.post('/register', (req, res) => {
 
     // Real-time notification for commission
     if (global.__notify) {
-      global.__notify('commission', 'Comissão Recebida!', `${referrer.name} — R$ ${(result.commission || 0).toLocaleString('pt-BR')} por indicação de ${name}`, { referrerId: referrer.id, newClient: name });
+      const formattedVal = parseFloat(result.commission || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      global.__notify('commission', 'Comissão Recebida! 🏆', `${formattedVal} — Indicação de ${name}`, { referrerId: referrer.id, newClient: name });
     }
 
     res.status(201).json({

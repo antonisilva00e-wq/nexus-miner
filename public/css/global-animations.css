@@ -1,0 +1,368 @@
+/* ==========================================================================
+   GLOBAL ANIMATIONS - All Decorations Animated & Alive
+   ========================================================================== */
+
+/* === GLOW PULSE ON ALL CARDS === */
+.card::after,
+.kpi-card::after,
+.dashboard-kpi-grid .kpi-card::after,
+.dashboard-charts-grid .chart-card::after,
+.dashboard-bottom-grid .card::after,
+.fin-kpi::after,
+.fin-chart-card::after,
+.fin-bottom-card::after,
+.fin-table-wrapper::after,
+.service-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* === ACCENT LINE PULSE === */
+.kpi-card::before,
+.dashboard-kpi-grid .kpi-card::before {
+  animation: accentLinePulse 4s ease-in-out infinite;
+}
+
+@keyframes accentLinePulse {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 0.6; }
+}
+
+/* === CARD BORDER GLOW ANIMATION === */
+.service-card:hover::before {
+  animation: borderGlowShift 3s linear infinite;
+}
+
+@keyframes borderGlowShift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* === SIDEBAR MENU ITEM HOVER RIPPLE === */
+.menu-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(99, 102, 241, 0.08) 0%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+
+.menu-item:hover::after { opacity: 1; }
+
+/* === KPI ICON GLOW PULSE === */
+.kpi-icon-large::before,
+.fin-kpi-icon::before,
+.service-card-icon::before {
+  animation: iconGlowPulse 3s ease-in-out infinite;
+}
+
+@keyframes iconGlowPulse {
+  0%, 100% { opacity: 0.25; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.1); }
+}
+
+/* === ACTIVE MENU BAR ANIMATION === */
+.menu-item.active::before {
+  animation: activeBarGlow 2s ease-in-out infinite;
+}
+
+@keyframes activeBarGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.3); }
+  50% { box-shadow: 0 0 16px rgba(99, 102, 241, 0.5); }
+}
+
+/* === PERIOD FILTER ACTIVE GLOW === */
+.period-btn.active {
+  animation: periodActiveGlow 3s ease-in-out infinite;
+}
+
+@keyframes periodActiveGlow {
+  0%, 100% { box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3); }
+  50% { box-shadow: 0 4px 16px rgba(99, 102, 241, 0.45), 0 0 25px rgba(99, 102, 241, 0.1); }
+}
+
+/* === FIN HEALTH RING ANIMATION === */
+.fin-health-ring svg {
+  animation: healthRingPulse 4s ease-in-out infinite;
+}
+
+@keyframes healthRingPulse {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.2)); }
+  50% { filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4)); }
+}
+
+/* === FIN HERO STAT HOVER GLOW === */
+.fin-hero-stat:hover {
+  animation: heroStatGlow 0.3s ease-out forwards;
+}
+
+@keyframes heroStatGlow {
+  to { box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15); }
+}
+
+/* === CHART CARD TOP LINE ANIMATION === */
+.dashboard-charts-grid .chart-card::before,
+.fin-chart-card::before {
+  animation: chartLineShimmer 6s ease-in-out infinite;
+}
+
+@keyframes chartLineShimmer {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+/* === BADGE PULSE === */
+.badge-danger {
+  animation: badgeDangerPulse 2s ease-in-out infinite;
+}
+
+@keyframes badgeDangerPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(244, 63, 94, 0); }
+  50% { box-shadow: 0 0 12px rgba(244, 63, 94, 0.15); }
+}
+
+/* === ALERT CARD SHIMMER === */
+.alert-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+  animation: alertShimmer 4s ease-in-out infinite;
+}
+
+@keyframes alertShimmer {
+  0% { left: -100%; }
+  50%, 100% { left: 150%; }
+}
+
+/* === FUNNEL STAGE BREATHING === */
+.funnel-stage {
+  animation: funnelBreathe 4s ease-in-out infinite;
+}
+
+.funnel-stage:nth-child(2) { animation-delay: -1s; }
+.funnel-stage:nth-child(3) { animation-delay: -2s; }
+.funnel-stage:nth-child(4) { animation-delay: -3s; }
+
+@keyframes funnelBreathe {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.08); }
+}
+
+/* === PIPELINE BAR FILL SHIMMER === */
+.pipeline-bar-fill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: barShimmer 3s ease-in-out infinite;
+}
+
+@keyframes barShimmer {
+  0% { left: -50%; }
+  100% { left: 150%; }
+}
+
+/* === CITY BAR FILL ANIMATION === */
+.city-bar-fill {
+  animation: cityBarGrow 1.2s var(--ease-out) backwards;
+}
+
+@keyframes cityBarGrow {
+  from { width: 0 !important; }
+}
+
+/* === SELLER BAR FILL ANIMATION === */
+.seller-bar-fill {
+  animation: sellerBarGrow 1s var(--ease-out) backwards;
+}
+
+@keyframes sellerBarGrow {
+  from { width: 0 !important; }
+}
+
+/* === ACTIVITY DOT PULSE === */
+.activity-dot::after {
+  animation: activityDotPulse 2s ease-in-out infinite;
+}
+
+@keyframes activityDotPulse {
+  0%, 100% { transform: scale(1); opacity: 0.2; }
+  50% { transform: scale(1.8); opacity: 0; }
+}
+
+/* === QUICK ACTION BUTTON HOVER GLOW === */
+.quick-action-btn:hover {
+  animation: quickActionGlow 0.3s ease-out forwards;
+}
+
+@keyframes quickActionGlow {
+  to { box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2), 0 0 20px rgba(99, 102, 241, 0.08); }
+}
+
+/* === BTN PRIMARY SHIMMER === */
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  animation: btnShimmer 3s ease-in-out infinite;
+}
+
+@keyframes btnShimmer {
+  0% { left: -100%; }
+  50%, 100% { left: 150%; }
+}
+
+/* === ROLE BADGE GLOW === */
+.role-badge {
+  animation: roleBadgePulse 4s ease-in-out infinite;
+}
+
+@keyframes roleBadgePulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(99, 102, 241, 0); }
+  50% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.15); }
+}
+
+/* === LOGO GLOW PULSE === */
+.sidebar-logo {
+  animation: logoGlowPulse 5s ease-in-out infinite;
+}
+
+@keyframes logoGlowPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3), 0 0 40px rgba(99, 102, 241, 0.08); }
+  50% { box-shadow: 0 4px 25px rgba(99, 102, 241, 0.4), 0 0 50px rgba(99, 102, 241, 0.12); }
+}
+
+/* === THEME TOGGLE ROTATION ON HOVER === */
+#theme-toggle:hover {
+  animation: themeToggleSpin 0.5s var(--ease-out);
+}
+
+@keyframes themeToggleSpin {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(10deg) scale(1.1); }
+  100% { transform: rotate(15deg) scale(1.05); }
+}
+
+/* === FIN TAB ACTIVE GLOW === */
+.fin-tab.active {
+  animation: finTabGlow 3s ease-in-out infinite;
+}
+
+@keyframes finTabGlow {
+  0%, 100% { box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3); }
+  50% { box-shadow: 0 4px 20px rgba(99, 102, 241, 0.45), 0 0 30px rgba(99, 102, 241, 0.1); }
+}
+
+/* === FIN HERO MRR GLOW === */
+.fin-hero-mrr {
+  animation: mrrGlow 4s ease-in-out infinite;
+}
+
+@keyframes mrrGlow {
+  0%, 100% { filter: drop-shadow(0 0 20px rgba(52, 211, 153, 0.1)); }
+  50% { filter: drop-shadow(0 0 30px rgba(52, 211, 153, 0.2)); }
+}
+
+/* === FIN KPI BORDER TOP ANIMATION === */
+.fin-kpi {
+  border-image: linear-gradient(90deg, transparent, var(--accent-color, #818cf8), transparent) 1;
+  border-image-slice: 1;
+}
+
+/* === SCROLLBAR GLOW === */
+::-webkit-scrollbar-thumb {
+  animation: scrollbarGlow 4s ease-in-out infinite;
+}
+
+@keyframes scrollbarGlow {
+  0%, 100% { background: rgba(99, 102, 241, 0.1); }
+  50% { background: rgba(99, 102, 241, 0.2); }
+}
+
+/* === TABLE ROW HOVER GLOW === */
+.fin-table tbody tr:hover,
+table tbody tr:hover {
+  box-shadow: inset 0 0 30px rgba(99, 102, 241, 0.03);
+}
+
+/* === MODAL BACKDROP BREATHING === */
+.modal-backdrop.active {
+  animation: modalBackdropBreathe 4s ease-in-out infinite;
+}
+
+@keyframes modalBackdropBreathe {
+  0%, 100% { background: rgba(4, 6, 14, 0.85); }
+  50% { background: rgba(4, 6, 14, 0.88); }
+}
+
+/* === TOAST SLIDE + GLOW === */
+.toast {
+  animation: toastSlideIn 0.4s var(--ease-spring), toastGlow 2s ease-in-out 0.4s;
+}
+
+@keyframes toastGlow {
+  0%, 100% { box-shadow: var(--shadow-lg); }
+  50% { box-shadow: var(--shadow-lg), 0 0 20px rgba(99, 102, 241, 0.1); }
+}
+
+/* === PF TAB ACTIVE GLOW === */
+.pf-tab.active {
+  animation: pfTabGlow 3s ease-in-out infinite;
+}
+
+@keyframes pfTabGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(236, 72, 153, 0.08); }
+  50% { box-shadow: 0 0 25px rgba(236, 72, 153, 0.15); }
+}
+
+/* === KPI ICON GRADIENT ROTATION === */
+.kpi-icon-large,
+.fin-kpi-icon {
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-icon-large::after,
+.fin-kpi-icon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent 50%);
+  border-radius: inherit;
+  animation: iconShine 4s ease-in-out infinite;
+}
+
+@keyframes iconShine {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+/* === REDUCED MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

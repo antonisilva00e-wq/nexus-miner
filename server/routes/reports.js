@@ -16,7 +16,7 @@ router.get('/overview', (req, res) => {
   const totalClients = db.prepare('SELECT COUNT(*) as count FROM clients').get().count;
   const activeClients = db.prepare('SELECT COUNT(*) as count FROM clients WHERE active = 1').get().count;
   const totalRevenue = db.prepare("SELECT COALESCE(SUM(amount), 0) as total FROM payments WHERE status = 'paid'").get().total;
-  const totalExpenses = 0;
+  const totalExpenses = db.prepare("SELECT COALESCE(SUM(amount), 0) as total FROM financial_transactions WHERE type = 'expense'").get().total;
 
   // Pipeline breakdown
   const pipeline = db.prepare('SELECT pipeline_stage, COUNT(*) as count FROM leads GROUP BY pipeline_stage').all();

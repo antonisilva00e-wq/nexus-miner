@@ -1,0 +1,703 @@
+/* ==========================================================================
+   TECH BACKGROUND SYSTEM v2 - Ultra Visible Premium Visual Layer
+   Maximum impact: brighter blobs, denser grid, more particles, new effects
+   ========================================================================== */
+
+/* === ANIMATED MESH GRADIENT BACKGROUND === */
+.tech-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* Large moving gradient blobs - MUCH MORE VISIBLE */
+.tech-bg .mesh-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0;
+  will-change: transform;
+  animation: meshFloat 20s ease-in-out infinite;
+}
+
+.tech-bg .mesh-blob-1 {
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.42) 0%, rgba(99, 102, 241, 0.15) 40%, transparent 70%);
+  top: -15%;
+  left: -8%;
+  animation-delay: 0s;
+  animation-duration: 22s;
+}
+
+.tech-bg .mesh-blob-2 {
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.36) 0%, rgba(6, 182, 212, 0.12) 40%, transparent 70%);
+  bottom: -15%;
+  right: -8%;
+  animation-delay: -7s;
+  animation-duration: 20s;
+}
+
+.tech-bg .mesh-blob-3 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(217, 70, 239, 0.28) 0%, rgba(217, 70, 239, 0.10) 40%, transparent 70%);
+  top: 35%;
+  left: 45%;
+  transform: translateX(-50%);
+  animation-delay: -14s;
+  animation-duration: 26s;
+}
+
+.tech-bg .mesh-blob-4 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.22) 0%, rgba(16, 185, 129, 0.08) 40%, transparent 70%);
+  top: 8%;
+  right: 18%;
+  animation-delay: -4s;
+  animation-duration: 28s;
+}
+
+/* Extra blob for more color coverage */
+.tech-bg .mesh-blob-5 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.18) 0%, transparent 70%);
+  top: 60%;
+  left: 10%;
+  animation-delay: -10s;
+  animation-duration: 24s;
+}
+
+@keyframes meshFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+  20% { transform: translate(50px, -40px) scale(1.08); opacity: 1; }
+  40% { transform: translate(-30px, 25px) scale(0.96); opacity: 0.85; }
+  60% { transform: translate(35px, 50px) scale(1.04); opacity: 0.95; }
+  80% { transform: translate(-25px, -20px) scale(0.98); opacity: 0.9; }
+}
+
+/* === TECH GRID OVERLAY - MORE VISIBLE === */
+.tech-bg .tech-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.09) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 20%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black 20%, transparent 85%);
+}
+
+/* Glowing grid lines that pulse - BRIGHTER */
+.tech-bg .tech-grid-glow {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.16) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, black 0%, transparent 65%);
+  -webkit-mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, black 0%, transparent 65%);
+  animation: gridPulse 6s ease-in-out infinite;
+}
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* === FLOATING PARTICLES - MORE, BIGGER, BRIGHTER === */
+.tech-bg .particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.tech-bg .particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: rgba(99, 102, 241, 0.7);
+  border-radius: 50%;
+  animation: particleFloat linear infinite;
+  will-change: transform;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+.tech-bg .particle::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.2);
+  filter: blur(3px);
+}
+
+/* 30 particles with varied sizes, colors and speeds */
+.tech-bg .particle:nth-child(1) { left: 3%; animation-duration: 16s; animation-delay: 0s; width: 3px; height: 3px; }
+.tech-bg .particle:nth-child(2) { left: 8%; animation-duration: 20s; animation-delay: -2s; width: 4px; height: 4px; background: rgba(6, 182, 212, 0.6); box-shadow: 0 0 10px rgba(6, 182, 212, 0.5); }
+.tech-bg .particle:nth-child(3) { left: 14%; animation-duration: 14s; animation-delay: -6s; width: 2px; height: 2px; }
+.tech-bg .particle:nth-child(4) { left: 20%; animation-duration: 22s; animation-delay: -1s; width: 3.5px; height: 3.5px; }
+.tech-bg .particle:nth-child(5) { left: 26%; animation-duration: 18s; animation-delay: -9s; background: rgba(217, 70, 239, 0.6); box-shadow: 0 0 10px rgba(217, 70, 239, 0.5); }
+.tech-bg .particle:nth-child(6) { left: 32%; animation-duration: 17s; animation-delay: -4s; width: 2.5px; height: 2.5px; }
+.tech-bg .particle:nth-child(7) { left: 38%; animation-duration: 21s; animation-delay: -7s; width: 4px; height: 4px; background: rgba(6, 182, 212, 0.5); box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); }
+.tech-bg .particle:nth-child(8) { left: 44%; animation-duration: 15s; animation-delay: -11s; width: 2px; height: 2px; }
+.tech-bg .particle:nth-child(9) { left: 50%; animation-duration: 19s; animation-delay: -3s; width: 3px; height: 3px; }
+.tech-bg .particle:nth-child(10) { left: 56%; animation-duration: 23s; animation-delay: -8s; background: rgba(217, 70, 239, 0.5); box-shadow: 0 0 10px rgba(217, 70, 239, 0.4); }
+.tech-bg .particle:nth-child(11) { left: 62%; animation-duration: 16s; animation-delay: -5s; width: 3.5px; height: 3.5px; }
+.tech-bg .particle:nth-child(12) { left: 68%; animation-duration: 24s; animation-delay: -12s; width: 4px; height: 4px; background: rgba(16, 185, 129, 0.5); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+.tech-bg .particle:nth-child(13) { left: 74%; animation-duration: 17s; animation-delay: -2s; width: 2.5px; height: 2.5px; }
+.tech-bg .particle:nth-child(14) { left: 80%; animation-duration: 20s; animation-delay: -10s; }
+.tech-bg .particle:nth-child(15) { left: 86%; animation-duration: 15s; animation-delay: -6s; background: rgba(6, 182, 212, 0.5); box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); }
+.tech-bg .particle:nth-child(16) { left: 92%; animation-duration: 22s; animation-delay: -1s; width: 3px; height: 3px; }
+.tech-bg .particle:nth-child(17) { left: 5%; animation-duration: 25s; animation-delay: -13s; width: 2px; height: 2px; background: rgba(217, 70, 239, 0.4); }
+.tech-bg .particle:nth-child(18) { left: 18%; animation-duration: 14s; animation-delay: -7s; width: 3.5px; height: 3.5px; }
+.tech-bg .particle:nth-child(19) { left: 35%; animation-duration: 18s; animation-delay: -3s; background: rgba(16, 185, 129, 0.45); box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+.tech-bg .particle:nth-child(20) { left: 48%; animation-duration: 21s; animation-delay: -9s; width: 2.5px; height: 2.5px; }
+.tech-bg .particle:nth-child(21) { left: 60%; animation-duration: 16s; animation-delay: -5s; width: 4px; height: 4px; background: rgba(99, 102, 241, 0.6); }
+.tech-bg .particle:nth-child(22) { left: 72%; animation-duration: 19s; animation-delay: -11s; }
+.tech-bg .particle:nth-child(23) { left: 84%; animation-duration: 23s; animation-delay: -4s; width: 3px; height: 3px; background: rgba(6, 182, 212, 0.45); }
+.tech-bg .particle:nth-child(24) { left: 95%; animation-duration: 17s; animation-delay: -8s; width: 2px; height: 2px; }
+.tech-bg .particle:nth-child(25) { left: 11%; animation-duration: 20s; animation-delay: -14s; width: 3.5px; height: 3.5px; background: rgba(217, 70, 239, 0.4); }
+.tech-bg .particle:nth-child(26) { left: 42%; animation-duration: 15s; animation-delay: -2s; }
+.tech-bg .particle:nth-child(27) { left: 55%; animation-duration: 22s; animation-delay: -10s; width: 3px; height: 3px; background: rgba(16, 185, 129, 0.5); }
+.tech-bg .particle:nth-child(28) { left: 67%; animation-duration: 18s; animation-delay: -6s; width: 2.5px; height: 2.5px; }
+.tech-bg .particle:nth-child(29) { left: 78%; animation-duration: 24s; animation-delay: -3s; }
+.tech-bg .particle:nth-child(30) { left: 90%; animation-duration: 16s; animation-delay: -12s; width: 4px; height: 4px; background: rgba(99, 102, 241, 0.55); box-shadow: 0 0 12px rgba(99, 102, 241, 0.5); }
+
+@keyframes particleFloat {
+  0% { transform: translateY(105vh) scale(0); opacity: 0; }
+  5% { opacity: 1; transform: translateY(95vh) scale(1); }
+  50% { opacity: 0.9; }
+  95% { opacity: 0.6; }
+  100% { transform: translateY(-10vh) scale(0.3); opacity: 0; }
+}
+
+/* === HORIZONTAL SCAN LINE - BRIGHTER === */
+.tech-bg .scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.15) 15%,
+    rgba(99, 102, 241, 0.4) 40%,
+    rgba(6, 182, 212, 0.35) 60%,
+    rgba(99, 102, 241, 0.15) 85%,
+    transparent 100%
+  );
+  animation: scanDown 10s linear infinite;
+  will-change: transform;
+  opacity: 0.8;
+}
+
+.tech-bg .scan-line::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -40px;
+  height: 80px;
+  background: linear-gradient(180deg,
+    transparent,
+    rgba(99, 102, 241, 0.04),
+    rgba(6, 182, 212, 0.02),
+    transparent
+  );
+}
+
+.tech-bg .scan-line::after {
+  content: '';
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  top: -1px;
+  height: 4px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(99, 102, 241, 0.25),
+    rgba(6, 182, 212, 0.2),
+    transparent
+  );
+  filter: blur(3px);
+}
+
+@keyframes scanDown {
+  0% { transform: translateY(-80px); }
+  100% { transform: translateY(100vh); }
+}
+
+/* === VIGNETTE - SOFTER to let effects show === */
+.tech-bg .vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 70% at 50% 50%, transparent 35%, rgba(3, 5, 12, 0.5) 100%);
+  pointer-events: none;
+}
+
+/* === CORNER ACCENT GLOWS - MUCH BIGGER AND BRIGHTER === */
+.tech-bg .corner-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.4;
+  will-change: transform;
+}
+
+.tech-bg .corner-glow-tl {
+  top: -150px;
+  left: -150px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.4), transparent 65%);
+  animation: cornerPulse 8s ease-in-out infinite;
+}
+
+.tech-bg .corner-glow-br {
+  bottom: -150px;
+  right: -150px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.35), transparent 65%);
+  animation: cornerPulse 8s ease-in-out infinite -4s;
+}
+
+.tech-bg .corner-glow-tr {
+  top: -100px;
+  right: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(217, 70, 239, 0.2), transparent 65%);
+  animation: cornerPulse 10s ease-in-out infinite -2s;
+}
+
+.tech-bg .corner-glow-bl {
+  bottom: -100px;
+  left: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.18), transparent 65%);
+  animation: cornerPulse 10s ease-in-out infinite -6s;
+}
+
+@keyframes cornerPulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.15); }
+}
+
+/* === DIAMOND DOT PATTERN - MORE VISIBLE === */
+.tech-bg .dot-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(99, 102, 241, 0.12) 1px, transparent 1px);
+  background-size: 35px 35px;
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 50%, black 15%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 50%, black 15%, transparent 75%);
+  animation: dotPulse 5s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* === HORIZONTAL LIGHT STREAKS - BRIGHTER, MORE OF THEM === */
+.tech-bg .light-streak {
+  position: absolute;
+  left: -20%;
+  width: 140%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(99, 102, 241, 0.2),
+    rgba(6, 182, 212, 0.15),
+    rgba(99, 102, 241, 0.1),
+    transparent
+  );
+  animation: streakMove 12s ease-in-out infinite;
+}
+
+.tech-bg .light-streak::after {
+  content: '';
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  top: -2px;
+  height: 5px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.08), transparent);
+  filter: blur(4px);
+}
+
+.tech-bg .light-streak-2 {
+  top: 60%;
+  animation-delay: -6s;
+  animation-duration: 15s;
+  transform: rotate(1.5deg);
+}
+
+.tech-bg .light-streak-3 {
+  top: 85%;
+  animation-delay: -3s;
+  animation-duration: 18s;
+  transform: rotate(-1deg);
+  background: linear-gradient(90deg, transparent, rgba(217, 70, 239, 0.12), rgba(6, 182, 212, 0.08), transparent);
+}
+
+@keyframes streakMove {
+  0%, 100% { opacity: 0.25; transform: translateX(-5%); }
+  50% { opacity: 0.9; transform: translateX(5%); }
+}
+
+/* === HEXAGON PATTERN - MORE VISIBLE === */
+.tech-bg .hex-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='52'%3E%3Cpath d='M30 0L60 15v22L30 52 0 37V15z' fill='none' stroke='%236366f1' stroke-width='0.7'/%3E%3C/svg%3E");
+  background-size: 60px 52px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 50%, black 10%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 50%, black 10%, transparent 70%);
+  animation: hexPulse 8s ease-in-out infinite;
+}
+
+@keyframes hexPulse {
+  0%, 100% { opacity: 0.04; }
+  50% { opacity: 0.08; }
+}
+
+/* === DATA FLOW LINES - MORE OF THEM, TALLER, BRIGHTER === */
+.tech-bg .data-flow {
+  position: absolute;
+  width: 1px;
+  height: 180px;
+  background: linear-gradient(180deg,
+    transparent,
+    rgba(99, 102, 241, 0.25),
+    rgba(6, 182, 212, 0.18),
+    rgba(99, 102, 241, 0.12),
+    transparent
+  );
+  animation: dataFlow 7s linear infinite;
+  will-change: transform;
+  box-shadow: 0 0 6px rgba(99, 102, 241, 0.15);
+}
+
+.tech-bg .data-flow:nth-child(1) { left: 8%; animation-delay: 0s; animation-duration: 6s; height: 200px; }
+.tech-bg .data-flow:nth-child(2) { left: 18%; animation-delay: -1.5s; animation-duration: 8s; height: 140px; }
+.tech-bg .data-flow:nth-child(3) { left: 28%; animation-delay: -3s; animation-duration: 5s; height: 220px; }
+.tech-bg .data-flow:nth-child(4) { left: 38%; animation-delay: -0.5s; animation-duration: 9s; height: 160px; }
+.tech-bg .data-flow:nth-child(5) { left: 48%; animation-delay: -4s; animation-duration: 7s; height: 190px; }
+.tech-bg .data-flow:nth-child(6) { left: 58%; animation-delay: -2s; animation-duration: 6s; height: 170px; }
+.tech-bg .data-flow:nth-child(7) { left: 68%; animation-delay: -5s; animation-duration: 8s; height: 210px; }
+.tech-bg .data-flow:nth-child(8) { left: 78%; animation-delay: -1s; animation-duration: 5s; height: 150px; }
+.tech-bg .data-flow:nth-child(9) { left: 88%; animation-delay: -3.5s; animation-duration: 7s; height: 180px; }
+.tech-bg .data-flow:nth-child(10) { left: 95%; animation-delay: -2.5s; animation-duration: 9s; height: 130px; }
+
+@keyframes dataFlow {
+  0% { transform: translateY(-200px); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 0.5; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+/* === NEW: ROTATING RADAR PULSE === */
+.tech-bg .radar-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 800px;
+  height: 800px;
+  border-radius: 50%;
+  border: 1px solid rgba(99, 102, 241, 0.08);
+  animation: radarSpin 20s linear infinite;
+}
+
+.tech-bg .radar-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(6, 182, 212, 0.05);
+  animation: radarSpin 15s linear infinite reverse;
+}
+
+.tech-bg .radar-pulse::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.15), transparent);
+  transform-origin: left center;
+  animation: radarSweep 4s linear infinite;
+}
+
+@keyframes radarSpin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes radarSweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* === NEW: CIRCUIT TRACES === */
+.tech-bg .circuit-traces {
+  position: absolute;
+  inset: 0;
+  opacity: 0.04;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cpath d='M20 100h60M100 20v60M140 100h40M100 140v40' stroke='%236366f1' stroke-width='0.5' fill='none'/%3E%3Ccircle cx='100' cy='100' r='3' fill='none' stroke='%236366f1' stroke-width='0.5'/%3E%3Ccircle cx='20' cy='100' r='2' fill='%236366f1' opacity='0.5'/%3E%3Ccircle cx='180' cy='100' r='2' fill='%236366f1' opacity='0.5'/%3E%3Ccircle cx='100' cy='20' r='2' fill='%236366f1' opacity='0.5'/%3E%3Ccircle cx='100' cy='180' r='2' fill='%236366f1' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 10%, transparent 65%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 10%, transparent 65%);
+  animation: circuitPulse 6s ease-in-out infinite;
+}
+
+@keyframes circuitPulse {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.07; }
+}
+
+/* === NEW: GLOWING HORIZONTAL RULER LINES === */
+.tech-bg .ruler-lines {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.tech-bg .ruler-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.06) 10%,
+    rgba(99, 102, 241, 0.06) 90%,
+    transparent 100%
+  );
+}
+
+.tech-bg .ruler-line:nth-child(1) { top: 20%; }
+.tech-bg .ruler-line:nth-child(2) { top: 40%; }
+.tech-bg .ruler-line:nth-child(3) { top: 60%; }
+.tech-bg .ruler-line:nth-child(4) { top: 80%; }
+
+.tech-bg .ruler-line::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 40px;
+  height: 1px;
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.tech-bg .ruler-line::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  width: 40px;
+  height: 1px;
+  background: rgba(6, 182, 212, 0.1);
+}
+
+/* === NEW: AURORA WAVE === */
+.tech-bg .aurora {
+  position: absolute;
+  top: 10%;
+  left: -10%;
+  width: 120%;
+  height: 300px;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.04) 20%,
+    rgba(6, 182, 212, 0.06) 40%,
+    rgba(217, 70, 239, 0.04) 60%,
+    transparent 100%
+  );
+  filter: blur(40px);
+  animation: auroraWave 15s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes auroraWave {
+  0%, 100% { transform: translateY(0) scaleY(1); opacity: 0.5; }
+  33% { transform: translateY(30px) scaleY(1.2); opacity: 0.8; }
+  66% { transform: translateY(-20px) scaleY(0.9); opacity: 0.6; }
+}
+
+/* === MAIN CONTENT AREA BACKGROUND === */
+.main-content {
+  position: relative;
+}
+
+.main-content::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(ellipse 55% 45% at 65% 15%, rgba(99, 102, 241, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 45% 40% at 25% 85%, rgba(6, 182, 212, 0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 35% 30% at 80% 60%, rgba(217, 70, 239, 0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* === SIDEBAR GLOW EFFECTS === */
+.sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(ellipse 120% 35% at 50% 0%, rgba(99, 102, 241, 0.10) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* === PAGE TRANSITION GLOW === */
+.page-content {
+  position: relative;
+  z-index: 1;
+  animation: pageGlow 0.5s ease-out;
+}
+
+@keyframes pageGlow {
+  0% { opacity: 0; transform: translateY(10px); filter: blur(2px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* === CARD ENHANCED GLASS EFFECTS === */
+.card {
+  background: linear-gradient(135deg,
+    rgba(9, 15, 34, 0.65) 0%,
+    rgba(6, 10, 24, 0.55) 50%,
+    rgba(9, 15, 34, 0.6) 100%
+  );
+  border: 1px solid rgba(99, 102, 241, 0.08);
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* === KPI CARD ENHANCED === */
+.kpi-card {
+  background: linear-gradient(135deg,
+    rgba(8, 13, 28, 0.7) 0%,
+    rgba(6, 10, 24, 0.6) 100%
+  );
+  border: 1px solid rgba(99, 102, 241, 0.07);
+}
+
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), transparent 60%);
+  pointer-events: none;
+}
+
+/* === LOGIN PAGE ENHANCED === */
+#page-login {
+  background: var(--bg-primary);
+}
+
+#page-login .bg-grid {
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.06) 1px, transparent 1px);
+  background-size: 45px 45px;
+}
+
+#page-login .login-card {
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.5),
+    0 0 100px rgba(99, 102, 241, 0.1),
+    0 0 200px rgba(99, 102, 241, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* === RESPONSIVE: Reduce effects on mobile === */
+@media (max-width: 768px) {
+  .tech-bg .mesh-blob { filter: blur(70px); opacity: 0.5; }
+  .tech-bg .mesh-blob-1 { width: 450px; height: 450px; }
+  .tech-bg .mesh-blob-2 { width: 400px; height: 400px; }
+  .tech-bg .mesh-blob-3 { width: 350px; height: 350px; }
+  .tech-bg .mesh-blob-4, .tech-bg .mesh-blob-5 { display: none; }
+  .tech-bg .particle:nth-child(n+16) { display: none; }
+  .tech-bg .data-flow:nth-child(n+6) { display: none; }
+  .tech-bg .light-streak-3 { display: none; }
+  .tech-bg .corner-glow-tr, .tech-bg .corner-glow-bl { display: none; }
+  .tech-bg .radar-pulse { display: none; }
+  .tech-bg .aurora { display: none; }
+  .tech-bg .scan-line { animation-duration: 14s; }
+  .main-content::before { left: 0; }
+}
+
+/* === REDUCED MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  .tech-bg .mesh-blob,
+  .tech-bg .particle,
+  .tech-bg .scan-line,
+  .tech-bg .data-flow,
+  .tech-bg .light-streak,
+  .tech-bg .tech-grid-glow,
+  .tech-bg .dot-pattern,
+  .tech-bg .corner-glow,
+  .tech-bg .radar-pulse,
+  .tech-bg .aurora,
+  .tech-bg .hex-pattern,
+  .tech-bg .circuit-traces {
+    animation: none !important;
+  }
+  .tech-bg .mesh-blob { opacity: 0.6; }
+}
+
+/* === LIGHT THEME OVERRIDES === */
+[data-theme="light"] .tech-bg .mesh-blob-1 { background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%); }
+[data-theme="light"] .tech-bg .mesh-blob-2 { background: radial-gradient(circle, rgba(6, 182, 212, 0.10) 0%, transparent 70%); }
+[data-theme="light"] .tech-bg .mesh-blob-3 { background: radial-gradient(circle, rgba(217, 70, 239, 0.08) 0%, transparent 70%); }
+[data-theme="light"] .tech-bg .mesh-blob-4, [data-theme="light"] .tech-bg .mesh-blob-5 { display: none; }
+[data-theme="light"] .tech-bg .particle { background: rgba(99, 102, 241, 0.3); box-shadow: 0 0 6px rgba(99, 102, 241, 0.2); }
+[data-theme="light"] .tech-bg .tech-grid { background-image: linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px); }
+[data-theme="light"] .tech-bg .tech-grid-glow { background-image: linear-gradient(rgba(99, 102, 241, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.08) 1px, transparent 1px); }
+[data-theme="light"] .tech-bg .scan-line { background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.08) 15%, rgba(99, 102, 241, 0.18) 40%, rgba(6, 182, 212, 0.14) 60%, rgba(99, 102, 241, 0.08) 85%, transparent 100%); }
+[data-theme="light"] .tech-bg .vignette { background: radial-gradient(ellipse 80% 70% at 50% 50%, transparent 35%, rgba(248, 250, 252, 0.35) 100%); }
+[data-theme="light"] .tech-bg .corner-glow-tl { background: radial-gradient(circle, rgba(99, 102, 241, 0.15), transparent 65%); }
+[data-theme="light"] .tech-bg .corner-glow-br { background: radial-gradient(circle, rgba(6, 182, 212, 0.12), transparent 65%); }
+[data-theme="light"] .tech-bg .dot-pattern { background-image: radial-gradient(circle, rgba(99, 102, 241, 0.06) 1px, transparent 1px); }
+[data-theme="light"] .tech-bg .hex-pattern { opacity: 0.03; }
+[data-theme="light"] .tech-bg .data-flow { background: linear-gradient(180deg, transparent, rgba(99, 102, 241, 0.12), rgba(6, 182, 212, 0.08), transparent); }
+[data-theme="light"] .tech-bg .light-streak { background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.08), rgba(6, 182, 212, 0.06), transparent); }
+[data-theme="light"] .tech-bg .radar-pulse { border-color: rgba(99, 102, 241, 0.04); }
+[data-theme="light"] .tech-bg .aurora { background: linear-gradient(180deg, transparent 0%, rgba(99, 102, 241, 0.02) 20%, rgba(6, 182, 212, 0.03) 40%, rgba(217, 70, 239, 0.02) 60%, transparent 100%); }
+[data-theme="light"] .tech-bg .circuit-traces { opacity: 0.02; }
+[data-theme="light"] .tech-bg .ruler-line { background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.03) 10%, rgba(99, 102, 241, 0.03) 90%, transparent 100%); }

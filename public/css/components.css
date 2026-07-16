@@ -96,14 +96,14 @@
 
 /* === CARDS === */
 .card {
-  background: rgba(8, 13, 28, 0.5);
-  border: 1px solid rgba(255,255,255,0.04);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--shadow-md);
-  transition: var(--transition-smooth);
+  transition: var(--transition-bounce);
   position: relative;
   overflow: hidden;
 }
@@ -116,12 +116,13 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
 }
 
 .card:hover {
-  border-color: rgba(255,255,255,0.06);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  border-color: var(--border-glow);
+  box-shadow: var(--card-hover-shadow);
 }
 
 .card-header {
@@ -149,37 +150,37 @@
 }
 
 /* === TABLES === */
-.table-wrapper { overflow-x: auto; border-radius: var(--radius-md); }
+.table-wrapper { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
 
 table { width: 100%; border-collapse: collapse; }
 
 table th {
-  padding: 0.75rem 1.15rem;
-  font-size: 0.68rem;
+  padding: 0.9rem 1.25rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: var(--text-tertiary);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   text-align: left;
-  background: rgba(0,0,0,0.2);
+  background: var(--bg-tertiary);
   position: sticky;
   top: 0;
   z-index: 1;
 }
 
 table td {
-  padding: 0.75rem 1.15rem;
-  border-bottom: 1px solid rgba(255,255,255,0.02);
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
   color: var(--text-primary);
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   vertical-align: middle;
 }
 
-table tbody tr { transition: all 0.2s ease; }
+table tbody tr { transition: var(--transition-fast); }
 
 table tbody tr:hover {
-  background: rgba(var(--accent-primary-rgb), 0.03);
+  background: rgba(var(--accent-primary-rgb), 0.04);
 }
 
 table tbody tr:last-child td { border-bottom: none; }

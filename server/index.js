@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const helmet = require('helmet');
 const path = require('path');
 const http = require('http');
@@ -90,23 +90,40 @@ async function main() {
 
   app.post('/api/webhook/sale', async (req, res) => {
     const { leadId, clientName, value, seller } = req.body;
-    const notification = { type: 'sale', title: 'Nova Venda!', message: `${clientName || 'Cliente'} â€” R$ ${(value || 0).toLocaleString('pt-BR')}`, timestamp: new Date().toISOString() };
+    const formattedVal = parseFloat(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const notification = { 
+      type: 'sale', 
+      title: 'Venda Aprovada! 🛒', 
+      message: `${formattedVal} — ${clientName || 'Cliente'}`, 
+      timestamp: new Date().toISOString() 
+    };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('ðŸ’° Nova Venda!', notification.message, '/#/financial', 'sale');
+    await pushAll('Venda Aprovada! 🛒', notification.message, '/#/financial', 'sale');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/commission', async (req, res) => {
     const { sellerName, amount } = req.body;
-    const notification = { type: 'commission', title: 'ComissÃ£o Recebida!', message: `${sellerName || 'Vendedor'} â€” R$ ${(amount || 0).toLocaleString('pt-BR')}`, timestamp: new Date().toISOString() };
+    const formattedVal = parseFloat(amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    const notification = { 
+      type: 'commission', 
+      title: 'Comissão Recebida! 🏆', 
+      message: `${formattedVal} — Indicação de ${sellerName || 'Parceiro'}`, 
+      timestamp: new Date().toISOString() 
+    };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('ðŸ† ComissÃ£o!', notification.message, '/#/financial', 'commission');
+    await pushAll('Comissão Recebida! 🏆', notification.message, '/#/financial', 'commission');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/lead', async (req, res) => {
     const { leadName, source, score } = req.body;
-    const notification = { type: 'lead', title: 'Novo Lead!', message: `${leadName || 'Lead'} â€” Score: ${score || 0}`, timestamp: new Date().toISOString() };
+    const notification = { 
+      type: 'lead', 
+      title: 'Novo Lead Capturado! 🎯', 
+      message: `${leadName || 'Lead'} — Origem: ${source || 'Mineração'}`, 
+      timestamp: new Date().toISOString() 
+    };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('ðŸŽ¯ Novo Lead!', notification.message, '/#/leads', 'lead');
+    await pushAll('Novo Lead Capturado! 🎯', notification.message, '/#/leads', 'lead');
     res.json({ ok: true, notification });
   });
 
