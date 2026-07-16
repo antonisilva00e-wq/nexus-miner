@@ -73,7 +73,7 @@ router.post('/payments', (req, res) => {
   const client = db.prepare('SELECT name FROM clients WHERE id = ?').get(client_id);
   if (global.__notify) {
     const formattedVal = parseFloat(amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    global.__notify('sale', 'Nexus Miner', `Venda concluída: ${formattedVal} — ${client?.name || 'Cliente'}`, { paymentId: id, clientId: client_id });
+    global.__notify('sale', 'Nexus Miner', `Venda concluída: ${formattedVal}`, { paymentId: id, clientId: client_id });
   }
 
   const payment = db.prepare('SELECT * FROM payments WHERE id = ?').get(id);

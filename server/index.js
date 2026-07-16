@@ -94,7 +94,7 @@ async function main() {
     const notification = { 
       type: 'sale', 
       title: 'Nexus Miner', 
-      message: `Venda concluída: ${formattedVal} — ${clientName || 'Cliente'}`, 
+      message: `Venda concluída: ${formattedVal}`, 
       timestamp: new Date().toISOString() 
     };
     if (global.__io) global.__io.emit('notification', notification);
