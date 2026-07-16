@@ -214,9 +214,30 @@ async function main() {
   server.listen(config.port, '0.0.0.0', () => {
     console.log(`[OK] Nexus Miner rodando na porta ${config.port}`);
     try { require('./services/backupService').startAutoBackup(); } catch {}
+
+    // Auto-ping: mantém o servidor sempre acordado no Render (evita hibernação)
+    const PING_INTERVAL_MS = 10 * 60 * 1000; // 10 minutos
+    const selfUrl = process.env.RENDER_EXTERNAL_URL
+      ? `${process.env.RENDER_EXTERNAL_URL}/api/health`
+      : `http://localhost:${config.port}/api/health`;
+
+    setInterval(async () => {
+      try {
+        const https = selfUrl.startsWith('https') ? require('https') : require('http');
+        https.get(selfUrl, (res) => {
+          console.log(`[PING] Auto-ping OK — status ${res.statusCode}`);
+        }).on('error', (err) => {
+          console.warn('[PING] Falha no auto-ping:', err.message);
+        });
+      } catch (e) {
+        console.warn('[PING] Erro:', e.message);
+      }
+    }, PING_INTERVAL_MS);
+
+    console.log(`[PING] Auto-ping ativado → ${selfUrl} (a cada 10 min)`);
   });
 }
 
 main().catch(err => { console.error('FATAL:', err.message); process.exit(1); });
 
-// Last deploy: 2026-07-16 00:24:30
+// Last deploy: 2026-07-16 20:02:00
