@@ -196,6 +196,38 @@ function createSchema(db) {
     CREATE INDEX IF NOT EXISTS idx_clients_expiry ON clients(expiry);
     CREATE INDEX IF NOT EXISTS idx_activities_entity ON activities(entity_type, entity_id);
     CREATE INDEX IF NOT EXISTS idx_messages_sent_lead ON messages_sent(lead_id);
+
+    -- Bookings table (appointment scheduling)
+    CREATE TABLE IF NOT EXISTS bookings (
+      id TEXT PRIMARY KEY,
+      seller_id TEXT NOT NULL,
+      token TEXT UNIQUE NOT NULL,
+      date DATE NOT NULL,
+      duration INTEGER DEFAULT 30,
+      description TEXT,
+      location TEXT,
+      status TEXT DEFAULT 'active',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Appointments table (booked appointments)
+    CREATE TABLE IF NOT EXISTS appointments (
+      id TEXT PRIMARY KEY,
+      booking_id TEXT NOT NULL,
+      client_name TEXT NOT NULL,
+      client_email TEXT NOT NULL,
+      client_phone TEXT,
+      date DATE NOT NULL,
+      time TEXT NOT NULL,
+      notes TEXT,
+      status TEXT DEFAULT 'confirmed',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (booking_id) REFERENCES bookings(id)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_bookings_token ON bookings(token);
+    CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(date);
+    CREATE INDEX IF NOT EXISTS idx_appointments_booking ON appointments(booking_id);
   `);
 
   // Upgrade requests table

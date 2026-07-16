@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const helmet = require('helmet');
 const path = require('path');
 const http = require('http');
@@ -27,7 +27,7 @@ async function main() {
       db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Gerente Comercial', 'gerente@nexusminer.com', 'gerente', bcrypt.hashSync('manager123', 12), 'manager');
       db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Vendedor', 'vendedor@nexusminer.com', 'vendedor', bcrypt.hashSync('seller123', 12), 'seller');
       db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('company_name', 'Nexus Miner');
-      console.log('[SEED] Usuários criados');
+      console.log('[SEED] UsuÃ¡rios criados');
     }
     // Auto-seed test client
     const existingClient = db.prepare('SELECT id FROM clients WHERE username = ?').get('cliente1');
@@ -90,27 +90,27 @@ async function main() {
 
   app.post('/api/webhook/sale', async (req, res) => {
     const { leadId, clientName, value, seller } = req.body;
-    const notification = { type: 'sale', title: 'Nova Venda!', message: `${clientName || 'Cliente'} — R$ ${(value || 0).toLocaleString('pt-BR')}`, timestamp: new Date().toISOString() };
+    const notification = { type: 'sale', title: 'Nova Venda!', message: `${clientName || 'Cliente'} â€” R$ ${(value || 0).toLocaleString('pt-BR')}`, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('💰 Nova Venda!', notification.message, '/#/financial', 'sale');
+    await pushAll('ðŸ’° Nova Venda!', notification.message, '/#/financial', 'sale');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/commission', async (req, res) => {
     const { sellerName, amount } = req.body;
-    const notification = { type: 'commission', title: 'Comissão Recebida!', message: `${sellerName || 'Vendedor'} — R$ ${(amount || 0).toLocaleString('pt-BR')}`, timestamp: new Date().toISOString() };
+    const notification = { type: 'commission', title: 'ComissÃ£o Recebida!', message: `${sellerName || 'Vendedor'} â€” R$ ${(amount || 0).toLocaleString('pt-BR')}`, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('🏆 Comissão!', notification.message, '/#/financial', 'commission');
+    await pushAll('ðŸ† ComissÃ£o!', notification.message, '/#/financial', 'commission');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/lead', async (req, res) => {
     const { leadName, source, score } = req.body;
-    const notification = { type: 'lead', title: 'Novo Lead!', message: `${leadName || 'Lead'} — Score: ${score || 0}`, timestamp: new Date().toISOString() };
+    const notification = { type: 'lead', title: 'Novo Lead!', message: `${leadName || 'Lead'} â€” Score: ${score || 0}`, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('🎯 Novo Lead!', notification.message, '/#/leads', 'lead');
+    await pushAll('ðŸŽ¯ Novo Lead!', notification.message, '/#/leads', 'lead');
     res.json({ ok: true, notification });
   });
 
-  // 9. Routes — load all routes with auth but NO global security middleware
+  // 9. Routes â€” load all routes with auth but NO global security middleware
   const routeMap = {
     '/api/auth': './routes/auth',
     '/api/leads': './routes/leads',
@@ -135,6 +135,9 @@ async function main() {
     '/api/telegram': './routes/telegram',
     '/api/scripts': './routes/scripts',
     '/api/settings': './routes/settings',
+    '/api/enrichment': './routes/enrichment',
+    '/api/booking': './routes/booking',
+    '/api/intelligence': './routes/intelligence',
   };
   for (const [mount, file] of Object.entries(routeMap)) {
     try { app.use(mount, require(file)); } catch (e) { console.error(`[ROUTE] ${mount}:`, e.message); }

@@ -1,4 +1,4 @@
-// Main App - Simple & Robust
+﻿// Main App - Simple & Robust
 const App = {
   currentPage: null,
 
@@ -8,6 +8,9 @@ const App = {
     map: MapPage,
     kanban: KanbanPage,
     scoring: ScoringPage,
+    enrichment: EnrichmentPage,
+    booking: BookingPage,
+    intelligence: IntelligencePage,
     clients: ClientsPage,
     financial: FinancialPage,
     whatsapp: WhatsAppPage,
@@ -88,7 +91,7 @@ const App = {
     // Only admin can access restricted pages
     const adminOnly = ['users', 'clients', 'automation', 'templates', 'settings'];
     if (adminOnly.includes(pageName) && !Auth.isAdmin()) {
-      showToast('Apenas o administrador pode acessar esta página', 'warning');
+      showToast('Apenas o administrador pode acessar esta pÃ¡gina', 'warning');
       return;
     }
 
@@ -110,6 +113,9 @@ const App = {
       leads: 'Minerar Leads',
       kanban: 'Pipeline Kanban',
       scoring: 'Scoring de Leads',
+      enrichment: 'Enriquecimento IA',
+      booking: 'Agendamentos',
+      intelligence: 'Inteligencia de Mercado',
       clients: 'Gerenciar Clientes',
       financial: 'Financeiro',
       whatsapp: 'WhatsApp',

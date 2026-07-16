@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexus Miner - ERP de Prospecção B2B</title>
+  <title>Nexus Miner - ERP de ProspecÃ§Ã£o B2B</title>
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.json">
@@ -44,10 +44,10 @@
         </div>
         <form id="login-form" class="login-form">
           <div class="form-group">
-            <label for="login-user">Usuário</label>
+            <label for="login-user">UsuÃ¡rio</label>
             <div class="input-wrapper">
               <i data-lucide="user"></i>
-              <input type="text" id="login-user" placeholder="Digite seu usuário" autocomplete="username" required>
+              <input type="text" id="login-user" placeholder="Digite seu usuÃ¡rio" autocomplete="username" required>
             </div>
           </div>
           <div class="form-group">
@@ -61,7 +61,7 @@
           <div class="login-error" id="login-error"><i data-lucide="alert-circle"></i><span id="login-error-text"></span></div>
           <button type="submit" class="btn-login" id="btn-login"><i data-lucide="log-in" id="login-btn-icon"></i><span id="login-btn-text">Entrar no Painel</span></button>
         </form>
-        <div class="login-footer"><p>Nexus Miner &copy; 2026 &bull; ERP de Prospecção B2B</p></div>
+        <div class="login-footer"><p>Nexus Miner &copy; 2026 &bull; ERP de ProspecÃ§Ã£o B2B</p></div>
       </div>
     </div>
   </div>
@@ -82,6 +82,9 @@
         <a href="#/map" class="menu-item" data-page="map"><i data-lucide="map-pin"></i><span>Mapa de Leads</span></a>
         <a href="#/kanban" class="menu-item" data-page="kanban"><i data-lucide="kanban-square"></i><span>Pipeline Kanban</span></a>
         <a href="#/scoring" class="menu-item" data-page="scoring"><i data-lucide="bar-chart-3"></i><span>Scoring</span></a>
+        <a href="#/enrichment" class="menu-item" data-page="enrichment"><i data-lucide="sparkles"></i><span>Enriquecer IA</span></a>
+        <a href="#/booking" class="menu-item" data-page="booking"><i data-lucide="calendar"></i><span>Agendamentos</span></a>
+        <a href="#/intelligence" class="menu-item" data-page="intelligence"><i data-lucide="brain"></i><span>Inteligencia</span></a>
         <a href="#/clients" class="menu-item" data-page="clients"><i data-lucide="users"></i><span>Clientes</span></a>
         <a href="#/financial" class="menu-item" data-page="financial"><i data-lucide="dollar-sign"></i><span>Financeiro</span></a>
         <a href="#/whatsapp" class="menu-item" data-page="whatsapp"><i data-lucide="message-circle"></i><span>WhatsApp</span></a>
@@ -120,6 +123,9 @@
       <div id="page-map" class="page-content" style="display:none;"></div>
       <div id="page-kanban" class="page-content" style="display:none;"></div>
       <div id="page-scoring" class="page-content" style="display:none;"></div>
+      <div id="page-enrichment" class="page-content" style="display:none;"></div>
+      <div id="page-booking" class="page-content" style="display:none;"></div>
+      <div id="page-intelligence" class="page-content" style="display:none;"></div>
       <div id="page-clients" class="page-content" style="display:none;"></div>
       <div id="page-financial" class="page-content" style="display:none;"></div>
       <div id="page-whatsapp" class="page-content" style="display:none;"></div>
@@ -159,6 +165,9 @@
   <script src="/js/pages/map.js?v=5"></script>
   <script src="/js/pages/kanban.js?v=5"></script>
   <script src="/js/pages/scoring.js?v=2"></script>
+  <script src="/js/pages/enrichment.js?v=1"></script>
+  <script src="/js/pages/booking.js?v=1"></script>
+  <script src="/js/pages/intelligence.js?v=1"></script>
   <script src="/js/pages/clients.js?v=5"></script>
   <script src="/js/pages/financial.js?v=5"></script>
   <script src="/js/pages/whatsapp.js?v=5"></script>
