@@ -90,7 +90,7 @@ router.post('/', (req, res) => {
 
   // Real-time notification
   if (global.__notify) {
-    global.__notify('lead', 'Novo Lead Capturado! 🎯', `${name} — ${activity || 'Mineração'}`, { leadId: id });
+    global.__notify('lead', 'Nexus Miner', `Lead capturado: ${name} — ${activity || 'Mineração'}`, { leadId: id });
   }
 
   // Broadcast lead created event

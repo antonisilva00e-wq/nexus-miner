@@ -23,21 +23,16 @@ self.addEventListener('push', (event) => {
     try { data = event.data.json(); } catch { data.message = event.data.text(); }
   }
 
-  const styles = {
-    sale: { icon: '💰', tag: 'sale' },
-    commission: { icon: '🏆', tag: 'commission' },
-    lead: { icon: '🎯', tag: 'lead' },
-    info: { icon: 'ℹ️', tag: 'info' }
-  };
-  const s = styles[data.type] || styles.info;
+  // Remove emojis from the message just in case
+  const cleanMessage = data.message.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, "").trim();
 
   event.waitUntil(
-    self.registration.showNotification(`${s.icon} ${data.title}`, {
-      body: data.message,
+    self.registration.showNotification('Nexus Miner', {
+      body: cleanMessage,
       icon: '/assets/logo.png',
       badge: '/assets/logo.png',
       vibrate: [100, 50, 100],
-      tag: `nexus-${s.tag}-${Date.now()}`,
+      tag: `nexus-${data.type || 'info'}-${Date.now()}`,
       renotify: true,
       requireInteraction: data.type === 'sale',
       data: { url: data.url || '/', type: data.type },

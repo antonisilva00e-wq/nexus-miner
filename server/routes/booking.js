@@ -86,7 +86,7 @@ router.post('/:token/book', (req, res) => {
 
   // Notify seller via Socket.IO
   if (global.__notify) {
-    global.__notify('appointment', 'Reunião Agendada! 📅', `${name} — ${booking.date} às ${time}`, { appointmentId: id, bookingId: booking.id });
+    global.__notify('appointment', 'Nexus Miner', `Reunião agendada: ${name} — ${booking.date} às ${time}`, { appointmentId: id, bookingId: booking.id });
   }
 
   res.status(201).json({

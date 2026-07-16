@@ -93,12 +93,12 @@ async function main() {
     const formattedVal = parseFloat(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     const notification = { 
       type: 'sale', 
-      title: 'Venda Aprovada! 🛒', 
-      message: `${formattedVal} — ${clientName || 'Cliente'}`, 
+      title: 'Nexus Miner', 
+      message: `Venda concluída: ${formattedVal} — ${clientName || 'Cliente'}`, 
       timestamp: new Date().toISOString() 
     };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('Venda Aprovada! 🛒', notification.message, '/#/financial', 'sale');
+    await pushAll('Nexus Miner', notification.message, '/#/financial', 'sale');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/commission', async (req, res) => {
@@ -106,24 +106,24 @@ async function main() {
     const formattedVal = parseFloat(amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     const notification = { 
       type: 'commission', 
-      title: 'Comissão Recebida! 🏆', 
-      message: `${formattedVal} — Indicação de ${sellerName || 'Parceiro'}`, 
+      title: 'Nexus Miner', 
+      message: `Comissão recebida: ${formattedVal} — Indicação de ${sellerName || 'Parceiro'}`, 
       timestamp: new Date().toISOString() 
     };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('Comissão Recebida! 🏆', notification.message, '/#/financial', 'commission');
+    await pushAll('Nexus Miner', notification.message, '/#/financial', 'commission');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/lead', async (req, res) => {
     const { leadName, source, score } = req.body;
     const notification = { 
       type: 'lead', 
-      title: 'Novo Lead Capturado! 🎯', 
-      message: `${leadName || 'Lead'} — Origem: ${source || 'Mineração'}`, 
+      title: 'Nexus Miner', 
+      message: `Lead capturado: ${leadName || 'Lead'} — Origem: ${source || 'Mineração'}`, 
       timestamp: new Date().toISOString() 
     };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('Novo Lead Capturado! 🎯', notification.message, '/#/leads', 'lead');
+    await pushAll('Nexus Miner', notification.message, '/#/leads', 'lead');
     res.json({ ok: true, notification });
   });
 
