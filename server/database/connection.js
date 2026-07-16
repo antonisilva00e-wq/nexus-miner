@@ -5,8 +5,15 @@ const config = require('../config');
 
 // Ensure data directory exists
 const dataDir = path.dirname(config.dbPath);
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+try {
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+  }
+} catch (err) {
+  console.error('[DB] Warning: Could not create data directory:', err.message);
+  // Fallback to /tmp on Render if directory creation fails
+  config.dbPath = path.join('/tmp', 'nexusminer.db');
+  console.log('[DB] Using fallback path:', config.dbPath);
 }
 
 let db = null;
