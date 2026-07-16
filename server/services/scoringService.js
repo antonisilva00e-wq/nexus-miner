@@ -92,22 +92,37 @@ function getScoreLevel(score) {
 }
 
 // ============================================================
-// SCORE ALL LEADS
+// SCORE ALL LEADS (with cache)
 // ============================================================
-function scoreAllLeads() {
+let _scoredCache = null;
+let _cacheTime = 0;
+const CACHE_TTL = 300000; // 5 minutes
+
+function scoreAllLeads(useCache = true) {
+  const now = Date.now();
+  if (useCache && _scoredCache && (now - _cacheTime) < CACHE_TTL) {
+    return _scoredCache;
+  }
   const leads = db.prepare('SELECT * FROM leads').all();
-  return leads.map(l => ({
+  const scored = leads.map(l => ({
     ...l,
     ...scoreLead(l),
   }));
+  _scoredCache = scored;
+  _cacheTime = now;
+  return scored;
+}
+
+function invalidateCache() {
+  _scoredCache = null;
+  _cacheTime = 0;
 }
 
 // ============================================================
-// GET SCORING STATS
+// GET SCORING STATS (uses cached scored leads)
 // ============================================================
 function getScoringStats() {
-  const leads = db.prepare('SELECT * FROM leads').all();
-  const scored = leads.map(l => ({ ...l, ...scoreLead(l) }));
+  const scored = scoreAllLeads();
 
   const hot = scored.filter(l => l.score >= 80).length;
   const warm = scored.filter(l => l.score >= 60 && l.score < 80).length;
@@ -115,7 +130,7 @@ function getScoringStats() {
   const cold = scored.filter(l => l.score < 40).length;
   const avgScore = scored.length ? Math.round(scored.reduce((s, l) => s + l.score, 0) / scored.length) : 0;
 
-  return { total: leads.length, hot, warm, cool, cold, avgScore };
+  return { total: scored.length, hot, warm, cool, cold, avgScore };
 }
 
-module.exports = { scoreLead, scoreAllLeads, getScoringStats };
+module.exports = { scoreLead, scoreAllLeads, getScoringStats, invalidateCache };

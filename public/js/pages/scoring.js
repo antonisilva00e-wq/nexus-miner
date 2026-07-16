@@ -46,7 +46,7 @@ const ScoringPage = {
       el.innerHTML = `
         <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.12);border-radius:var(--border-radius-md);padding:1rem;">
           <p style="color:var(--text-tertiary);font-size:0.75rem;margin:0 0 4px;">Total de Leads</p>
-          <p style="color:white;font-size:1.5rem;font-weight:700;margin:0;">${stats.totalLeads || 0}</p>
+          <p style="color:white;font-size:1.5rem;font-weight:700;margin:0;">${stats.total || 0}</p>
         </div>
         <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.12);border-radius:var(--border-radius-md);padding:1rem;">
           <p style="color:var(--text-tertiary);font-size:0.75rem;margin:0 0 4px;">🔥 Quentes (80+)</p>
@@ -66,7 +66,7 @@ const ScoringPage = {
         </div>
         <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.12);border-radius:var(--border-radius-md);padding:1rem;">
           <p style="color:var(--text-tertiary);font-size:0.75rem;margin:0 0 4px;">Score Medio</p>
-          <p style="color:#10b981;font-size:1.5rem;font-weight:700;margin:0;">${stats.averageScore || 0}%</p>
+          <p style="color:#10b981;font-size:1.5rem;font-weight:700;margin:0;">${stats.avgScore || 0}%</p>
         </div>
       `;
     } catch (err) {
@@ -103,12 +103,14 @@ const ScoringPage = {
         const scoreLabel = score >= 80 ? 'QUENTE' : score >= 60 ? 'MORNO' : score >= 40 ? 'FRIO' : 'CONGELADO';
         const scoreEmoji = score >= 80 ? '🔥' : score >= 60 ? '🌡️' : score >= 40 ? '❄️' : '🧊';
 
-        // Score breakdown
+        // Score breakdown - calculate categories from individual fields
         const breakdown = lead.breakdown || {};
-        const dataScore = breakdown.dataCompleteness || 0;
-        const sourceScore = breakdown.sourceQuality || 0;
-        const businessScore = breakdown.businessSignals || 0;
-        const engagementScore = breakdown.engagement || 0;
+        const dataScore = (breakdown.cnpj || 0) + (breakdown.phone || 0) + (breakdown.email || 0) + 
+                         (breakdown.site || 0) + (breakdown.address || 0) + (breakdown.city || 0) + 
+                         (breakdown.owner || 0) + (breakdown.bank || 0);
+        const sourceScore = breakdown.source || 0;
+        const businessScore = (breakdown.capital || 0) + (breakdown.ativa || 0);
+        const engagementScore = breakdown.pipeline || 0;
 
         return `
           <div class="card" style="padding:1.25rem;position:relative;border-left:4px solid ${scoreColor};">
