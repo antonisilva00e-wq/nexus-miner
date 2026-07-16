@@ -66,12 +66,17 @@ async function main() {
     return notification;
   };
 
-  // 6. Config
+  // 6. Health check (for Render)
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString(), version: '2.0.0' });
+  });
+
+  // 7. Config
   app.get('/api/config', (req, res) => {
     res.json({ onesignalAppId: process.env.ONESIGNAL_APP_ID || '' });
   });
 
-  // 7. Webhooks
+  // 8. Webhooks
   const { sendPush, broadcast } = require('./services/pushService');
 
   // Helper: send push to all subscribers
@@ -105,7 +110,7 @@ async function main() {
     res.json({ ok: true, notification });
   });
 
-  // 8. Routes — load all routes with auth but NO global security middleware
+  // 9. Routes — load all routes with auth but NO global security middleware
   const routeMap = {
     '/api/auth': './routes/auth',
     '/api/leads': './routes/leads',
@@ -135,17 +140,17 @@ async function main() {
     try { app.use(mount, require(file)); } catch (e) { console.error(`[ROUTE] ${mount}:`, e.message); }
   }
 
-  // 9. SPA - only serve index.html for non-API GET requests
+  // 10. SPA - only serve index.html for non-API GET requests
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
   });
 
-  // 10. Error
+  // 11. Error
   app.use((req, res) => res.status(404).json({ error: 'Rota nao encontrada' }));
   app.use((err, req, res, next) => { console.error('[ERR]', err.message); res.status(500).json({ error: 'Erro interno' }); });
 
-  // 11. Socket.IO + Start
+  // 12. Socket.IO + Start
   const server = http.createServer(app);
   const io = new Server(server, { cors: { origin: '*' } });
   global.__io = io;
