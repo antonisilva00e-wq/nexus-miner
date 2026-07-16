@@ -1,4 +1,3 @@
-<style>
 /* ==========================================================================
    NOTIFICATION CENTER - Clean & Professional (UTMify Style)
    ========================================================================== */
@@ -113,6 +112,136 @@
   color: var(--text-primary);
 }
 
+/* === COMPOSE AREA === */
+.nc-compose {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.nc-compose-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.nc-compose-title {
+  flex: 1;
+  padding: 0.45rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.nc-compose-title:focus {
+  border-color: rgba(99, 102, 241, 0.3);
+  background: rgba(99, 102, 241, 0.03);
+  outline: none;
+}
+
+.nc-compose-type {
+  padding: 0.45rem 0.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 1.5rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.nc-compose-type:focus {
+  border-color: rgba(99, 102, 241, 0.3);
+  outline: none;
+}
+
+.nc-compose-type option {
+  background: #0a0e1a;
+  color: white;
+}
+
+.nc-compose-input-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.nc-compose-input {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  resize: none;
+  min-height: 38px;
+  max-height: 100px;
+  transition: all 0.2s;
+  line-height: 1.4;
+}
+
+.nc-compose-input:focus {
+  border-color: rgba(99, 102, 241, 0.3);
+  background: rgba(99, 102, 241, 0.03);
+  outline: none;
+}
+
+.nc-compose-input::placeholder {
+  color: var(--text-tertiary);
+  font-size: 0.78rem;
+}
+
+.nc-compose-send {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent-primary), #4f46e5);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s var(--ease-out);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+.nc-compose-send:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+}
+
+.nc-compose-send:active {
+  transform: translateY(0);
+}
+
+.nc-compose-send.sent {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.nc-compose-send i, .nc-compose-send svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* === TABS === */
 .nc-tabs {
   display: flex;
@@ -142,15 +271,6 @@
 .nc-tab.active {
   color: var(--text-primary);
   background: rgba(99, 102, 241, 0.1);
-}
-
-.nc-tab-count {
-  font-size: 0.6rem;
-  background: rgba(99, 102, 241, 0.15);
-  color: var(--accent-primary);
-  padding: 1px 5px;
-  border-radius: 4px;
-  margin-left: 4px;
 }
 
 /* === BODY === */
@@ -329,6 +449,12 @@
 .nc-card.lead .nc-card-badge { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
 .nc-card.info .nc-card-badge { background: rgba(99, 102, 241, 0.1); color: #818cf8; }
 
+.nc-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .nc-card-action {
   font-size: 0.65rem;
   color: var(--accent-primary);
@@ -345,6 +471,35 @@
 .nc-card-action i, .nc-card-action svg {
   width: 12px;
   height: 12px;
+}
+
+/* === CARD DELETE BUTTON === */
+.nc-card-delete {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: rgba(244, 63, 94, 0.08);
+  border: 1px solid rgba(244, 63, 94, 0.12);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s;
+}
+
+.nc-card-delete i, .nc-card-delete svg {
+  width: 12px;
+  height: 12px;
+}
+
+.nc-card:hover .nc-card-delete { opacity: 1; }
+
+.nc-card-delete:hover {
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.25);
+  color: #fb7185;
 }
 
 /* === TRIGGER BUTTON === */
@@ -365,7 +520,6 @@
   justify-content: center;
   box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35);
   transition: all 0.3s var(--ease-out);
-  position: fixed;
 }
 
 .nc-trigger:hover {
@@ -416,34 +570,3 @@
     right: -100%;
   }
 }
-</style>
-
-<!-- Notification Center HTML -->
-<div class="nc-overlay" id="nc-overlay" onclick="NC.close()"></div>
-<div class="nc-panel" id="nc-panel">
-  <div class="nc-header">
-    <div class="nc-header-left">
-      <div class="nc-header-icon"><i data-lucide="bell"></i></div>
-      <h3>Notificacoes</h3>
-      <span class="nc-header-count" id="nc-count">0</span>
-    </div>
-    <button class="nc-close" onclick="NC.close()"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
-  </div>
-  <div class="nc-tabs">
-    <button class="nc-tab active" onclick="NC.filterTab('all', this)">Todas</button>
-    <button class="nc-tab" onclick="NC.filterTab('unread', this)">Nao lidas</button>
-    <button class="nc-tab" onclick="NC.filterTab('sale', this)">Vendas</button>
-    <button class="nc-tab" onclick="NC.filterTab('lead', this)">Leads</button>
-  </div>
-  <div class="nc-body" id="nc-body">
-    <div class="nc-empty">
-      <div class="nc-empty-icon"><i data-lucide="bell-off"></i></div>
-      <p>Nenhuma notificacao</p>
-      <span>Notificacoes aparecerao aqui</span>
-    </div>
-  </div>
-</div>
-<button class="nc-trigger" id="nc-trigger" onclick="NC.open()" style="display:none;">
-  <i data-lucide="bell"></i>
-  <span class="nc-badge" id="nc-badge" style="display:none;">0</span>
-</button>

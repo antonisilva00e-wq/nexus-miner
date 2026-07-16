@@ -59,10 +59,31 @@ async function main() {
     }
   }));
 
-  // 5. Push helper
+  // 5. Push helper - reads template from DB for sale notifications
   global.__notify = (type, title, message, data = {}) => {
+    // For sale notifications, read custom template from settings
+    if (type === 'sale') {
+      try {
+        const template = db.prepare("SELECT value FROM settings WHERE key = 'notification_sale_message'").get();
+        if (template && template.value && message) {
+          // Find any currency value in the message and replace {valor}
+          const currencyMatch = message.match(/R\$\s*[\d.,]+/);
+          if (currencyMatch) {
+            message = template.value.replace(/\{valor\}/g, currencyMatch[0]);
+          }
+        }
+      } catch {}
+    }
+
     const notification = { type, title, message, timestamp: new Date().toISOString(), data };
-    if (global.__io) global.__io.emit('notification', notification);
+
+    // Send to specific user if userId is provided, otherwise broadcast
+    if (data.userId && global.__io) {
+      global.__io.to(`user:${data.userId}`).emit('notification', notification);
+    } else if (global.__io) {
+      global.__io.emit('notification', notification);
+    }
+
     return notification;
   };
 
@@ -91,11 +112,21 @@ async function main() {
   app.post('/api/webhook/sale', async (req, res) => {
     const { leadId, clientName, value, seller } = req.body;
     const formattedVal = parseFloat(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    const notification = { 
-      type: 'sale', 
-      title: 'Nexus Miner', 
-      message: `Venda concluída: ${formattedVal}`, 
-      timestamp: new Date().toISOString() 
+
+    // Read custom notification template from settings
+    let saleMessage = `Venda concluída: ${formattedVal}`;
+    try {
+      const template = db.prepare("SELECT value FROM settings WHERE key = 'notification_sale_message'").get();
+      if (template && template.value) {
+        saleMessage = template.value.replace(/\{valor\}/g, formattedVal);
+      }
+    } catch {}
+
+    const notification = {
+      type: 'sale',
+      title: 'Nexus Miner',
+      message: saleMessage,
+      timestamp: new Date().toISOString()
     };
     if (global.__io) global.__io.emit('notification', notification);
     await pushAll('Nexus Miner', notification.message, '/#/financial', 'sale');
@@ -160,7 +191,49 @@ async function main() {
     try { app.use(mount, require(file)); } catch (e) { console.error(`[ROUTE] ${mount}:`, e.message); }
   }
 
-  // 10. SPA - only serve index.html for non-API GET requests
+  // 10. Send notification to specific user
+  app.post('/api/notifications/send', (req, res) => {
+    const { userId, type, title, message } = req.body;
+    if (!userId || !message) {
+      return res.status(400).json({ error: 'userId e message sao obrigatorios' });
+    }
+
+    const notification = {
+      type: type || 'info',
+      title: title || 'Notificacao',
+      message,
+      timestamp: new Date().toISOString()
+    };
+
+    // Send via Socket.IO to specific user room
+    if (global.__io) {
+      global.__io.to(`user:${userId}`).emit('notification', notification);
+    }
+
+    // Also send push notification if user has subscription
+    try {
+      const sub = db.prepare('SELECT * FROM push_subscriptions WHERE user_id = ?').get(userId);
+      if (sub) {
+        const subscription = { endpoint: sub.endpoint, keys: { p256dh: sub.keys_p256dh, auth: sub.keys_auth } };
+        sendPush(subscription, { title: 'Nexus Miner', message, url: '/#/dashboard', type });
+      }
+    } catch {}
+
+    res.json({ ok: true, notification, sentTo: userId });
+  });
+
+  // 11. Get all online users
+  app.get('/api/notifications/users', (req, res) => {
+    try {
+      const users = db.prepare('SELECT id, name, username, role FROM users WHERE active = 1').all();
+      const clients = db.prepare('SELECT id, name, username FROM clients WHERE active = 1').all();
+      res.json({ users: [...users, ...clients.map(c => ({ ...c, role: 'client' }))] });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // 12. SPA - only serve index.html for non-API GET requests
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));

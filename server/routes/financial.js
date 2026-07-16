@@ -73,7 +73,17 @@ router.post('/payments', (req, res) => {
   const client = db.prepare('SELECT name FROM clients WHERE id = ?').get(client_id);
   if (global.__notify) {
     const formattedVal = parseFloat(amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    global.__notify('sale', 'Nexus Miner', `Venda concluída: ${formattedVal}`, { paymentId: id, clientId: client_id });
+
+    // Read custom notification template from settings
+    let saleMessage = `Venda concluída: ${formattedVal}`;
+    try {
+      const template = db.prepare("SELECT value FROM settings WHERE key = 'notification_sale_message'").get();
+      if (template && template.value) {
+        saleMessage = template.value.replace(/\{valor\}/g, formattedVal);
+      }
+    } catch {}
+
+    global.__notify('sale', 'Nexus Miner', saleMessage, { paymentId: id, clientId: client_id });
   }
 
   const payment = db.prepare('SELECT * FROM payments WHERE id = ?').get(id);

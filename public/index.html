@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="/css/kanban.css?v=2">
   <link rel="stylesheet" href="/css/responsive.css?v=2">
   <link rel="stylesheet" href="/css/animations.css?v=2">
-  <link rel="stylesheet" href="/css/notifications.css?v=3">
+  <link rel="stylesheet" href="/css/notifications.css?v=5">
   <link rel="stylesheet" href="/css/tech-background.css?v=3">
   <link rel="stylesheet" href="/css/service-cards.css?v=1">
   <link rel="stylesheet" href="/css/sidebar-premium.css?v=1">
@@ -200,6 +200,67 @@
   <!-- Toast container -->
   <div class="toast-container" id="toast-container"></div>
 
+  <!-- Notification Center -->
+  <div class="nc-overlay" id="nc-overlay" onclick="NC.close()"></div>
+  <div class="nc-panel" id="nc-panel">
+    <div class="nc-header">
+      <div class="nc-header-left">
+        <div class="nc-header-icon"><i data-lucide="bell"></i></div>
+        <h3>Notificacoes</h3>
+        <span class="nc-header-count" id="nc-count">0</span>
+      </div>
+      <button class="nc-close" onclick="NC.close()"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+    </div>
+
+    <!-- User ID Bar -->
+    <div style="padding:0.5rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.03);display:flex;align-items:center;gap:0.5rem;background:rgba(99,102,241,0.03);">
+      <span style="font-size:0.68rem;color:var(--text-tertiary);font-weight:600;">Seu ID:</span>
+      <code id="nc-user-id" style="font-size:0.72rem;color:var(--accent-primary);background:rgba(99,102,241,0.08);padding:2px 8px;border-radius:6px;font-family:var(--font-mono);cursor:pointer;" onclick="NC.copyUserId()" title="Clique para copiar">---</code>
+      <span style="font-size:0.6rem;color:var(--text-tertiary);margin-left:auto;">Clique p/ copiar</span>
+    </div>
+
+    <!-- Compose Area -->
+    <div class="nc-compose">
+      <div class="nc-compose-row">
+        <input type="text" class="nc-compose-title" id="nc-manual-title" placeholder="Titulo (opcional)">
+        <select class="nc-compose-type" id="nc-manual-type">
+          <option value="info">Info</option>
+          <option value="sale">Venda</option>
+          <option value="lead">Lead</option>
+          <option value="commission">Comissao</option>
+        </select>
+      </div>
+      <div class="nc-compose-row">
+        <input type="text" class="nc-compose-title" id="nc-target-user" placeholder="ID do usuario (vazio = todos)" style="flex:1;font-size:0.72rem;">
+      </div>
+      <div class="nc-compose-input-row">
+        <textarea class="nc-compose-input" id="nc-manual-input" placeholder="Escreva sua notificacao..." rows="1" onkeydown="NC.handleManualKeydown(event)" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+        <button class="nc-compose-send" id="nc-send-btn" title="Enviar notificacao">
+          <i data-lucide="send"></i>
+        </button>
+      </div>
+      <div id="nc-compose-status" style="display:none;font-size:0.7rem;margin-top:0.4rem;font-weight:600;"></div>
+    </div>
+
+    <div class="nc-tabs">
+      <button class="nc-tab active" onclick="NC.filterTab('all', this)">Todas</button>
+      <button class="nc-tab" onclick="NC.filterTab('unread', this)">Nao lidas</button>
+      <button class="nc-tab" onclick="NC.filterTab('sale', this)">Vendas</button>
+      <button class="nc-tab" onclick="NC.filterTab('lead', this)">Leads</button>
+    </div>
+    <div class="nc-body" id="nc-body">
+      <div class="nc-empty">
+        <div class="nc-empty-icon"><i data-lucide="bell-off"></i></div>
+        <p>Nenhuma notificacao</p>
+        <span>Escreva uma notificacao acima</span>
+      </div>
+    </div>
+  </div>
+  <button class="nc-trigger" id="nc-trigger" onclick="NC.open()" style="display:none;">
+    <i data-lucide="bell"></i>
+    <span class="nc-badge" id="nc-badge" style="display:none;">0</span>
+  </button>
+
   <!-- Modal container -->
   <div class="modal-backdrop" id="modal-backdrop">
     <div class="modal-card" id="modal-card">
@@ -244,13 +305,18 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sonner@1.7.2/dist/styles.css">
   <script src="https://cdn.jsdelivr.net/npm/sonner@1.7.2/dist/sonner.js"></script>
   <script src="/js/notifications.js?v=2"></script>
-  <script src="/js/notification-center.js?v=3"></script>
+  <script src="/js/notification-center.js?v=8"></script>
   <script src="/js/onboarding.js?v=2"></script>
 
   <!-- Force SW update -->
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistration().then(reg => { if (reg) reg.update(); });
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data?.type === 'SW_UPDATED') {
+          window.location.reload();
+        }
+      });
     }
   </script>
 </body>

@@ -64,6 +64,39 @@ const SettingsPage = {
           <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1rem;">Resete todos os dados do sistema. Esta ação é irreversível.</p>
           <button class="btn btn-danger" onclick="SettingsPage.resetDatabase()"><i data-lucide="alert-triangle"></i>Resetar Banco de Dados</button>
         </div>
+
+        <div class="card" style="grid-column:1/-1;">
+          <div class="card-header"><h3><i data-lucide="message-square"></i>Mensagem da Notificação de Venda</h3></div>
+          <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.25rem;">Escreva o texto que vai aparecer em <strong>todas</strong> as notificações de venda. Use <code style="background:rgba(99,102,241,0.15);padding:1px 6px;border-radius:4px;color:var(--accent-primary);">{valor}</code> para inserir o valor automaticamente.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+            <div>
+              <label style="display:block;font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem;">TEXTO DA NOTIFICAÇÃO</label>
+              <textarea id="notif-template-msg" rows="3" oninput="SettingsPage.previewNotification()" placeholder="Ex: Venda concluída: {valor}" style="width:100%;padding:0.75rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-family:var(--font-body);font-size:0.95rem;resize:vertical;"></textarea>
+              <p style="font-size:0.75rem;color:var(--text-tertiary);margin-top:0.4rem;">Use {valor} onde quiser exibir o valor da venda (ex: R$ 297,00)</p>
+            </div>
+            <div>
+              <label style="display:block;font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem;">PREVIEW</label>
+              <div style="background:rgba(255,255,255,0.06);border:1px solid var(--border-color);border-radius:10px;padding:1rem;min-height:90px;">
+                <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;">
+                  <img src="/assets/logo.png" style="width:22px;height:22px;border-radius:4px;object-fit:cover;">
+                  <span style="font-weight:700;font-size:0.85rem;color:white;">Nexus Miner</span>
+                  <span style="font-size:0.75rem;color:var(--text-tertiary);margin-left:auto;">agora</span>
+                </div>
+                <p id="notif-preview-text" style="font-size:0.88rem;color:var(--text-secondary);margin:0;">Venda concluída: R$ 297,00</p>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:1.25rem;display:flex;align-items:center;gap:1rem;">
+            <button class="btn btn-primary" onclick="SettingsPage.saveNotificationTemplate()">
+              <i data-lucide="save"></i>Salvar Mensagem
+            </button>
+            <button class="btn btn-secondary" onclick="SettingsPage.resetNotificationTemplate()">
+              <i data-lucide="rotate-ccw"></i>Restaurar Padrão
+            </button>
+            <span id="notif-save-status" style="font-size:0.82rem;color:var(--success);display:none;">Salvo com sucesso!</span>
+          </div>
+        </div>
+
       </div>
     `;
     lucide.createIcons();
@@ -74,6 +107,7 @@ const SettingsPage = {
 
     await this.loadApiKeys();
     await this.loadPushStatus();
+    await this.loadNotificationTemplate();
   },
 
   saveGoogleKey() {
@@ -188,5 +222,38 @@ const SettingsPage = {
     if (!confirm('ATENÇÃO: Isso apagará TODOS os dados. Tem certeza?')) return;
     if (!confirm('Última chance! Todos os leads, clientes e configurações serão perdidos.')) return;
     showToast('Reset não implementado no backend ainda', 'warning');
+  },
+
+  async loadNotificationTemplate() {
+    try {
+      const data = await API.get('/settings');
+      const msg = data.settings?.notification_sale_message || 'Venda concluída: {valor}';
+      const el = document.getElementById('notif-template-msg');
+      if (el) { el.value = msg; this.previewNotification(); }
+    } catch {}
+  },
+
+  previewNotification() {
+    const msg = document.getElementById('notif-template-msg')?.value || '';
+    const preview = msg.replace('{valor}', 'R$ 297,00') || 'Venda concluída: R$ 297,00';
+    const el = document.getElementById('notif-preview-text');
+    if (el) el.textContent = preview;
+  },
+
+  async saveNotificationTemplate() {
+    const msg = document.getElementById('notif-template-msg')?.value?.trim();
+    if (!msg) return showToast('Escreva uma mensagem', 'warning');
+    try {
+      await API.put('/settings', { settings: { notification_sale_message: msg } });
+      const status = document.getElementById('notif-save-status');
+      if (status) { status.style.display = 'inline'; setTimeout(() => status.style.display = 'none', 3000); }
+      showToast('Mensagem salva! Próximas vendas usarão esse texto.', 'success');
+    } catch (err) { showToast('Erro: ' + err.message, 'danger'); }
+  },
+
+  async resetNotificationTemplate() {
+    document.getElementById('notif-template-msg').value = 'Venda concluída: {valor}';
+    this.previewNotification();
+    await this.saveNotificationTemplate();
   }
 };

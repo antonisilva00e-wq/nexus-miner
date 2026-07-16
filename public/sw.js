@@ -1,5 +1,5 @@
-// Nexus Miner Service Worker v6 — Cache bust
-const SW_VERSION = '6.8';
+// Nexus Miner Service Worker v7 — Cache bust
+const SW_VERSION = '7.7';
 const CACHE_NAME = `nexus-v${SW_VERSION}`;
 
 // Install — skip waiting to activate immediately
@@ -12,8 +12,22 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    ).then(() => {
+      // Notify all clients to reload
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => client.postMessage({ type: 'SW_UPDATED' }));
+      });
+      return self.clients.claim();
+    })
   );
+});
+
+// Fetch — network first, no caching (always fresh)
+self.addEventListener('fetch', (event) => {
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') return;
+  // Always go to network
+  event.respondWith(fetch(event.request));
 });
 
 // Push received

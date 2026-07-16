@@ -22,24 +22,33 @@ router.get('/', authorize('admin'), (req, res) => {
   }
 });
 
-// PUT /api/settings - Update settings
-router.put('/', authorize('admin'), (req, res) => {
+// PUT /api/settings - Update settings (all authenticated users can update notification templates)
+router.put('/', (req, res) => {
   const { settings } = req.body;
   if (!settings || typeof settings !== 'object') {
     return res.status(400).json({ error: 'Configuracoes invalidas' });
   }
 
+  // Only allow notification template settings for non-admin users
+  const allowedKeys = ['notification_sale_message'];
+  const userRole = req.user?.role;
+  if (userRole !== 'admin') {
+    const keys = Object.keys(settings);
+    const forbidden = keys.filter(k => !allowedKeys.includes(k));
+    if (forbidden.length > 0) {
+      return res.status(403).json({ error: 'Sem permissao para alterar essas configuracoes' });
+    }
+  }
+
   try {
     const upsert = db.prepare('INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)');
-    const transaction = db.transaction(() => {
-      for (const [key, value] of Object.entries(settings)) {
-        upsert.run(key, String(value));
-      }
-    });
-    transaction();
+    for (const [key, value] of Object.entries(settings)) {
+      upsert.run(key, String(value));
+    }
     res.json({ message: 'Configuracoes atualizadas' });
   } catch (err) {
-    res.status(500).json({ error: 'Erro ao atualizar configuracoes' });
+    console.error('[Settings] Update error:', err);
+    res.status(500).json({ error: 'Erro ao atualizar configuracoes: ' + err.message });
   }
 });
 

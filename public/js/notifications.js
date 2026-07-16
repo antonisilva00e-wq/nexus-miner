@@ -162,7 +162,7 @@ const Notifications = {
       const t = localStorage.getItem('nexus_access_token');
       if (!t) return null;
       const p = JSON.parse(atob(t.split('.')[1]));
-      return { id: p.userId };
+      return { id: p.userId || p.id };
     } catch { return null; }
   },
 
