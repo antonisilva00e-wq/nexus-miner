@@ -12,11 +12,11 @@ if (vapidPublicKey && vapidPrivateKey) {
 // heading = titulo em negrito que aparece na notificacao (ex: "Venda concluida")
 // body    = detalhe menor abaixo (ex: "R$ 297,00")
 // O nome "Nexus Miner" aparece automaticamente pelo PWA
-async function sendPush(subscription, { heading, body, url, type }) {
+async function sendPush(subscription, { heading, body, title, message, url, type }) {
   if (!vapidPublicKey) return null;
   const payload = JSON.stringify({
-    heading: heading || 'Nova notificacao',
-    body:    body    || '',
+    heading: heading || title || 'Nova notificacao',
+    body:    body    || message || '',
     url:     url     || '/',
     type:    type    || 'info'
   });
