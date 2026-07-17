@@ -1,10 +1,10 @@
 const path = require('path');
+const crypto = require('crypto');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 // Handle DB_PATH for Render (ephemeral filesystem)
 let dbPath;
 if (process.env.DB_PATH) {
-  // If absolute path, use as-is; if relative, resolve from project root
   dbPath = path.isAbsolute(process.env.DB_PATH) 
     ? process.env.DB_PATH 
     : path.resolve(process.cwd(), process.env.DB_PATH);
@@ -12,12 +12,15 @@ if (process.env.DB_PATH) {
   dbPath = path.resolve(__dirname, '..', 'data', 'nexusminer.db');
 }
 
-// JWT secrets MUST be set in environment variables for security
-const jwtSecret = process.env.JWT_SECRET;
-const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
-if (!jwtSecret || !jwtRefreshSecret) {
-  console.error('[SECURITY] ERRO CRITICO: JWT_SECRET e JWT_REFRESH_SECRET devem ser definidos nas env vars!');
-  process.exit(1);
+// JWT secrets - use env vars or generate secure random fallbacks
+const jwtSecret = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
+const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET || crypto.randomBytes(32).toString('hex');
+
+if (!process.env.JWT_SECRET) {
+  console.warn('[SECURITY] JWT_SECRET nao definido - usando fallback gerado. Tokens serao invalidados no restart.');
+}
+if (!process.env.JWT_REFRESH_SECRET) {
+  console.warn('[SECURITY] JWT_REFRESH_SECRET nao definido - usando fallback gerado.');
 }
 
 module.exports = {

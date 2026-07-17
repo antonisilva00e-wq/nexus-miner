@@ -13,6 +13,10 @@ async function main() {
   const db = createWrapper(rawDb);
   global.__db = db;
 
+  // Load auth middleware AFTER db is ready (they access db at require time)
+  const { authenticate } = require('./middleware/auth');
+  const { authorize } = require('./middleware/roles');
+
   // 2. Schema
   const { createSchema } = require('./database/schema');
   createSchema(db);
