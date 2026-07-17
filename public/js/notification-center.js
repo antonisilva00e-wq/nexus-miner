@@ -169,7 +169,6 @@ const NC = {
 
   // ============ RENDER CARD ============
   renderCard(n) {
-    const icons = { sale: '💰', commission: '🏆', lead: '🎯', info: 'ℹ️' };
     const labels = { sale: 'VENDA', commission: 'COMISSAO', lead: 'LEAD', info: 'SISTEMA' };
     const time = this.formatTime(n.time);
 
@@ -183,8 +182,10 @@ const NC = {
 
     card.innerHTML = `
       <div class="nc-card-header">
-        <div class="nc-card-icon">${icons[n.type] || icons.info}</div>
-        <div class="nc-card-title">${this.escapeHtml(n.title)}</div>
+        <div class="nc-card-icon" style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;overflow:hidden;border-radius:4px;">
+          <img src="/assets/logo.png" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+        <div class="nc-card-title" style="margin-left:0.5rem;font-weight:600;">${this.escapeHtml(n.title)}</div>
         <div class="nc-card-time">${time}</div>
       </div>
       <div class="nc-card-message">${this.escapeHtml(n.message)}</div>
@@ -281,13 +282,17 @@ const NC = {
   showToast(n) {
     try {
       if (typeof sonner === 'undefined') return;
-      const icons = { sale: '💰', commission: '🏆', lead: '🎯', info: 'ℹ️' };
       const colors = { sale: '#10b981', commission: '#8b5cf6', lead: '#3b82f6', info: '#6366f1' };
       const color = colors[n.type] || colors.info;
       const time = this.formatTime(n.time);
 
       sonner.toast(n.message, {
-        title: `${icons[n.type] || icons.info} ${n.title}`,
+        title: `
+          <div style="display:flex;align-items:center;gap:0.4rem;font-weight:700;">
+            <img src="/assets/logo.png" style="width:16px;height:16px;border-radius:3px;object-fit:cover;">
+            <span>${n.title}</span>
+          </div>
+        `,
         description: time,
         style: {
           background: 'rgba(10, 14, 30, 0.95)',
