@@ -1,5 +1,5 @@
-// Nexus Miner Service Worker v7 — Cache bust
-const SW_VERSION = '7.7';
+// Nexus Miner Service Worker v8
+const SW_VERSION = '8.0';
 const CACHE_NAME = `nexus-v${SW_VERSION}`;
 
 // Install — skip waiting to activate immediately
@@ -32,23 +32,30 @@ self.addEventListener('fetch', (event) => {
 
 // Push received
 self.addEventListener('push', (event) => {
-  let data = { title: 'Nexus Miner', message: 'Nova notificação', type: 'info' };
+  let data = { heading: 'Venda concluída', body: 'Nova notificação', type: 'info' };
   if (event.data) {
-    try { data = event.data.json(); } catch { data.message = event.data.text(); }
+    try { data = event.data.json(); } catch { data.body = event.data.text(); }
   }
 
-  // Remove emojis from the message just in case
-  const cleanMessage = data.message.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, "").trim();
+  // Remove emojis do corpo da mensagem
+  const removeEmoji = (str = '') => str.replace(/[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '').trim();
+
+  // heading = titulo em negrito (ex: "Venda concluída")
+  // body    = detalhe menor   (ex: "R$ 297,00")
+  // O nome "Nexus Miner" aparece automaticamente pelo PWA — NAO duplicar aqui
+  const heading = removeEmoji(data.heading || data.title || 'Nova notificação');
+  const body    = removeEmoji(data.body    || data.message || '');
 
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Nexus Miner', {
-      body: cleanMessage,
+    self.registration.showNotification(heading, {
+      body,
       icon: '/assets/logo.png',
       badge: '/assets/logo.png',
-      vibrate: [100, 50, 100],
-      tag: `nexus-${data.type || 'info'}-${Date.now()}`,
+      vibrate: [200, 100, 200],
+      tag: `nexus-${data.type || 'info'}`,
       renotify: true,
       requireInteraction: data.type === 'sale',
+      silent: false,
       data: { url: data.url || '/', type: data.type },
       actions: [
         { action: 'open', title: 'Abrir Painel' },

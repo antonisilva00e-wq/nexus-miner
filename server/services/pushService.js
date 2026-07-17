@@ -9,24 +9,23 @@ if (vapidPublicKey && vapidPrivateKey) {
   console.log('[PUSH] VAPID configurado');
 }
 
-const TYPE_TITLES = {
-  sale: 'Venda Registrada',
-  commission: 'Comissao',
-  lead: 'Novo Lead',
-  pipeline: 'Pipeline Atualizado',
-  info: 'Notificacao'
-};
-
-async function sendPush(subscription, { title, message, url, type }) {
+// heading = titulo em negrito que aparece na notificacao (ex: "Venda concluida")
+// body    = detalhe menor abaixo (ex: "R$ 297,00")
+// O nome "Nexus Miner" aparece automaticamente pelo PWA
+async function sendPush(subscription, { heading, body, url, type }) {
   if (!vapidPublicKey) return null;
-  const notifTitle = title || TYPE_TITLES[type] || 'Nexus Miner';
-  const payload = JSON.stringify({ title: notifTitle, message, url: url || '/', type: type || 'info' });
+  const payload = JSON.stringify({
+    heading: heading || 'Nova notificacao',
+    body:    body    || '',
+    url:     url     || '/',
+    type:    type    || 'info'
+  });
   return webpush.sendNotification(subscription, payload);
 }
 
-async function broadcast(subscriptions, { title, message, url, type }) {
+async function broadcast(subscriptions, { heading, body, url, type }) {
   const results = await Promise.allSettled(
-    subscriptions.map(sub => sendPush(sub, { title, message, url, type }))
+    subscriptions.map(sub => sendPush(sub, { heading, body, url, type }))
   );
   return results;
 }

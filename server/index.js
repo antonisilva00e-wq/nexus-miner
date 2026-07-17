@@ -76,7 +76,7 @@ async function main() {
       } catch {}
     }
 
-    const notification = { type, title, message, timestamp: new Date().toISOString(), data };
+    const notification = { type, title, message, heading: title, body: message, timestamp: new Date().toISOString(), data };
 
     // Send via Socket.IO (real-time in panel)
     if (data.userId && global.__io) {
@@ -92,7 +92,7 @@ async function main() {
       const subs = db.prepare('SELECT * FROM push_subscriptions').all();
       if (subs.length) {
         const subscriptions = subs.map(s => ({ endpoint: s.endpoint, keys: { p256dh: s.keys_p256dh, auth: s.keys_auth } }));
-        broadcast(subscriptions, { message, url: pushUrl, type }).catch(() => {});
+        broadcast(subscriptions, { heading: title, body: message, url: pushUrl, type }).catch(() => {});
       }
     } catch {}
 
@@ -111,36 +111,34 @@ async function main() {
 
   // 8. Webhooks
 
-  // Helper: send push to all subscribers
-  async function pushAll(message, url, type) {
+  // Helper: envia push para todos os subscribers
+  // heading = titulo em negrito (ex: "Venda concluida")
+  // body    = detalhe menor     (ex: "R$ 297,00")
+  async function pushAll(heading, body, url, type) {
     try {
       const subs = db.prepare('SELECT * FROM push_subscriptions').all();
       const subscriptions = subs.map(s => ({ endpoint: s.endpoint, keys: { p256dh: s.keys_p256dh, auth: s.keys_auth } }));
-      if (subscriptions.length) await broadcast(subscriptions, { message, url, type });
+      if (subscriptions.length) await broadcast(subscriptions, { heading, body, url, type });
     } catch {}
   }
 
   app.post('/api/webhook/sale', async (req, res) => {
-    const { leadId, clientName, value, seller } = req.body;
+    const { clientName, value } = req.body;
     const formattedVal = parseFloat(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-    // Read custom notification template from settings
-    let saleMessage = `Venda concluída: ${formattedVal}`;
+    // Usa template customizado salvo nas configuracoes
+    let saleBody = formattedVal;
     try {
       const template = db.prepare("SELECT value FROM settings WHERE key = 'notification_sale_message'").get();
       if (template && template.value) {
-        saleMessage = template.value.replace(/\{valor\}/g, formattedVal);
+        // Se o template tem {valor}, substitui. Ex: "Venda concluida: {valor}" -> heading="Venda concluida:", body=valor
+        saleBody = template.value.replace(/\{valor\}/g, formattedVal);
       }
     } catch {}
 
-    const notification = {
-      type: 'sale',
-      title: 'Nexus Miner',
-      message: saleMessage,
-      timestamp: new Date().toISOString()
-    };
+    const notification = { type: 'sale', title: 'Venda concluída', message: saleBody, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll(notification.message, '/#/financial', 'sale');
+    await pushAll('Venda concluída', saleBody, '/#/financial', 'sale');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/commission', async (req, res) => {
