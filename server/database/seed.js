@@ -20,12 +20,12 @@ async function seed() {
   const managerId = uuidv4();
   const sellerId = uuidv4();
 
-  const adminHash = bcrypt.hashSync('admin123', 12);
+  const adminHash = bcrypt.hashSync('admin.j7', 12);
   const managerHash = bcrypt.hashSync('manager123', 12);
   const sellerHash = bcrypt.hashSync('seller123', 12);
 
   const insertUser = db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)');
-  insertUser.run(adminId, 'Administrador', 'admin@nexusminer.com', 'admin', adminHash, 'admin');
+  insertUser.run(adminId, 'Administrador', 'admin@nexusminer.com', 'adminj7', adminHash, 'admin');
   insertUser.run(managerId, 'Gerente Comercial', 'gerente@nexusminer.com', 'gerente', managerHash, 'manager');
   insertUser.run(sellerId, 'Vendedor', 'vendedor@nexusminer.com', 'vendedor', sellerHash, 'seller');
 
@@ -48,7 +48,7 @@ async function seed() {
 
   saveDatabase();
   console.log('Seed completed successfully!');
-  console.log('Admin login: admin / admin123');
+  console.log('Admin login: adminj7 / admin.j7');
   console.log('Manager login: gerente / manager123');
   console.log('Seller login: vendedor / seller123');
 }

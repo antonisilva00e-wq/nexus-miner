@@ -37,6 +37,8 @@ function createSchema(db) {
       pipeline_stage TEXT DEFAULT 'leads',
       assigned_to TEXT REFERENCES users(id),
       created_by TEXT REFERENCES users(id),
+      score REAL DEFAULT 0,
+      enrichment TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -265,6 +267,8 @@ function createSchema(db) {
     'ALTER TABLE users ADD COLUMN plan TEXT DEFAULT "free"',
     'ALTER TABLE users ADD COLUMN plan_expiry DATETIME',
     'ALTER TABLE users ADD COLUMN invite_code TEXT',
+    'ALTER TABLE leads ADD COLUMN score REAL DEFAULT 0',
+    'ALTER TABLE leads ADD COLUMN enrichment TEXT',
   ];
   for (const sql of migrations) {
     try { db.exec(sql); } catch {}

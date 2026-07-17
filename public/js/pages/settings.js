@@ -127,7 +127,8 @@ const SettingsPage = {
     const current = document.getElementById('settings-current-pass').value;
     const newPass = document.getElementById('settings-new-pass').value;
     if (!current || !newPass) return showToast('Preencha ambos os campos', 'warning');
-    if (newPass.length < 6) return showToast('Nova senha deve ter pelo menos 6 caracteres', 'warning');
+    if (newPass.length < 8) return showToast('Nova senha deve ter pelo menos 8 caracteres', 'warning');
+    if (!/[A-Z]/.test(newPass) || !/[0-9]/.test(newPass)) return showToast('Senha deve ter maiuscula e numero', 'warning');
     try {
       await API.put('/auth/password', { currentPassword: current, newPassword: newPass });
       showToast('Senha atualizada!', 'success');
@@ -218,10 +219,14 @@ const SettingsPage = {
     } catch (err) { showToast('Erro: ' + err.message, 'danger'); }
   },
 
-  resetDatabase() {
+  async resetDatabase() {
     if (!confirm('ATENÇÃO: Isso apagará TODOS os dados. Tem certeza?')) return;
     if (!confirm('Última chance! Todos os leads, clientes e configurações serão perdidos.')) return;
-    showToast('Reset não implementado no backend ainda', 'warning');
+    try {
+      const res = await API.post('/settings/reset-database', { confirm: 'RESETAR_BANCO' });
+      showToast(res.message || 'Banco resetado!', 'success');
+      setTimeout(() => location.reload(), 2000);
+    } catch (err) { showToast('Erro: ' + err.message, 'danger'); }
   },
 
   async loadNotificationTemplate() {

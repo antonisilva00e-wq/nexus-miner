@@ -53,7 +53,7 @@ const NC = {
   add(type, title, message, url) {
     try {
       const notif = {
-        id: Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+        id: Date.now() + '-' + Math.random().toString(36).substring(2, 7),
         type: type || 'info',
         title: title || 'Notificacao',
         message: message || '',
@@ -281,34 +281,23 @@ const NC = {
 
   showToast(n) {
     try {
-      if (typeof sonner === 'undefined') return;
       const colors = { sale: '#10b981', commission: '#8b5cf6', lead: '#3b82f6', info: '#6366f1' };
       const color = colors[n.type] || colors.info;
-      const time = this.formatTime(n.time);
 
-      sonner.toast(n.message, {
-        title: `
-          <div style="display:flex;align-items:center;gap:0.4rem;font-weight:700;">
-            <img src="/assets/logo.png" style="width:16px;height:16px;border-radius:3px;object-fit:cover;">
-            <span>${n.title}</span>
-          </div>
-        `,
-        description: time,
-        style: {
-          background: 'rgba(10, 14, 30, 0.95)',
-          color: '#fff',
-          border: `1px solid ${color}30`,
-          borderRadius: '12px',
-          padding: '14px 18px',
-          fontSize: '13px',
-          lineHeight: '1.4',
-          boxShadow: `0 12px 40px rgba(0,0,0,0.3), 0 0 20px ${color}15`,
-          backdropFilter: 'blur(20px)',
-          minWidth: '300px'
-        },
-        duration: 5000,
-        position: 'bottom-right'
-      });
+      // Use the working showToast system instead of broken sonner
+      if (typeof window.showToast === 'function') {
+        window.showToast(n.message, n.type === 'sale' ? 'success' : 'info');
+        return;
+      }
+
+      // Fallback: create toast manually
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'toast toast-info';
+      toast.innerHTML = `<div class="toast-content"><strong>${n.title}</strong><span>${n.message}</span></div>`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 5000);
     } catch (e) {
       console.error('[NC] Toast error:', e);
     }

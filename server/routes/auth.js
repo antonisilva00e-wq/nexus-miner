@@ -7,13 +7,13 @@ const { authenticate } = require('../middleware/auth');
 const { generateId } = require('../utils/helpers');
 const {
   checkAccountLockout, recordLoginAttempt, checkPasswordStrength,
-  VALIDATORS, validateInput,
+  VALIDATORS, validateInput, authLimiter,
 } = require('../middleware/security');
 
 const router = express.Router();
 
 // POST /api/auth/login
-router.post('/login', (req, res) => {
+router.post('/login', authLimiter, (req, res) => {
   const { username, password } = req.body;
 
   // Input validation

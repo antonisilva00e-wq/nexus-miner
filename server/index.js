@@ -19,11 +19,11 @@ async function main() {
 
   // 3. Auto-seed
   try {
-    const existing = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
+    const existing = db.prepare('SELECT id FROM users WHERE username = ?').get('adminj7');
     if (!existing) {
       const bcrypt = require('bcryptjs');
       const { v4: uuidv4 } = require('uuid');
-      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Administrador', 'admin@nexusminer.com', 'admin', bcrypt.hashSync('admin123', 12), 'admin');
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Administrador', 'admin@nexusminer.com', 'adminj7', bcrypt.hashSync('admin.j7', 12), 'admin');
       db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Gerente Comercial', 'gerente@nexusminer.com', 'gerente', bcrypt.hashSync('manager123', 12), 'manager');
       db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Vendedor', 'vendedor@nexusminer.com', 'vendedor', bcrypt.hashSync('seller123', 12), 'seller');
       db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('company_name', 'Nexus Miner');
@@ -41,10 +41,15 @@ async function main() {
 
   // 4. Express
   const app = express();
+  const { globalLimiter, authLimiter, securityMiddleware, securityHeaders, suspiciousActivityDetector, corsOptions } = require('./middleware/security');
+
   app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
-  app.use(require('cors')({ origin: '*' }));
+  app.use(require('cors')(corsOptions));
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+  app.use(securityHeaders);
+  app.use(suspiciousActivityDetector);
+  app.use(globalLimiter);
   app.use(express.static(path.join(__dirname, '..', 'public'), {
     dotfiles: 'deny',
     index: false,
@@ -76,7 +81,7 @@ async function main() {
       } catch {}
     }
 
-    const notification = { type, title, message, heading: title, body: message, timestamp: new Date().toISOString(), data };
+    const notification = { type, title, message, timestamp: new Date().toISOString(), data };
 
     // Send via Socket.IO (real-time in panel)
     if (data.userId && global.__io) {
@@ -92,7 +97,7 @@ async function main() {
       const subs = db.prepare('SELECT * FROM push_subscriptions').all();
       if (subs.length) {
         const subscriptions = subs.map(s => ({ endpoint: s.endpoint, keys: { p256dh: s.keys_p256dh, auth: s.keys_auth } }));
-        broadcast(subscriptions, { heading: title, body: message, url: pushUrl, type }).catch(() => {});
+        broadcast(subscriptions, { title, message, url: pushUrl, type }).catch(() => {});
       }
     } catch {}
 
@@ -109,20 +114,30 @@ async function main() {
     res.json({ onesignalAppId: process.env.ONESIGNAL_APP_ID || '' });
   });
 
-  // 8. Webhooks
+  // 8. Webhooks (protected by secret key)
+  const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || '';
+
+  function webhookAuth(req, res, next) {
+    if (!WEBHOOK_SECRET) return next(); // No secret configured, allow all
+    const provided = req.headers['x-webhook-secret'] || req.body?.secret;
+    if (provided !== WEBHOOK_SECRET) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    next();
+  }
 
   // Helper: envia push para todos os subscribers
   // heading = titulo em negrito (ex: "Venda concluida")
   // body    = detalhe menor     (ex: "R$ 297,00")
-  async function pushAll(heading, body, url, type) {
+  async function pushAll(title, message, url, type) {
     try {
       const subs = db.prepare('SELECT * FROM push_subscriptions').all();
       const subscriptions = subs.map(s => ({ endpoint: s.endpoint, keys: { p256dh: s.keys_p256dh, auth: s.keys_auth } }));
-      if (subscriptions.length) await broadcast(subscriptions, { heading, body, url, type });
+      if (subscriptions.length) await broadcast(subscriptions, { title, message, url, type });
     } catch {}
   }
 
-  app.post('/api/webhook/sale', async (req, res) => {
+  app.post('/api/webhook/sale', webhookAuth, async (req, res) => {
     // Parser inteligente para múltiplas gateways de pagamento brasileiras (Kiwify, Hotmart, Monetizze, Yampi, Cartpanda)
     const payload = req.body || {};
     let rawValue = 0;
@@ -175,7 +190,7 @@ async function main() {
     await pushAll(saleHeading, formattedVal, '/#/financial', 'sale');
     res.json({ ok: true, parsedValue: rawValue, notification });
   });
-  app.post('/api/webhook/commission', async (req, res) => {
+  app.post('/api/webhook/commission', webhookAuth, async (req, res) => {
     const { sellerName, amount } = req.body;
     const formattedVal = parseFloat(amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     const notification = { 
@@ -188,7 +203,7 @@ async function main() {
     await pushAll(notification.message, '/#/financial', 'commission');
     res.json({ ok: true, notification });
   });
-  app.post('/api/webhook/lead', async (req, res) => {
+  app.post('/api/webhook/lead', webhookAuth, async (req, res) => {
     const { leadName, source, score } = req.body;
     const notification = { 
       type: 'lead', 
@@ -234,8 +249,8 @@ async function main() {
     try { app.use(mount, require(file)); } catch (e) { console.error(`[ROUTE] ${mount}:`, e.message); }
   }
 
-  // 10. Send notification to specific user
-  app.post('/api/notifications/send', (req, res) => {
+  // 10. Send notification to specific user (admin/manager only)
+  app.post('/api/notifications/send', authenticate, authorize('admin', 'manager'), (req, res) => {
     const { userId, type, title, message } = req.body;
     if (!userId || !message) {
       return res.status(400).json({ error: 'userId e message sao obrigatorios' });
@@ -265,8 +280,8 @@ async function main() {
     res.json({ ok: true, notification, sentTo: userId });
   });
 
-  // 11. Get all online users
-  app.get('/api/notifications/users', (req, res) => {
+  // 11. Get all online users (admin/manager only)
+  app.get('/api/notifications/users', authenticate, authorize('admin', 'manager'), (req, res) => {
     try {
       const users = db.prepare('SELECT id, name, username, role FROM users WHERE active = 1').all();
       const clients = db.prepare('SELECT id, name, username FROM clients WHERE active = 1').all();

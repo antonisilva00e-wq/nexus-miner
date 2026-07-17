@@ -14,6 +14,21 @@ const router = express.Router();
 // PUBLIC ROUTES (no auth required)
 // ============================================================
 
+// IMPORTANT: /list must come BEFORE /:token to avoid route shadowing
+// GET /api/booking/list - List user's bookings (authenticated)
+router.get('/list', authenticate, (req, res) => {
+  const bookings = db.prepare(`
+    SELECT b.*, 
+      (SELECT COUNT(*) FROM appointments a WHERE a.booking_id = b.id AND a.status = 'confirmed') as confirmed_count,
+      (SELECT COUNT(*) FROM appointments a WHERE a.booking_id = b.id AND a.status = 'cancelled') as cancelled_count
+    FROM bookings b
+    WHERE b.seller_id = ?
+    ORDER BY b.date DESC
+  `).all(req.user.id);
+
+  res.json({ bookings });
+});
+
 // GET /api/booking/:token - Get booking page data (public)
 router.get('/:token', (req, res) => {
   const booking = db.prepare(`
@@ -133,20 +148,6 @@ router.post('/create', authenticate, (req, res) => {
       duration: duration || 30,
     },
   });
-});
-
-// GET /api/booking/list - List user's bookings (authenticated)
-router.get('/list', authenticate, (req, res) => {
-  const bookings = db.prepare(`
-    SELECT b.*, 
-      (SELECT COUNT(*) FROM appointments a WHERE a.booking_id = b.id AND a.status = 'confirmed') as confirmed_count,
-      (SELECT COUNT(*) FROM appointments a WHERE a.booking_id = b.id AND a.status = 'cancelled') as cancelled_count
-    FROM bookings b
-    WHERE b.seller_id = ?
-    ORDER BY b.date DESC
-  `).all(req.user.id);
-
-  res.json({ bookings });
 });
 
 // GET /api/booking/appointments/:bookingId - Get appointments for a booking

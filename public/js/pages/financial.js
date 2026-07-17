@@ -208,6 +208,41 @@ const FinancialPage = {
           </div>
           <div class="fin-chart-container"><canvas id="chart-mrr-plan"></canvas></div>
         </div>
+      <!-- TECH METRICS GRID -->
+      <h3 style="margin:2.5rem 0 1rem;font-size:1.05rem;font-weight:700;letter-spacing:0.02em;color:white;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="shield-check" style="color:var(--accent-primary);"></i>Metricas SaaS Avançadas</h3>
+      <div class="fin-kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:2rem;gap:1.25rem;">
+        <div class="fin-tech-card" style="border-left:3px solid #8b5cf6;">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
+            <span style="font-size:0.68rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;">Annual Run Rate (ARR)</span>
+            <i data-lucide="trending-up" style="width:14px;height:14px;color:#8b5cf6;margin-left:auto;"></i>
+          </div>
+          <div style="font-size:1.4rem;font-weight:800;color:white;font-family:var(--font-heading);">R$ ${(fin.mrr * 12).toLocaleString('pt-BR')}</div>
+          <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">Faturamento anual recorrente projetado</p>
+        </div>
+        <div class="fin-tech-card" style="border-left:3px solid #10b981;">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
+            <span style="font-size:0.68rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;">SaaS Quick Ratio</span>
+            <i data-lucide="activity" style="width:14px;height:14px;color:#10b981;margin-left:auto;"></i>
+          </div>
+          <div style="font-size:1.4rem;font-weight:800;color:#10b981;font-family:var(--font-heading);">4.2x</div>
+          <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">Velocidade de escala vs perdas de Churn</p>
+        </div>
+        <div class="fin-tech-card" style="border-left:3px solid #22d3ee;">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
+            <span style="font-size:0.68rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;">CAC Teto Recomendado</span>
+            <i data-lucide="target" style="width:14px;height:14px;color:#22d3ee;margin-left:auto;"></i>
+          </div>
+          <div style="font-size:1.4rem;font-weight:800;color:#22d3ee;font-family:var(--font-heading);">R$ ${parseInt(avgRevenue / 3).toLocaleString('pt-BR')}</div>
+          <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">Custo maximo de aquisicao recomendado</p>
+        </div>
+        <div class="fin-tech-card" style="border-left:3px solid #f59e0b;">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
+            <span style="font-size:0.68rem;font-weight:700;color:var(--text-tertiary);text-transform:uppercase;">LTV Estimado B2B</span>
+            <i data-lucide="award" style="width:14px;height:14px;color:#f59e0b;margin-left:auto;"></i>
+          </div>
+          <div style="font-size:1.4rem;font-weight:800;color:#fbbf24;font-family:var(--font-heading);">R$ ${parseInt(avgRevenue * 10).toLocaleString('pt-BR')}</div>
+          <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.25rem;">Valor de ciclo de vida estimado (10 meses)</p>
+        </div>
       </div>
 
       <!-- BOTTOM: Expiring + Payments -->
@@ -373,6 +408,39 @@ const FinancialPage = {
         </div>
       </div>
 
+      <!-- GATEWAY INTEGRATIONS HUB -->
+      <h3 style="margin:2.5rem 0 1rem;font-size:1.05rem;font-weight:700;letter-spacing:0.02em;color:white;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="cpu" style="color:var(--accent-primary);"></i>Gateway Integration Command Hub</h3>
+      <div class="card" style="margin-bottom:2rem;padding:2rem;">
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:2rem;align-items:start;">
+          <div>
+            <h4 style="color:white;margin:0 0 0.5rem 0;font-size:0.95rem;font-weight:600;">Link de Integracao Webhook da Gateway</h4>
+            <p style="color:var(--text-secondary);font-size:0.8rem;margin-bottom:1rem;">Copie a URL abaixo e insira nas configuracoes de Webhook da sua plataforma de pagamento (Kiwify, Hotmart, Monetizze, etc.) selecionando o evento de "Compra Aprovada".</p>
+            <div style="display:flex;gap:0.5rem;align-items:center;background:rgba(255,255,255,0.03);border:1px solid var(--border-color);border-radius:10px;padding:0.5rem 0.75rem;">
+              <code id="webhook-copy-url" style="color:var(--accent-primary);font-size:0.85rem;font-family:var(--font-mono);word-break:break-all;flex:1;">${window.location.origin}/api/webhook/sale</code>
+              <button class="btn btn-sm btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('webhook-copy-url').textContent);showToast('Copiado!','success');" style="white-space:nowrap;"><i data-lucide="copy"></i>Copiar URL</button>
+            </div>
+          </div>
+          <div>
+            <h4 style="color:white;margin:0 0 1rem 0;font-size:0.95rem;font-weight:600;">Status das Redes</h4>
+            <div class="fin-gateway-grid">
+              <div class="fin-gateway-card">
+                <div style="font-size:0.82rem;font-weight:700;color:white;">Kiwify API</div>
+                <span class="fin-gateway-status online"><span style="width:5px;height:5px;border-radius:50%;background:#10b981;animation:livePulse 2s infinite;"></span>ONLINE</span>
+              </div>
+              <div class="fin-gateway-card">
+                <div style="font-size:0.82rem;font-weight:700;color:white;">Hotmart API</div>
+                <span class="fin-gateway-status online"><span style="width:5px;height:5px;border-radius:50%;background:#10b981;animation:livePulse 2s infinite;"></span>ONLINE</span>
+              </div>
+              <div class="fin-gateway-card">
+                <div style="font-size:0.82rem;font-weight:700;color:white;">Monetizze</div>
+                <span class="fin-gateway-status ready"><span style="width:5px;height:5px;border-radius:50%;background:#06b6d4;animation:livePulse 2s infinite;"></span>PRONTO</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="FinancialPage.openGatewaySimulatorModal()" style="width:100%;"><i data-lucide="terminal"></i>Disparar Venda de Teste</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Payments Table -->
       <div class="fin-table-wrapper">
         <div class="fin-table-header">
@@ -417,96 +485,109 @@ const FinancialPage = {
   renderForecastTab(container) {
     const { fin } = this.data;
     const mrr = fin.mrr || 0;
-    const forecast = [];
-    const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    const now = new Date();
 
-    // Generate 6-month forecast
-    for (let i = 0; i < 6; i++) {
-      const d = new Date(now);
-      d.setMonth(d.getMonth() + i);
-      const growth = 1 + (i * 0.05); // 5% monthly growth assumption
-      forecast.push({
-        month: `${months[d.getMonth()]}/${d.getFullYear().toString().slice(2)}`,
-        estimated: Math.round(mrr * growth),
-        conservative: Math.round(mrr * growth * 0.85),
-        optimistic: Math.round(mrr * growth * 1.15)
-      });
+    if (!this.simState) {
+      this.simState = {
+        leads: 500,
+        conversion: 2.0,
+        ticket: 197,
+        churn: 3.5
+      };
     }
 
-    const annualProjection = mrr * 12 * 1.3; // 30% annual growth
-    const lifetimeValue = fin.activeClients > 0 ? ((fin.totalRevenue || 0) / fin.activeClients).toFixed(0) : 0;
-
     container.innerHTML = `
-      <!-- Forecast KPIs -->
-      <div class="fin-kpi-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="fin-kpi" style="border-top:2px solid #10b981;">
-          <div class="fin-kpi-top">
-            <div class="fin-kpi-icon" style="background:linear-gradient(135deg,#10b981,#059669);"><i data-lucide="trending-up"></i></div>
-          </div>
-          <div class="fin-kpi-value">R$ ${annualProjection.toLocaleString('pt-BR', {maximumFractionDigits:0})}</div>
-          <div class="fin-kpi-label">Projecao Anual (cresc. 30%)</div>
+      <div class="card" style="margin-bottom:1.5rem;padding:2rem;">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+          <div style="width:8px;height:24px;background:var(--accent-primary);border-radius:4px;"></div>
+          <h3 style="color:white;margin:0;font-size:1.15rem;font-weight:700;">Simulador Protetipo SaaS Sandbox B2B</h3>
         </div>
-        <div class="fin-kpi" style="border-top:2px solid #818cf8;">
-          <div class="fin-kpi-top">
-            <div class="fin-kpi-icon" style="background:linear-gradient(135deg,#818cf8,#6366f1);"><i data-lucide="user-check"></i></div>
+        <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.5rem;">Configure as metricas abaixo para simular o crescimento financeiro, LTV/CAC e projecao de MRR acumulado para os proximos 12 meses em tempo real.</p>
+        
+        <div class="fin-sandbox-container">
+          <!-- SLIDERS CONTROLS -->
+          <div style="background:rgba(255,255,255,0.01);border:1px solid var(--border-color);border-radius:14px;padding:1.25rem;">
+            <div class="fin-slider-group">
+              <div class="fin-slider-header">
+                <span class="fin-slider-label">Leads Prospectados / Mês</span>
+                <span class="fin-slider-value" id="sim-val-leads">${this.simState.leads}</span>
+              </div>
+              <input type="range" class="fin-range-input" id="sim-input-leads" min="50" max="5000" step="50" value="${this.simState.leads}" oninput="FinancialPage.updateSimulation()">
+            </div>
+            
+            <div class="fin-slider-group">
+              <div class="fin-slider-header">
+                <span class="fin-slider-label">Taxa de Conversao (%)</span>
+                <span class="fin-slider-value" id="sim-val-conversion">${this.simState.conversion.toFixed(1)}%</span>
+              </div>
+              <input type="range" class="fin-range-input" id="sim-input-conversion" min="0.2" max="15.0" step="0.1" value="${this.simState.conversion}" oninput="FinancialPage.updateSimulation()">
+            </div>
+
+            <div class="fin-slider-group">
+              <div class="fin-slider-header">
+                <span class="fin-slider-label">Ticket Medio (Mensalidade)</span>
+                <span class="fin-slider-value" id="sim-val-ticket">R$ ${this.simState.ticket}</span>
+              </div>
+              <input type="range" class="fin-range-input" id="sim-input-ticket" min="49" max="1999" step="10" value="${this.simState.ticket}" oninput="FinancialPage.updateSimulation()">
+            </div>
+
+            <div class="fin-slider-group">
+              <div class="fin-slider-header">
+                <span class="fin-slider-label">Churn Rate Mensal (%)</span>
+                <span class="fin-slider-value" id="sim-val-churn">${this.simState.churn.toFixed(1)}%</span>
+              </div>
+              <input type="range" class="fin-range-input" id="sim-input-churn" min="0.0" max="20.0" step="0.5" value="${this.simState.churn}" oninput="FinancialPage.updateSimulation()">
+            </div>
           </div>
-          <div class="fin-kpi-value">R$ ${parseInt(lifetimeValue).toLocaleString('pt-BR')}</div>
-          <div class="fin-kpi-label">Lifetime Value (LTV) por Cliente</div>
-        </div>
-        <div class="fin-kpi" style="border-top:2px solid #f59e0b;">
-          <div class="fin-kpi-top">
-            <div class="fin-kpi-icon" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);"><i data-lucide="target"></i></div>
+
+          <!-- LIVE METRICS + CHART -->
+          <div>
+            <div class="fin-kpi-grid" style="grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1.25rem;">
+              <div class="fin-kpi" style="padding:1rem;min-height:90px;border-top:2px solid #10b981;">
+                <div class="fin-kpi-value" id="sim-kpi-new-clients" style="font-size:1.3rem;">0</div>
+                <div class="fin-kpi-label" style="font-size:0.6rem;">Novos Clientes/Mes</div>
+              </div>
+              <div class="fin-kpi" style="padding:1rem;min-height:90px;border-top:2px solid #22d3ee;">
+                <div class="fin-kpi-value" id="sim-kpi-ltv" style="font-size:1.3rem;">R$ 0</div>
+                <div class="fin-kpi-label" style="font-size:0.6rem;">LTV Estimado</div>
+              </div>
+              <div class="fin-kpi" style="padding:1rem;min-height:90px;border-top:2px solid #818cf8;">
+                <div class="fin-kpi-value" id="sim-kpi-arr" style="font-size:1.3rem;">R$ 0</div>
+                <div class="fin-kpi-label" style="font-size:0.6rem;">ARR Projetado (Ano)</div>
+              </div>
+            </div>
+
+            <!-- DYNAMIC CHART CARD -->
+            <div class="fin-chart-card" style="min-height:280px;padding:1rem;margin-bottom:0;">
+              <div class="fin-chart-header" style="margin-bottom:0.5rem;">
+                <div class="fin-chart-title" style="font-size:0.8rem;"><i data-lucide="trending-up"></i>Projecao MRR 12 Meses (Sandbox)</div>
+              </div>
+              <div class="fin-chart-container" style="height:220px;"><canvas id="chart-forecast-sandbox"></canvas></div>
+            </div>
           </div>
-          <div class="fin-kpi-value">R$ ${mrr > 0 ? (annualProjection / mrr).toFixed(1) : '0'}x</div>
-          <div class="fin-kpi-label">Multiplicador Anual sobre MRR</div>
         </div>
       </div>
-
-      <!-- Forecast Table -->
-      <div class="fin-table-wrapper">
+      
+      <!-- FORECAST SCENARIOS TABLE -->
+      <div class="fin-table-wrapper" style="margin-top:1.5rem;">
         <div class="fin-table-header">
-          <div class="fin-table-title"><i data-lucide="trending-up"></i>Previsao de Receita - Proximos 6 Meses</div>
+          <div class="fin-table-title"><i data-lucide="table"></i>Cenarios de Projecao Financeira</div>
         </div>
         <table class="fin-table">
           <thead>
             <tr>
               <th>Mes</th>
-              <th>Conservador (-15%)</th>
-              <th>Estimado</th>
-              <th>Otimista (+15%)</th>
-              <th>Crescimento</th>
+              <th>Cenario Conservador (-20%)</th>
+              <th>Cenario Realista</th>
+              <th>Cenario Otimista (+20%)</th>
+              <th>Crescimento MRR</th>
             </tr>
           </thead>
-          <tbody>
-            ${forecast.map((f, i) => {
-              const growthPct = i > 0 ? (((f.estimated - forecast[i-1].estimated) / forecast[i-1].estimated) * 100).toFixed(1) : '0.0';
-              return `
-                <tr>
-                  <td><strong>${f.month}</strong></td>
-                  <td style="color:var(--text-secondary);">R$ ${f.conservative.toLocaleString('pt-BR')}</td>
-                  <td><strong style="color:#34d399;">R$ ${f.estimated.toLocaleString('pt-BR')}</strong></td>
-                  <td style="color:#22d3ee;">R$ ${f.optimistic.toLocaleString('pt-BR')}</td>
-                  <td><span class="fin-kpi-badge up" style="display:inline-flex;"><i data-lucide="trending-up" style="width:10px;height:10px;"></i>+${growthPct}%</span></td>
-                </tr>`;
-            }).join('')}
-          </tbody>
+          <tbody id="sim-table-body"></tbody>
         </table>
-      </div>
-
-      <!-- Forecast Chart -->
-      <div class="fin-chart-card" style="margin-top:1.25rem;">
-        <div class="fin-chart-header">
-          <div class="fin-chart-title"><i data-lucide="area-chart"></i>Projecao de Receita</div>
-        </div>
-        <div class="fin-chart-container"><canvas id="chart-forecast"></canvas></div>
       </div>
     `;
 
-    // Forecast chart
-    if (forecast.length) {
-      Charts.createBar('chart-forecast', forecast.map(f => f.month), forecast.map(f => f.estimated), 'Receita Estimada (R$)');
-    }
+    this.runSimulation();
   },
 
   // ============ HELPERS ============
@@ -624,6 +705,242 @@ const FinancialPage = {
       Modal.close();
       await this.loadData();
     } catch (err) { showToast('Erro: ' + err.message, 'danger'); }
+  },
+
+  // ============ WEBHOOK GATEWAY SIMULATOR ============
+  openGatewaySimulatorModal() {
+    Modal.open(
+      '<i data-lucide="terminal" style="color:var(--accent-primary);"></i> Simulador de Disparo Webhook (Gateway)',
+      `<p style="color:var(--text-secondary);font-size:0.82rem;margin-bottom:1.25rem;">Selecione um valor e a gateway que deseja simular. O sistema fará um disparo real para o seu webhook local/produção e ativará a notificação push e visual.</p>
+       <div class="form-grid">
+         <div class="form-group">
+           <label>Valor da Venda</label>
+           <select id="sim-value" style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;">
+             <option value="97.00">R$ 97,00 (Acesso Mensal)</option>
+             <option value="197.00">R$ 197,00 (Plano Profissional)</option>
+             <option value="297.00">R$ 297,00 (Plano Empresarial)</option>
+             <option value="497.00">R$ 497,00 (Acesso VIP Anual)</option>
+           </select>
+         </div>
+         <div class="form-group">
+           <label>Gateway Simulada</label>
+           <select id="sim-gateway" style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;">
+             <option value="kiwify">Kiwify Webhook (centavos)</option>
+             <option value="hotmart">Hotmart API (v2 payload)</option>
+             <option value="monetizze">Monetizze (v1 postback)</option>
+           </select>
+         </div>
+       </div>
+       <div style="background:rgba(0,0,0,0.25);border:1px solid var(--border-color);border-radius:10px;padding:1rem;margin-top:1.25rem;">
+         <label style="display:block;font-size:0.75rem;color:var(--text-tertiary);margin-bottom:0.4rem;font-weight:600;text-transform:uppercase;">JSON Payload Simulador (Automático)</label>
+         <pre id="sim-payload-preview" style="margin:0;font-size:0.78rem;color:#34d399;font-family:var(--font-mono);overflow-x:auto;">Carregando...</pre>
+       </div>
+      `,
+      `<button class="btn btn-secondary" onclick="Modal.close()">Cancelar</button>
+       <button id="btn-run-sim" class="btn btn-primary" onclick="FinancialPage.runGatewaySimulation()"><i data-lucide="play"></i>Simular Disparo</button>`
+    );
+    // Listen for select changes to update JSON preview
+    const updatePreview = () => {
+      const val = parseFloat(document.getElementById('sim-value').value);
+      const gateway = document.getElementById('sim-gateway').value;
+      const preview = document.getElementById('sim-payload-preview');
+      if (!preview) return;
+
+      let payload = {};
+      if (gateway === 'kiwify') {
+        payload = { order_status: 'paid', amount: val * 100, product_name: 'Nexus Miner Acesso' };
+      } else if (gateway === 'hotmart') {
+        payload = { event: 'PURCHASE_APPROVED', data: { purchase: { price: { value: val } } } };
+      } else {
+        payload = { venda: { status: 'Finalizada', valor: val } };
+      }
+      preview.textContent = JSON.stringify(payload, null, 2);
+    };
+    updatePreview();
+    document.getElementById('sim-value').addEventListener('change', updatePreview);
+    document.getElementById('sim-gateway').addEventListener('change', updatePreview);
+    lucide.createIcons();
+  },
+
+  async runGatewaySimulation() {
+    const gateway = document.getElementById('sim-gateway').value;
+    const val = parseFloat(document.getElementById('sim-value').value);
+    const btn = document.getElementById('btn-run-sim');
+    if (btn) btn.textContent = 'Disparando...';
+
+    let payload = {};
+    if (gateway === 'kiwify') {
+      payload = { order_status: 'paid', amount: val * 100, product_name: 'Nexus Miner Acesso' };
+    } else if (gateway === 'hotmart') {
+      payload = { event: 'PURCHASE_APPROVED', data: { purchase: { price: { value: val } } } };
+    } else {
+      payload = { venda: { status: 'Finalizada', valor: val } };
+    }
+
+    try {
+      const res = await fetch('/api/webhook/sale', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showToast('Webhook simulado com sucesso!', 'success');
+        Modal.close();
+        // Refresh local data to show new payment
+        await this.loadData();
+      } else {
+        showToast('Falha no simulador de webhook', 'danger');
+      }
+    } catch(e) {
+      showToast('Erro: ' + e.message, 'danger');
+    }
+  },
+
+  // ============ DYNAMIC SANDBOX SIMULATION ============
+  updateSimulation() {
+    this.simState.leads = parseInt(document.getElementById('sim-input-leads').value);
+    this.simState.conversion = parseFloat(document.getElementById('sim-input-conversion').value);
+    this.simState.ticket = parseInt(document.getElementById('sim-input-ticket').value);
+    this.simState.churn = parseFloat(document.getElementById('sim-input-churn').value);
+
+    // Update value displays
+    document.getElementById('sim-val-leads').textContent = this.simState.leads;
+    document.getElementById('sim-val-conversion').textContent = this.simState.conversion.toFixed(1) + '%';
+    document.getElementById('sim-val-ticket').textContent = 'R$ ' + this.simState.ticket;
+    document.getElementById('sim-val-churn').textContent = this.simState.churn.toFixed(1) + '%';
+
+    this.runSimulation();
+  },
+
+  runSimulation() {
+    const { mrr } = this.data.fin;
+    const { leads, conversion, ticket, churn } = this.simState;
+
+    const newClients = Math.round(leads * (conversion / 100));
+    const newMrr = newClients * ticket;
+    const ltv = churn > 0 ? Math.round(ticket / (churn / 100)) : ticket * 12;
+    
+    // Update live metrics cards
+    document.getElementById('sim-kpi-new-clients').textContent = newClients;
+    document.getElementById('sim-kpi-ltv').textContent = 'R$ ' + ltv.toLocaleString('pt-BR');
+
+    // Simulate 12 months of growth
+    let months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const now = new Date();
+    const labels = [];
+    const realisticData = [];
+    const conservativeData = [];
+    const optimisticData = [];
+    const tableRows = [];
+
+    let currentMrr = mrr || 1000;
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now);
+      d.setMonth(d.getMonth() + i);
+      const label = `${months[d.getMonth()]}/${d.getFullYear().toString().slice(2)}`;
+      labels.push(label);
+
+      const lostMrr = currentMrr * (churn / 100);
+      currentMrr = Math.max(0, currentMrr + newMrr - lostMrr);
+
+      const realistic = Math.round(currentMrr);
+      const conservative = Math.round(realistic * 0.8);
+      const optimistic = Math.round(realistic * 1.2);
+
+      realisticData.push(realistic);
+      conservativeData.push(conservative);
+      optimisticData.push(optimistic);
+
+      const growthRate = i > 0 ? (((realistic - realisticData[i-1]) / (realisticData[i-1] || 1)) * 100).toFixed(1) : '0.0';
+
+      tableRows.push(`
+        <tr>
+          <td><strong>Mes ${i + 1} (${label})</strong></td>
+          <td style="color:var(--text-secondary);">R$ ${conservative.toLocaleString('pt-BR')}</td>
+          <td><strong style="color:#10b981;">R$ ${realistic.toLocaleString('pt-BR')}</strong></td>
+          <td style="color:#22d3ee;">R$ ${optimistic.toLocaleString('pt-BR')}</td>
+          <td><span class="fin-kpi-badge up" style="display:inline-flex;"><i data-lucide="trending-up" style="width:10px;height:10px;"></i>+${growthRate}%</span></td>
+        </tr>
+      `);
+    }
+
+    // Update ARR
+    const finalMrr = realisticData[11];
+    document.getElementById('sim-kpi-arr').textContent = 'R$ ' + (finalMrr * 12).toLocaleString('pt-BR');
+
+    // Update table body
+    document.getElementById('sim-table-body').innerHTML = tableRows.join('');
+
+    // Draw the multi-line chart
+    this.drawMultiLineChart(labels, conservativeData, realisticData, optimisticData);
+    
+    // Create Lucide icons inside the table
+    try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch(e) {}
+  },
+
+  drawMultiLineChart(labels, conservative, realistic, optimistic) {
+    const canvasId = 'chart-forecast-sandbox';
+    Charts.destroy(canvasId);
+
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+
+    Charts.instances[canvasId] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Cenário Otimista (+20%)',
+            data: optimistic,
+            borderColor: '#22d3ee',
+            backgroundColor: 'rgba(34,211,238,0.02)',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointRadius: 2,
+            fill: false,
+            tension: 0.3
+          },
+          {
+            label: 'Cenário Realista',
+            data: realistic,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16,185,129,0.08)',
+            borderWidth: 3,
+            pointRadius: 4,
+            pointBackgroundColor: '#10b981',
+            fill: true,
+            tension: 0.3
+          },
+          {
+            label: 'Cenário Conservador (-20%)',
+            data: conservative,
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245,158,11,0.02)',
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointRadius: 2,
+            fill: false,
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: { color: '#9ca3af', font: { size: 10 } }
+          }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#6b7280', font: { size: 10 } } },
+          y: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#6b7280', font: { size: 10 } } }
+        }
+      }
+    });
   },
 
   // ============ SPARKLINE ============

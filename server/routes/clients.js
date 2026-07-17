@@ -56,18 +56,17 @@ router.get('/stats', (req, res) => {
 });
 
 // PUT /api/clients/reset-all-passwords - Reset ALL client passwords (admin only)
-router.put('/reset-all-passwords', (req, res) => {
+router.put('/reset-all-passwords', authenticate, authorize('admin'), (req, res) => {
   const { defaultPassword } = req.body;
   if (!defaultPassword || defaultPassword.length < 6) {
     return res.status(400).json({ error: 'Senha padrao deve ter pelo menos 6 caracteres' });
   }
 
   const hash = bcrypt.hashSync(defaultPassword, 12);
-  // Reset ALL clients - not just empty ones
   db.prepare('UPDATE clients SET password_hash = ?').run(hash);
 
   const count = db.prepare('SELECT COUNT(*) as count FROM clients').get().count;
-  res.json({ message: `Todas as ${count} senhas foram resetadas para: ${defaultPassword}` });
+  res.json({ message: `Todas as ${count} senhas foram resetadas` });
 });
 
 // POST /api/clients
@@ -151,19 +150,6 @@ router.put('/:id/reset-password', (req, res) => {
   const hash = bcrypt.hashSync(newPassword, 12);
   db.prepare('UPDATE clients SET password_hash = ? WHERE id = ?').run(hash, req.params.id);
   res.json({ message: 'Senha atualizada com sucesso' });
-});
-
-// PUT /api/clients/reset-all-passwords - Reset all client passwords (admin only)
-router.put('/reset-all-passwords', (req, res) => {
-  const { defaultPassword } = req.body;
-  if (!defaultPassword || defaultPassword.length < 6) {
-    return res.status(400).json({ error: 'Senha padrao deve ter pelo menos 6 caracteres' });
-  }
-
-  const hash = bcrypt.hashSync(defaultPassword, 12);
-  const result = db.prepare('UPDATE clients SET password_hash = ? WHERE password_hash IS NULL OR password_hash = ""').run(hash);
-
-  res.json({ message: `${result.run?.changes || 0} senhas atualizadas` });
 });
 
 module.exports = router;
