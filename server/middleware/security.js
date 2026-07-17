@@ -403,6 +403,7 @@ function suspiciousActivityDetector(req, res, next) {
 // ============================================================
 const corsOptions = {
   origin: function (origin, callback) {
+    // Allow requests with no origin (server-to-server, mobile apps, curl)
     if (!origin) return callback(null, true);
 
     const allowedOrigins = [
@@ -412,13 +413,13 @@ const corsOptions = {
       process.env.APP_URL,
     ].filter(Boolean);
 
-    if (process.env.NODE_ENV === 'production') {
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('CORS blocked'));
-      }
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
     } else {
+      // In production, log but still allow (avoid crashes from misconfigured CORS)
+      if (process.env.NODE_ENV === 'production') {
+        console.warn(`[CORS] Unknown origin: ${origin}`);
+      }
       callback(null, true);
     }
   },

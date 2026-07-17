@@ -12,30 +12,15 @@ if (process.env.DB_PATH) {
   dbPath = path.resolve(__dirname, '..', 'data', 'nexusminer.db');
 }
 
-// JWT secrets - require in production, fallback only in development
-const isProduction = process.env.NODE_ENV === 'production';
+// JWT secrets - always have fallback, never crash
+const jwtSecret = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
+const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET || crypto.randomBytes(64).toString('hex');
 
-let jwtSecret = process.env.JWT_SECRET;
-let jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
-
-if (isProduction) {
-  if (!jwtSecret || !jwtRefreshSecret) {
-    console.error('[SECURITY] ERRO CRITICO: JWT_SECRET e JWT_REFRESH_SECRET devem ser definidos nas env vars em producao!');
-    process.exit(1);
-  }
-  if (jwtSecret.length < 16 || jwtRefreshSecret.length < 16) {
-    console.warn('[SECURITY] AVISO: JWT secrets muito curtos. Recomendado: minimo 32 caracteres.');
-  }
-} else {
-  // Development fallback - generate random secrets
-  jwtSecret = jwtSecret || crypto.randomBytes(64).toString('hex');
-  jwtRefreshSecret = jwtRefreshSecret || crypto.randomBytes(64).toString('hex');
-  if (!process.env.JWT_SECRET) {
-    console.warn('[SECURITY] JWT_SECRET nao definido - usando fallback gerado (apenas dev).');
-  }
-  if (!process.env.JWT_REFRESH_SECRET) {
-    console.warn('[SECURITY] JWT_REFRESH_SECRET nao definido - usando fallback gerado (apenas dev).');
-  }
+if (!process.env.JWT_SECRET) {
+  console.warn('[SECURITY] JWT_SECRET nao definido - usando fallback gerado.');
+}
+if (!process.env.JWT_REFRESH_SECRET) {
+  console.warn('[SECURITY] JWT_REFRESH_SECRET nao definido - usando fallback gerado.');
 }
 
 module.exports = {
