@@ -127,18 +127,21 @@ async function main() {
     const formattedVal = parseFloat(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     // Usa template customizado salvo nas configuracoes
-    let saleBody = formattedVal;
+    // O texto que o usuario escreveu vira o HEADING (titulo em negrito)
+    // O valor da venda vira o BODY (detalhe menor abaixo)
+    let saleHeading = 'Venda conclu\u00edda';
     try {
       const template = db.prepare("SELECT value FROM settings WHERE key = 'notification_sale_message'").get();
       if (template && template.value) {
-        // Se o template tem {valor}, substitui. Ex: "Venda concluida: {valor}" -> heading="Venda concluida:", body=valor
-        saleBody = template.value.replace(/\{valor\}/g, formattedVal);
+        // Substitui {valor} dentro do heading se quiser, ex: "Venda: {valor}"
+        saleHeading = template.value.replace(/\{valor\}/g, formattedVal);
       }
     } catch {}
 
-    const notification = { type: 'sale', title: 'Venda concluída', message: saleBody, timestamp: new Date().toISOString() };
+    const notification = { type: 'sale', title: saleHeading, message: formattedVal, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('Venda concluída', saleBody, '/#/financial', 'sale');
+    // heading = o texto customizado (titulo negrito), body = o valor (detalhe)
+    await pushAll(saleHeading, formattedVal, '/#/financial', 'sale');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/commission', async (req, res) => {
