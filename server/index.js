@@ -92,7 +92,7 @@ async function main() {
       const subs = db.prepare('SELECT * FROM push_subscriptions').all();
       if (subs.length) {
         const subscriptions = subs.map(s => ({ endpoint: s.endpoint, keys: { p256dh: s.keys_p256dh, auth: s.keys_auth } }));
-        broadcast(subscriptions, { title: 'Nexus Miner', message, url: pushUrl, type }).catch(() => {});
+        broadcast(subscriptions, { message, url: pushUrl, type }).catch(() => {});
       }
     } catch {}
 
@@ -112,11 +112,11 @@ async function main() {
   // 8. Webhooks
 
   // Helper: send push to all subscribers
-  async function pushAll(title, message, url, type) {
+  async function pushAll(message, url, type) {
     try {
       const subs = db.prepare('SELECT * FROM push_subscriptions').all();
       const subscriptions = subs.map(s => ({ endpoint: s.endpoint, keys: { p256dh: s.keys_p256dh, auth: s.keys_auth } }));
-      if (subscriptions.length) await broadcast(subscriptions, { title, message, url, type });
+      if (subscriptions.length) await broadcast(subscriptions, { message, url, type });
     } catch {}
   }
 
@@ -140,7 +140,7 @@ async function main() {
       timestamp: new Date().toISOString()
     };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('Nexus Miner', notification.message, '/#/financial', 'sale');
+    await pushAll(notification.message, '/#/financial', 'sale');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/commission', async (req, res) => {
@@ -153,7 +153,7 @@ async function main() {
       timestamp: new Date().toISOString() 
     };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('Nexus Miner', notification.message, '/#/financial', 'commission');
+    await pushAll(notification.message, '/#/financial', 'commission');
     res.json({ ok: true, notification });
   });
   app.post('/api/webhook/lead', async (req, res) => {
@@ -165,7 +165,7 @@ async function main() {
       timestamp: new Date().toISOString() 
     };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll('Nexus Miner', notification.message, '/#/leads', 'lead');
+    await pushAll(notification.message, '/#/leads', 'lead');
     res.json({ ok: true, notification });
   });
 
@@ -226,7 +226,7 @@ async function main() {
       const subs = db.prepare('SELECT * FROM push_subscriptions WHERE user_id = ?').all(userId);
       if (subs.length) {
         const subscriptions = subs.map(s => ({ endpoint: s.endpoint, keys: { p256dh: s.keys_p256dh, auth: s.keys_auth } }));
-        broadcast(subscriptions, { title: 'Nexus Miner', message, url: '/#/dashboard', type });
+        broadcast(subscriptions, { message, url: '/#/dashboard', type });
       }
     } catch {}
 

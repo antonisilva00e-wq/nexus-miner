@@ -9,9 +9,18 @@ if (vapidPublicKey && vapidPrivateKey) {
   console.log('[PUSH] VAPID configurado');
 }
 
+const TYPE_TITLES = {
+  sale: 'Venda Registrada',
+  commission: 'Comissao',
+  lead: 'Novo Lead',
+  pipeline: 'Pipeline Atualizado',
+  info: 'Notificacao'
+};
+
 async function sendPush(subscription, { title, message, url, type }) {
   if (!vapidPublicKey) return null;
-  const payload = JSON.stringify({ title, message, url: url || '/', type: type || 'info' });
+  const notifTitle = title || TYPE_TITLES[type] || 'Nexus Miner';
+  const payload = JSON.stringify({ title: notifTitle, message, url: url || '/', type: type || 'info' });
   return webpush.sendNotification(subscription, payload);
 }
 
