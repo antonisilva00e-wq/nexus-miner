@@ -221,12 +221,12 @@ async function main() {
       global.__io.to(`user:${userId}`).emit('notification', notification);
     }
 
-    // Also send push notification if user has subscription
+    // Also send push notification to ALL user devices
     try {
-      const sub = db.prepare('SELECT * FROM push_subscriptions WHERE user_id = ?').get(userId);
-      if (sub) {
-        const subscription = { endpoint: sub.endpoint, keys: { p256dh: sub.keys_p256dh, auth: sub.keys_auth } };
-        sendPush(subscription, { title: 'Nexus Miner', message, url: '/#/dashboard', type });
+      const subs = db.prepare('SELECT * FROM push_subscriptions WHERE user_id = ?').all(userId);
+      if (subs.length) {
+        const subscriptions = subs.map(s => ({ endpoint: s.endpoint, keys: { p256dh: s.keys_p256dh, auth: s.keys_auth } }));
+        broadcast(subscriptions, { title: 'Nexus Miner', message, url: '/#/dashboard', type });
       }
     } catch {}
 

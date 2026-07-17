@@ -74,6 +74,9 @@ const App = {
     Auth.applyRole();
     document.body.classList.add('logged-in');
     this.navigateTo('dashboard');
+    // Show notification bell for all logged-in users
+    const trigger = document.getElementById('nc-trigger');
+    if (trigger) trigger.style.display = 'flex';
     // Start onboarding for new users
     if (typeof Onboarding !== 'undefined') Onboarding.init();
   },
