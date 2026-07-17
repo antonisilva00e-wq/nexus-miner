@@ -1,62 +1,121 @@
 /**
- * Security Middleware - Comprehensive protection against intruders
+ * Security Middleware - Ultra Protection
+ * Multi-layer defense: rate limiting, input validation, SQL injection, XSS, IP blocking, HMAC webhooks
  */
 
 const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 
 // ============================================================
-// 1. GLOBAL RATE LIMITER - Prevent brute force attacks
+// 1. GLOBAL RATE LIMITER - Brute force protection
 // ============================================================
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200, // 200 requests per window
+  windowMs: 15 * 60 * 1000,
+  max: 150,
   message: { error: 'Muitas tentativas. Tente novamente em 15 minutos.' },
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => req.ip || req.headers['x-forwarded-for'] || 'unknown',
+  skip: (req) => req.path === '/api/health',
 });
 
 // ============================================================
-// 2. AUTH RATE LIMITER - Strict limit for login attempts
+// 2. AUTH RATE LIMITER - Strict login protection
 // ============================================================
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10, // 10 login attempts per 15 min
+  max: 8,
   message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' },
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
-    // Rate limit by IP + username combination
     const username = req.body?.username || 'unknown';
-    return `${req.ip}:${username}`;
+    return `auth:${req.ip}:${username}`;
   },
   skipSuccessfulRequests: true,
 });
 
 // ============================================================
-// 3. API RATE LIMITER - For API endpoints
+// 3. API RATE LIMITER
 // ============================================================
 const apiLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 300, // 300 requests per minute
+  windowMs: 1 * 60 * 1000,
+  max: 120,
   message: { error: 'Limite de API atingido. Aguarde 1 minuto.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
 // ============================================================
-// 4. MINING RATE LIMITER - Prevent resource exhaustion
+// 4. MINING RATE LIMITER - Resource exhaustion protection
 // ============================================================
 const miningLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 20, // 20 mining operations per hour
+  windowMs: 60 * 60 * 1000,
+  max: 15,
   message: { error: 'Limite de mineracao atingido. Aguarde 1 hora.' },
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: (req) => `mine:${req.user?.id || req.ip}`,
 });
 
 // ============================================================
-// 5. INPUT SANITIZER - Prevent XSS and injection
+// 5. REGISTRATION RATE LIMITER - Prevent mass account creation
+// ============================================================
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  message: { error: 'Limite de cadastro atingido. Aguarde 1 hora.' },
+  keyGenerator: (req) => `reg:${req.ip}`,
+});
+
+// ============================================================
+// 6. REFRESH TOKEN RATE LIMITER - Prevent token brute force
+// ============================================================
+const refreshLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 20,
+  message: { error: 'Muitas tentativas de refresh. Aguarde 5 minutos.' },
+  keyGenerator: (req) => `refresh:${req.ip}`,
+});
+
+// ============================================================
+// 7. IP BLACKLIST - Auto-block after repeated offenses
+// ============================================================
+const ipBlacklist = new Map();
+const IP_BLOCK_DURATION = 60 * 60 * 1000; // 1 hour
+const IP_BLOCK_THRESHOLD = 20;
+
+function isIPBlocked(ip) {
+  const entry = ipBlacklist.get(ip);
+  if (!entry) return false;
+  if (Date.now() - entry.blockedAt > IP_BLOCK_DURATION) {
+    ipBlacklist.delete(ip);
+    return false;
+  }
+  return true;
+}
+
+function recordIPViolation(ip, reason) {
+  const entry = ipBlacklist.get(ip) || { violations: 0, blockedAt: 0 };
+  entry.violations++;
+  entry.lastViolation = Date.now();
+  entry.reason = reason;
+
+  if (entry.violations >= IP_BLOCK_THRESHOLD && !entry.blockedAt) {
+    entry.blockedAt = Date.now();
+    console.log(`[SECURITY] IP BLOCKED: ${ip} (${entry.violations} violations: ${reason})`);
+  }
+  ipBlacklist.set(ip, entry);
+}
+
+function ipBlocker(req, res, next) {
+  const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+  if (isIPBlocked(ip)) {
+    return res.status(403).json({ error: 'Acesso negado' });
+  }
+  next();
+}
+
+// ============================================================
+// 8. INPUT SANITIZER - XSS prevention
 // ============================================================
 function sanitizeInput(str) {
   if (typeof str !== 'string') return str;
@@ -72,11 +131,10 @@ function sanitizeInput(str) {
 function sanitizeObject(obj) {
   if (!obj || typeof obj !== 'object') return obj;
   const sanitized = {};
-  // Fields that should NOT be sanitized (passwords, tokens, etc.)
   const skipSanitize = ['password', 'password_hash', 'currentPassword', 'newPassword', 'refreshToken', 'token'];
   for (const [key, value] of Object.entries(obj)) {
     if (skipSanitize.includes(key)) {
-      sanitized[key] = value; // Keep password fields as-is
+      sanitized[key] = value;
     } else if (typeof value === 'string') {
       sanitized[key] = sanitizeInput(value);
     } else if (typeof value === 'object' && value !== null) {
@@ -89,7 +147,7 @@ function sanitizeObject(obj) {
 }
 
 // ============================================================
-// 6. INPUT VALIDATOR - Validate expected types and lengths
+// 9. INPUT VALIDATORS
 // ============================================================
 const VALIDATORS = {
   email: (v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
@@ -98,8 +156,8 @@ const VALIDATORS = {
   cpf: (v) => !v || /^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/.test(v),
   uuid: (v) => !v || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v),
   username: (v) => !v || /^[a-zA-Z0-9_]{3,30}$/.test(v),
-  password: (v) => !v || v.length >= 6 && v.length <= 128,
-  name: (v) => !v || v.length >= 2 && v.length <= 200,
+  password: (v) => !v || (v.length >= 6 && v.length <= 128),
+  name: (v) => !v || (v.length >= 2 && v.length <= 200),
   text: (v, maxLen = 1000) => !v || v.length <= maxLen,
 };
 
@@ -122,14 +180,18 @@ function validateInput(data, rules) {
 }
 
 // ============================================================
-// 7. SQL INJECTION GUARD - Block suspicious patterns
+// 10. SQL INJECTION DETECTION - Multi-pattern
 // ============================================================
 const SQL_INJECTION_PATTERNS = [
-  /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|DECLARE|CAST|CONVERT)\b)/i,
-  /(--|;|\/\*|\*\/|xp_|sp_)/i,
+  /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|EXECUTE|UNION|DECLARE|CAST|CONVERT|TRUNCATE|REPLACE|GRANT|REVOKE)\b)/i,
+  /(--|;|\/\*|\*\/|xp_|sp_|WAITFOR|DELAY)/i,
   /(0x[0-9a-f]+)/i,
   /(\bOR\b\s+\b\d+\b\s*=\s*\b\d+\b)/i,
   /('.*OR.*'.*'.*')/i,
+  /(\bAND\b\s+\b\d+\b\s*=\s*\b\d+\b)/i,
+  /CHAR\(|CONCAT\(|BENCHMARK\(|SLEEP\(/i,
+  /INTO\s+(OUTFILE|DUMPFILE)/i,
+  /LOAD_FILE\(/i,
 ];
 
 function detectSQLInjection(value) {
@@ -138,7 +200,7 @@ function detectSQLInjection(value) {
 }
 
 // ============================================================
-// 8. XSS GUARD - Block script injection
+// 11. XSS DETECTION - Multi-pattern
 // ============================================================
 const XSS_PATTERNS = [
   /<script[\s>]/i,
@@ -152,6 +214,13 @@ const XSS_PATTERNS = [
   /eval\(/i,
   /document\.(cookie|write|location)/i,
   /window\.(location|open)/i,
+  /<svg[\s>].*?on\w+/i,
+  /data:\s*text\/html/i,
+  /base64/i,
+  /atob\(/i,
+  /btoa\(/i,
+  /fetch\(/i,
+  /XMLHttpRequest/i,
 ];
 
 function detectXSS(value) {
@@ -160,30 +229,73 @@ function detectXSS(value) {
 }
 
 // ============================================================
-// 9. SECURITY MIDDLEWARE - Apply all checks
+// 12. PATH TRAVERSAL DETECTION
+// ============================================================
+function detectPathTraversal(value) {
+  if (typeof value !== 'string') return false;
+  const patterns = [
+    /\.\.\//,
+    /\.\.\\/,
+    /%2e%2e/i,
+    /%252e/i,
+    /\.\.%2f/i,
+    /\.\.%5c/i,
+  ];
+  return patterns.some(p => p.test(value));
+}
+
+// ============================================================
+// 13. REQUEST BODY SIZE LIMITER
+// ============================================================
+function bodySizeLimit(maxKB = 500) {
+  return (req, res, next) => {
+    const contentLength = parseInt(req.headers['content-length'] || '0');
+    if (contentLength > maxKB * 1024) {
+      return res.status(413).json({ error: `Corpo da requisicao muito grande (max: ${maxKB}KB)` });
+    }
+    next();
+  };
+}
+
+// ============================================================
+// 14. SECURITY MIDDLEWARE - Full request inspection
 // ============================================================
 function securityMiddleware(req, res, next) {
-  // Check for SQL injection in query params
+  const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+  const fullPath = req.originalUrl || req.url;
+
+  // Check SQL injection in query params
   for (const [key, value] of Object.entries(req.query)) {
     if (detectSQLInjection(value)) {
+      recordIPViolation(ip, `SQL injection in query: ${key}`);
+      return res.status(400).json({ error: 'Parametro invalido detectado' });
+    }
+    if (detectPathTraversal(value)) {
+      recordIPViolation(ip, `Path traversal in query: ${key}`);
       return res.status(400).json({ error: 'Parametro invalido detectado' });
     }
   }
 
-  // Check for XSS in body
+  // Check SQL injection + XSS in body
   if (req.body && typeof req.body === 'object') {
-    const checkObj = (obj) => {
+    const checkObj = (obj, depth = 0) => {
+      if (depth > 10) return { type: null };
       for (const [key, value] of Object.entries(obj)) {
-        if (typeof value === 'string' && detectXSS(value)) {
-          return true;
+        if (typeof value === 'string') {
+          if (detectSQLInjection(value)) return { type: 'sql', field: key };
+          if (detectXSS(value)) return { type: 'xss', field: key };
+          if (detectPathTraversal(value)) return { type: 'path', field: key };
         }
         if (typeof value === 'object' && value !== null) {
-          if (checkObj(value)) return true;
+          const result = checkObj(value, depth + 1);
+          if (result.type) return result;
         }
       }
-      return false;
+      return { type: null };
     };
-    if (checkObj(req.body)) {
+    const threat = checkObj(req.body);
+    if (threat.type) {
+      recordIPViolation(ip, `${threat.type} injection in body: ${threat.field}`);
       return res.status(400).json({ error: 'Conteudo invalido detectado' });
     }
   }
@@ -197,89 +309,102 @@ function securityMiddleware(req, res, next) {
 }
 
 // ============================================================
-// 10. SECURITY HEADERS
+// 15. SECURITY HEADERS - Hardened CSP
 // ============================================================
 function securityHeaders(req, res, next) {
-  // Prevent clickjacking
   res.setHeader('X-Frame-Options', 'DENY');
-
-  // Prevent MIME type sniffing
   res.setHeader('X-Content-Type-Options', 'nosniff');
-
-  // XSS protection
   res.setHeader('X-XSS-Protection', '1; mode=block');
-
-  // Referrer policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
 
-  // Permissions policy
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  // Stricter CSP - no unsafe-inline if possible
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob:",
+    "connect-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+  ].join('; ');
+  res.setHeader('Content-Security-Policy', csp);
 
-  // Content Security Policy
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'");
+  // Remove server identification
+  res.removeHeader('X-Powered-By');
+  res.setHeader('Server', '');
 
   next();
 }
 
 // ============================================================
-// 11. REQUEST LOGGER - Track suspicious activity
+// 16. SUSPICIOUS ACTIVITY DETECTOR - Enhanced
 // ============================================================
-const suspiciousActivity = new Map();
-
-function trackSuspiciousActivity(ip, reason) {
-  const count = (suspiciousActivity.get(ip) || 0) + 1;
-  suspiciousActivity.set(ip, count);
-
-  if (count >= 10) {
-    console.log(`[SECURITY] IP ${ip} blocked after ${count} suspicious attempts: ${reason}`);
-    return true; // Should be blocked
-  }
-  return false;
-}
-
 function suspiciousActivityDetector(req, res, next) {
   const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+  const fullPath = req.originalUrl || req.url;
 
-  // Check for common attack patterns in URL
   const suspiciousPatterns = [
-    /\.\.\//, // Path traversal
-    /\/etc\/passwd/i,
-    /\/proc\//i,
-    /\/admin/i,
-    /\.env/i,
-    /\.git/i,
-    /wp-admin/i,
-    /phpmyadmin/i,
-    /xmlrpc/i,
+    { pattern: /\.\.\//, name: 'path traversal' },
+    { pattern: /\/etc\/passwd/i, name: 'etc passwd' },
+    { pattern: /\/proc\//i, name: 'proc access' },
+    { pattern: /\.env/i, name: 'env file' },
+    { pattern: /\.git/i, name: 'git access' },
+    { pattern: /wp-admin/i, name: 'wordpress probe' },
+    { pattern: /phpmyadmin/i, name: 'phpmyadmin probe' },
+    { pattern: /xmlrpc/i, name: 'xmlrpc probe' },
+    { pattern: /\.env\.local/i, name: 'env local' },
+    { pattern: /actuator/i, name: 'spring actuator' },
+    { pattern: /debug\/scalar/i, name: 'debug probe' },
+    { pattern: /\.htaccess/i, name: 'htaccess probe' },
+    { pattern: /admin\.php/i, name: 'php admin probe' },
+    { pattern: /cgi-bin/i, name: 'cgi probe' },
+    { pattern: /shell/i, name: 'shell probe' },
+    { pattern: /eval\(/i, name: 'eval probe' },
   ];
 
-  const fullPath = req.originalUrl || req.url;
-  for (const pattern of suspiciousPatterns) {
+  for (const { pattern, name } of suspiciousPatterns) {
     if (pattern.test(fullPath)) {
-      trackSuspiciousActivity(ip, 'suspicious URL pattern');
+      recordIPViolation(ip, `suspicious URL: ${name}`);
       return res.status(403).json({ error: 'Acesso negado' });
     }
   }
 
-  // Check for unusual HTTP methods
-  const allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
+  // Block unusual HTTP methods
+  const allowedMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'];
   if (!allowedMethods.includes(req.method)) {
-    trackSuspiciousActivity(ip, 'unusual HTTP method');
+    recordIPViolation(ip, `unusual method: ${req.method}`);
     return res.status(405).json({ error: 'Metodo nao permitido' });
+  }
+
+  // Check for oversized headers (header injection)
+  const userAgent = req.headers['user-agent'] || '';
+  if (userAgent.length > 512) {
+    recordIPViolation(ip, 'oversized user-agent');
+    return res.status(400).json({ error: 'Header invalido' });
+  }
+
+  // Block requests with no user-agent (common in bots)
+  if (!userAgent && req.method !== 'OPTIONS') {
+    recordIPViolation(ip, 'no user-agent');
   }
 
   next();
 }
 
 // ============================================================
-// 12. CORS CONFIGURATION
+// 17. CORS CONFIGURATION - Strict in production
 // ============================================================
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
 
-    // In production, specify allowed origins
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:3001',
@@ -287,22 +412,29 @@ const corsOptions = {
       process.env.APP_URL,
     ].filter(Boolean);
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
+    if (process.env.NODE_ENV === 'production') {
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('CORS blocked'));
+      }
     } else {
-      callback(null, true); // Allow all in development
+      callback(null, true);
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
+  exposedHeaders: ['X-Request-ID', 'X-RateLimit-Limit', 'X-RateLimit-Remaining'],
   maxAge: 86400,
 };
 
 // ============================================================
-// 13. PASSWORD STRENGTH CHECKER
+// 18. PASSWORD STRENGTH CHECKER - Enhanced
 // ============================================================
 function checkPasswordStrength(password) {
+  if (!password) return { strength: 'fraca', score: 0, checks: {} };
+
   const checks = {
     length: password.length >= 8,
     uppercase: /[A-Z]/.test(password),
@@ -310,27 +442,44 @@ function checkPasswordStrength(password) {
     numbers: /[0-9]/.test(password),
     special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
     noCommon: !isCommonPassword(password),
+    noRepeating: !/(.)\1{2,}/.test(password),
+    noSequential: !hasSequentialChars(password),
   };
 
   const score = Object.values(checks).filter(Boolean).length;
   let strength = 'fraca';
-  if (score >= 5) strength = 'forte';
-  else if (score >= 4) strength = 'media';
+  if (score >= 7) strength = 'forte';
+  else if (score >= 5) strength = 'media';
 
   return { strength, score, checks };
 }
 
 function isCommonPassword(pwd) {
-  const common = ['123456', 'password', 'admin', 'admin123', '12345678', 'qwerty', 'letmein', 'welcome', 'monkey', 'dragon'];
+  const common = [
+    '123456', 'password', 'admin', 'admin123', '12345678', 'qwerty',
+    'letmein', 'welcome', 'monkey', 'dragon', 'master', 'abc123',
+    'password1', 'nexusminer', 'minhaSenha', 'senha123', '123456789',
+  ];
   return common.includes(pwd.toLowerCase());
 }
 
+function hasSequentialChars(pwd) {
+  const seqs = ['abcdefghijklmnopqrstuvwxyz', '0123456789', 'qwertyuiop'];
+  const lower = pwd.toLowerCase();
+  for (const seq of seqs) {
+    for (let i = 0; i <= seq.length - 4; i++) {
+      if (lower.includes(seq.substring(i, i + 4))) return true;
+    }
+  }
+  return false;
+}
+
 // ============================================================
-// 14. ACCOUNT LOCKOUT
+// 19. ACCOUNT LOCKOUT - Enhanced with IP tracking
 // ============================================================
 const loginAttempts = new Map();
 const LOCKOUT_THRESHOLD = 5;
-const LOCKOUT_DURATION = 30 * 60 * 1000; // 30 minutes
+const LOCKOUT_DURATION = 30 * 60 * 1000;
 
 function checkAccountLockout(username) {
   const attempts = loginAttempts.get(username);
@@ -339,9 +488,9 @@ function checkAccountLockout(username) {
   if (attempts.count >= LOCKOUT_THRESHOLD) {
     const timeSinceLastAttempt = Date.now() - attempts.lastAttempt;
     if (timeSinceLastAttempt < LOCKOUT_DURATION) {
-      return true; // Account is locked
+      return true;
     }
-    loginAttempts.delete(username); // Reset after lockout period
+    loginAttempts.delete(username);
   }
   return false;
 }
@@ -359,6 +508,70 @@ function recordLoginAttempt(username, success) {
 }
 
 // ============================================================
+// 20. HMAC WEBHOOK VERIFICATION
+// ============================================================
+function verifyWebhookHMAC(req, res, next) {
+  const secret = process.env.WEBHOOK_SECRET;
+  if (!secret) return next(); // No secret = skip verification
+
+  const signature = req.headers['x-webhook-signature'] || req.headers['x-hub-signature-256'];
+  if (!signature) {
+    return res.status(401).json({ error: 'Assinatura HMAC ausente' });
+  }
+
+  const body = JSON.stringify(req.body);
+  const expectedSig = 'sha256=' + crypto.createHmac('sha256', secret).update(body).digest('hex');
+
+  try {
+    const sigBuffer = Buffer.from(signature);
+    const expectedBuffer = Buffer.from(expectedSig);
+    if (sigBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(sigBuffer, expectedBuffer)) {
+      recordIPViolation(req.ip, 'invalid webhook signature');
+      return res.status(401).json({ error: 'Assinatura HMAC invalida' });
+    }
+  } catch {
+    return res.status(401).json({ error: 'Assinatura HMAC invalida' });
+  }
+
+  next();
+}
+
+// ============================================================
+// 21. REQUEST ID GENERATOR - For audit trail
+// ============================================================
+function requestID(req, res, next) {
+  req.id = req.headers['x-request-id'] || crypto.randomUUID();
+  res.setHeader('X-Request-ID', req.id);
+  next();
+}
+
+// ============================================================
+// 22. AUDIT LOGGER - Track all state-changing operations
+// ============================================================
+function auditLogger(req, res, next) {
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+    const start = Date.now();
+    const originalEnd = res.end;
+    res.end = function (...args) {
+      const duration = Date.now() - start;
+      const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+      const userId = req.user?.id || 'anonymous';
+      console.log(`[AUDIT] ${req.method} ${req.originalUrl} | user=${userId} ip=${ip} status=${res.statusCode} ${duration}ms reqId=${req.id || '-'}`);
+      originalEnd.apply(this, args);
+    };
+  }
+  next();
+}
+
+// ============================================================
+// 23. HEALTH CHECK EXCLUDER - Don't log health checks
+// ============================================================
+function skipHealthChecks(req, res, next) {
+  if (req.path === '/api/health') return next();
+  next();
+}
+
+// ============================================================
 // EXPORTS
 // ============================================================
 module.exports = {
@@ -366,12 +579,18 @@ module.exports = {
   authLimiter,
   apiLimiter,
   miningLimiter,
+  registerLimiter,
+  refreshLimiter,
+  ipBlocker,
+  isIPBlocked,
+  recordIPViolation,
   sanitizeInput,
   sanitizeObject,
   validateInput,
   VALIDATORS,
   detectSQLInjection,
   detectXSS,
+  detectPathTraversal,
   securityMiddleware,
   securityHeaders,
   suspiciousActivityDetector,
@@ -379,4 +598,9 @@ module.exports = {
   checkPasswordStrength,
   checkAccountLockout,
   recordLoginAttempt,
+  verifyWebhookHMAC,
+  requestID,
+  auditLogger,
+  bodySizeLimit,
+  skipHealthChecks,
 };

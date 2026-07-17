@@ -13,9 +13,14 @@ async function main() {
   const db = createWrapper(rawDb);
   global.__db = db;
 
-  // Load auth middleware AFTER db is ready (they access db at require time)
+  // Load auth middleware AFTER db is ready
   const { authenticate } = require('./middleware/auth');
   const { authorize } = require('./middleware/roles');
+  const {
+    globalLimiter, securityMiddleware, securityHeaders,
+    suspiciousActivityDetector, corsOptions, ipBlocker,
+    requestID, auditLogger, bodySizeLimit, verifyWebhookHMAC,
+  } = require('./middleware/security');
 
   // 2. Schema
   const { createSchema } = require('./database/schema');
@@ -31,9 +36,8 @@ async function main() {
       db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Gerente Comercial', 'gerente@nexusminer.com', 'gerente', bcrypt.hashSync('manager123', 12), 'manager');
       db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Vendedor', 'vendedor@nexusminer.com', 'vendedor', bcrypt.hashSync('seller123', 12), 'seller');
       db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('company_name', 'Nexus Miner');
-      console.log('[SEED] UsuÃ¡rios criados');
+      console.log('[SEED] Usuarios criados');
     }
-    // Auto-seed test client
     const existingClient = db.prepare('SELECT id FROM clients WHERE username = ?').get('cliente1');
     if (!existingClient) {
       const bcrypt = require('bcryptjs');
@@ -43,17 +47,46 @@ async function main() {
     }
   } catch (e) { console.error('[SEED]', e.message); }
 
-  // 4. Express
+  // 4. Express - Security layers in correct order
   const app = express();
-  const { globalLimiter, authLimiter, securityMiddleware, securityHeaders, suspiciousActivityDetector, corsOptions } = require('./middleware/security');
 
-  app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+  // Layer 1: Request ID (every request gets a unique ID for audit trail)
+  app.use(requestID);
+
+  // Layer 2: IP blocking (check before anything else)
+  app.use(ipBlocker);
+
+  // Layer 3: Helmet with hardened config
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: false,
+  }));
+
+  // Layer 4: CORS (strict in production)
   app.use(require('cors')(corsOptions));
-  app.use(express.json({ limit: '1mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+  // Layer 5: Body parsing with size limits
+  app.use(express.json({ limit: '500kb' }));
+  app.use(express.urlencoded({ extended: true, limit: '500kb' }));
+  app.use(bodySizeLimit(500));
+
+  // Layer 6: Security headers (CSP, X-Frame-Options, etc.)
   app.use(securityHeaders);
+
+  // Layer 7: Suspicious activity detection (URL patterns, methods, user-agents)
   app.use(suspiciousActivityDetector);
+
+  // Layer 8: SQL injection + XSS detection in body and query params
+  app.use(securityMiddleware);
+
+  // Layer 9: Global rate limiter
   app.use(globalLimiter);
+
+  // Layer 10: Audit logger (tracks all state-changing operations)
+  app.use(auditLogger);
+
+  // Static files - hardened
   app.use(express.static(path.join(__dirname, '..', 'public'), {
     dotfiles: 'deny',
     index: false,
@@ -68,11 +101,10 @@ async function main() {
     }
   }));
 
-  // 5. Push helper - reads template from DB and sends push notifications
+  // 5. Push helper
   const { sendPush, broadcast } = require('./services/pushService');
 
   global.__notify = (type, title, message, data = {}) => {
-    // For sale notifications, read custom template from settings
     if (type === 'sale') {
       try {
         const template = db.prepare("SELECT value FROM settings WHERE key = 'notification_sale_message'").get();
@@ -87,14 +119,12 @@ async function main() {
 
     const notification = { type, title, message, timestamp: new Date().toISOString(), data };
 
-    // Send via Socket.IO (real-time in panel)
     if (data.userId && global.__io) {
       global.__io.to(`user:${data.userId}`).emit('notification', notification);
     } else if (global.__io) {
       global.__io.emit('notification', notification);
     }
 
-    // Send push notification to devices (arrives on phone/desktop)
     try {
       const urlMap = { sale: '/#/financial', commission: '/#/financial', lead: '/#/leads', info: '/#/dashboard' };
       const pushUrl = data.url || urlMap[type] || '/#/dashboard';
@@ -108,21 +138,26 @@ async function main() {
     return notification;
   };
 
-  // 6. Health check (for Render)
+  // 6. Health check (no auth, no logging)
   app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString(), version: '2.0.0' });
+    res.json({ status: 'ok', timestamp: new Date().toISOString(), version: '2.1.0' });
   });
 
-  // 7. Config
+  // 7. Config (minimal info exposure)
   app.get('/api/config', (req, res) => {
     res.json({ onesignalAppId: process.env.ONESIGNAL_APP_ID || '' });
   });
 
-  // 8. Webhooks (protected by secret key)
+  // 8. Webhooks - protected by HMAC signature verification
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || '';
 
   function webhookAuth(req, res, next) {
-    if (!WEBHOOK_SECRET) return next(); // No secret configured, allow all
+    // HMAC verification if secret is set
+    if (WEBHOOK_SECRET && req.headers['x-webhook-signature']) {
+      return verifyWebhookHMAC(req, res, next);
+    }
+    // Fallback to header-based auth
+    if (!WEBHOOK_SECRET) return next();
     const provided = req.headers['x-webhook-secret'] || req.body?.secret;
     if (provided !== WEBHOOK_SECRET) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -130,9 +165,6 @@ async function main() {
     next();
   }
 
-  // Helper: envia push para todos os subscribers
-  // heading = titulo em negrito (ex: "Venda concluida")
-  // body    = detalhe menor     (ex: "R$ 297,00")
   async function pushAll(title, message, url, type) {
     try {
       const subs = db.prepare('SELECT * FROM push_subscriptions').all();
@@ -141,36 +173,22 @@ async function main() {
     } catch {}
   }
 
-  app.post('/api/webhook/sale', webhookAuth, async (req, res) => {
-    // Parser inteligente para múltiplas gateways de pagamento brasileiras (Kiwify, Hotmart, Monetizze, Yampi, Cartpanda)
+  app.post('/api/webhook/sale', webhookAuth, bodySizeLimit(100), async (req, res) => {
     const payload = req.body || {};
     let rawValue = 0;
 
-    // 1. Kiwify
     if (payload.amount !== undefined && payload.order_status) {
-      // Kiwify envia o valor em centavos (ex: 19700 para R$ 197,00)
       rawValue = parseFloat(payload.amount) / 100;
-    }
-    // 2. Hotmart
-    else if (payload.data && payload.data.purchase && payload.data.purchase.price) {
+    } else if (payload.data && payload.data.purchase && payload.data.purchase.price) {
       rawValue = parseFloat(payload.data.purchase.price.value || 0);
-    }
-    // 3. Monetizze
-    else if (payload.venda && payload.venda.valor) {
+    } else if (payload.venda && payload.venda.valor) {
       rawValue = parseFloat(payload.venda.valor);
-    }
-    // 4. Yampi (resource.total_price)
-    else if (payload.resource && payload.resource.total_price) {
+    } else if (payload.resource && payload.resource.total_price) {
       rawValue = parseFloat(payload.resource.total_price);
-    }
-    // 5. Cartpanda
-    else if (payload.total_price !== undefined) {
+    } else if (payload.total_price !== undefined) {
       rawValue = parseFloat(payload.total_price);
-    }
-    // Fallback: busca campos genéricos comuns
-    else {
+    } else {
       rawValue = parseFloat(payload.value || payload.amount || payload.price || payload.total || 0);
-      // Se for um número inteiro muito alto (ex: 19700), assume que está em centavos e divide por 100
       if (Number.isInteger(rawValue) && rawValue > 1000) {
         rawValue = rawValue / 100;
       }
@@ -178,8 +196,7 @@ async function main() {
 
     const formattedVal = rawValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-    // Usa o template customizado salvo nas configurações
-    let saleHeading = 'Venda conclu\u00edda';
+    let saleHeading = 'Venda concluida';
     try {
       const template = db.prepare("SELECT value FROM settings WHERE key = 'notification_sale_message'").get();
       if (template && template.value) {
@@ -189,38 +206,38 @@ async function main() {
 
     const notification = { type: 'sale', title: saleHeading, message: formattedVal, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    
-    // heading = texto customizado, body = valor formatado
     await pushAll(saleHeading, formattedVal, '/#/financial', 'sale');
-    res.json({ ok: true, parsedValue: rawValue, notification });
+    res.json({ ok: true, parsedValue: rawValue });
   });
-  app.post('/api/webhook/commission', webhookAuth, async (req, res) => {
+
+  app.post('/api/webhook/commission', webhookAuth, bodySizeLimit(100), async (req, res) => {
     const { sellerName, amount } = req.body;
     const formattedVal = parseFloat(amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    const notification = { 
-      type: 'commission', 
-      title: 'Nexus Miner', 
-      message: `Comissão recebida: ${formattedVal} — Indicação de ${sellerName || 'Parceiro'}`, 
-      timestamp: new Date().toISOString() 
+    const notification = {
+      type: 'commission',
+      title: 'Nexus Miner',
+      message: `Comissao recebida: ${formattedVal} - Indicacao de ${sellerName || 'Parceiro'}`,
+      timestamp: new Date().toISOString()
     };
     if (global.__io) global.__io.emit('notification', notification);
     await pushAll(notification.message, '/#/financial', 'commission');
-    res.json({ ok: true, notification });
+    res.json({ ok: true });
   });
-  app.post('/api/webhook/lead', webhookAuth, async (req, res) => {
+
+  app.post('/api/webhook/lead', webhookAuth, bodySizeLimit(100), async (req, res) => {
     const { leadName, source, score } = req.body;
-    const notification = { 
-      type: 'lead', 
-      title: 'Nexus Miner', 
-      message: `Lead capturado: ${leadName || 'Lead'} — Origem: ${source || 'Mineração'}`, 
-      timestamp: new Date().toISOString() 
+    const notification = {
+      type: 'lead',
+      title: 'Nexus Miner',
+      message: `Lead capturado: ${leadName || 'Lead'} - Origem: ${source || 'Mineracao'}`,
+      timestamp: new Date().toISOString()
     };
     if (global.__io) global.__io.emit('notification', notification);
     await pushAll(notification.message, '/#/leads', 'lead');
-    res.json({ ok: true, notification });
+    res.json({ ok: true });
   });
 
-  // 9. Routes â€” load all routes with auth but NO global security middleware
+  // 9. Routes
   const routeMap = {
     '/api/auth': './routes/auth',
     '/api/leads': './routes/leads',
@@ -253,7 +270,7 @@ async function main() {
     try { app.use(mount, require(file)); } catch (e) { console.error(`[ROUTE] ${mount}:`, e.message); }
   }
 
-  // 10. Send notification to specific user (admin/manager only)
+  // 10. Notification routes (protected)
   app.post('/api/notifications/send', authenticate, authorize('admin', 'manager'), (req, res) => {
     const { userId, type, title, message } = req.body;
     if (!userId || !message) {
@@ -267,12 +284,10 @@ async function main() {
       timestamp: new Date().toISOString()
     };
 
-    // Send via Socket.IO to specific user room
     if (global.__io) {
       global.__io.to(`user:${userId}`).emit('notification', notification);
     }
 
-    // Also send push notification to ALL user devices
     try {
       const subs = db.prepare('SELECT * FROM push_subscriptions WHERE user_id = ?').all(userId);
       if (subs.length) {
@@ -281,77 +296,97 @@ async function main() {
       }
     } catch {}
 
-    res.json({ ok: true, notification, sentTo: userId });
+    res.json({ ok: true, sentTo: userId });
   });
 
-  // 11. Get all online users (admin/manager only)
   app.get('/api/notifications/users', authenticate, authorize('admin', 'manager'), (req, res) => {
     try {
       const users = db.prepare('SELECT id, name, username, role FROM users WHERE active = 1').all();
       const clients = db.prepare('SELECT id, name, username FROM clients WHERE active = 1').all();
       res.json({ users: [...users, ...clients.map(c => ({ ...c, role: 'client' }))] });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      res.status(500).json({ error: 'Erro interno' });
     }
   });
 
-  // 12. SPA - only serve index.html for non-API GET requests
+  // 11. SPA fallback
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
   });
 
-  // 11. Error
+  // 12. 404 handler
   app.use((req, res) => res.status(404).json({ error: 'Rota nao encontrada' }));
-  app.use((err, req, res, next) => { console.error('[ERR]', err.message); res.status(500).json({ error: 'Erro interno' }); });
 
-  // 12. Socket.IO + Start
+  // 13. Global error handler - NEVER leak internals
+  app.use((err, req, res, next) => {
+    console.error(`[ERR] reqId=${req.id || '-'} ${err.message}`);
+    if (process.env.NODE_ENV === 'production') {
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    } else {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // 14. Socket.IO - restricted CORS
   const server = http.createServer(app);
-  const io = new Server(server, { cors: { origin: '*' } });
+  const io = new Server(server, {
+    cors: {
+      origin: process.env.NODE_ENV === 'production'
+        ? ['https://nexus-miner.onrender.com', process.env.APP_URL].filter(Boolean)
+        : '*',
+      methods: ['GET', 'POST'],
+    },
+    pingTimeout: 60000,
+    pingInterval: 25000,
+  });
   global.__io = io;
 
-  // Socket.IO events
+  // Track connected sockets per user
+  const connectedUsers = new Map();
+
   io.on('connection', (socket) => {
     console.log('[WS] Client connected:', socket.id);
 
-    // Join user-specific room
     socket.on('join', (userId) => {
       socket.join(`user:${userId}`);
+      socket.userId = userId;
+      connectedUsers.set(socket.id, userId);
       console.log(`[WS] User ${userId} joined their room`);
     });
 
-    // Join admin room
     socket.on('join-admin', () => {
       socket.join('admin');
       console.log('[WS] Admin joined admin room');
     });
 
     socket.on('disconnect', () => {
+      connectedUsers.delete(socket.id);
       console.log('[WS] Client disconnected:', socket.id);
     });
   });
 
-  // Helper: notify specific user
+  // Helpers
   global.__notifyUser = (userId, type, data) => {
     if (global.__io) global.__io.to(`user:${userId}`).emit(type, data);
   };
 
-  // Helper: notify all admins
   global.__notifyAdmins = (type, data) => {
     if (global.__io) global.__io.to('admin').emit(type, data);
   };
 
-  // Helper: broadcast to all clients
   global.__broadcast = (type, data) => {
     if (global.__io) global.__io.emit(type, data);
   };
 
+  // 15. Start server
   server.listen(config.port, '0.0.0.0', () => {
     console.log(`[OK] Nexus Miner rodando na porta ${config.port}`);
+    console.log(`[SECURITY] Modo: ${process.env.NODE_ENV || 'development'}`);
     try { require('./services/backupService').startAutoBackup(); } catch {}
 
-    // Auto-ping: mantém o servidor sempre acordado no Render (evita hibernação)
-    const PING_INTERVAL_MS = 10 * 60 * 1000; // 10 minutos
+    // Auto-ping to keep Render awake
+    const PING_INTERVAL_MS = 10 * 60 * 1000;
     const selfUrl = process.env.RENDER_EXTERNAL_URL
       ? `${process.env.RENDER_EXTERNAL_URL}/api/health`
       : `http://localhost:${config.port}/api/health`;
@@ -360,7 +395,7 @@ async function main() {
       try {
         const https = selfUrl.startsWith('https') ? require('https') : require('http');
         https.get(selfUrl, (res) => {
-          console.log(`[PING] Auto-ping OK — status ${res.statusCode}`);
+          console.log(`[PING] Auto-ping OK - status ${res.statusCode}`);
         }).on('error', (err) => {
           console.warn('[PING] Falha no auto-ping:', err.message);
         });
@@ -369,10 +404,8 @@ async function main() {
       }
     }, PING_INTERVAL_MS);
 
-    console.log(`[PING] Auto-ping ativado → ${selfUrl} (a cada 10 min)`);
+    console.log(`[PING] Auto-ping ativado - ${selfUrl} (a cada 10 min)`);
   });
 }
 
 main().catch(err => { console.error('FATAL:', err.message); process.exit(1); });
-
-// Last deploy: 2026-07-16 20:02:00

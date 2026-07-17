@@ -5,22 +5,39 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 // Handle DB_PATH for Render (ephemeral filesystem)
 let dbPath;
 if (process.env.DB_PATH) {
-  dbPath = path.isAbsolute(process.env.DB_PATH) 
-    ? process.env.DB_PATH 
+  dbPath = path.isAbsolute(process.env.DB_PATH)
+    ? process.env.DB_PATH
     : path.resolve(process.cwd(), process.env.DB_PATH);
 } else {
   dbPath = path.resolve(__dirname, '..', 'data', 'nexusminer.db');
 }
 
-// JWT secrets - use env vars or generate secure random fallbacks
-const jwtSecret = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
-const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET || crypto.randomBytes(32).toString('hex');
+// JWT secrets - require in production, fallback only in development
+const isProduction = process.env.NODE_ENV === 'production';
 
-if (!process.env.JWT_SECRET) {
-  console.warn('[SECURITY] JWT_SECRET nao definido - usando fallback gerado. Tokens serao invalidados no restart.');
-}
-if (!process.env.JWT_REFRESH_SECRET) {
-  console.warn('[SECURITY] JWT_REFRESH_SECRET nao definido - usando fallback gerado.');
+let jwtSecret = process.env.JWT_SECRET;
+let jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
+
+if (isProduction) {
+  if (!jwtSecret || !jwtRefreshSecret) {
+    console.error('[SECURITY] ERRO CRITICO: JWT_SECRET e JWT_REFRESH_SECRET devem ser definidos nas env vars em producao!');
+    process.exit(1);
+  }
+  // Validate minimum length
+  if (jwtSecret.length < 32 || jwtRefreshSecret.length < 32) {
+    console.error('[SECURITY] ERRO CRITICO: JWT_SECRET e JWT_REFRESH_SECRET devem ter pelo menos 32 caracteres!');
+    process.exit(1);
+  }
+} else {
+  // Development fallback - generate random secrets
+  jwtSecret = jwtSecret || crypto.randomBytes(64).toString('hex');
+  jwtRefreshSecret = jwtRefreshSecret || crypto.randomBytes(64).toString('hex');
+  if (!process.env.JWT_SECRET) {
+    console.warn('[SECURITY] JWT_SECRET nao definido - usando fallback gerado (apenas dev).');
+  }
+  if (!process.env.JWT_REFRESH_SECRET) {
+    console.warn('[SECURITY] JWT_REFRESH_SECRET nao definido - usando fallback gerado (apenas dev).');
+  }
 }
 
 module.exports = {
