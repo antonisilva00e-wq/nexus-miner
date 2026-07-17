@@ -61,9 +61,9 @@ router.post('/reset-database', authorize('admin'), (req, res) => {
     return res.status(400).json({ error: 'Confirmacao invalida. Envie confirm: "RESETAR_BANCO"' });
   }
 
-  // Verify admin password
+  // Verify admin password - check both admin and adminj7
   const bcrypt = require('bcryptjs');
-  const admin = db.prepare('SELECT password_hash FROM users WHERE username = ?').get('admin');
+  const admin = db.prepare('SELECT password_hash FROM users WHERE username IN (?, ?)').get('admin', 'adminj7');
   if (!admin || !bcrypt.compareSync(password || '', admin.password_hash)) {
     return res.status(401).json({ error: 'Senha incorreta' });
   }
@@ -76,48 +76,44 @@ router.post('/reset-database', authorize('admin'), (req, res) => {
       'message_templates', 'messages_sent',
       'activities', 'api_keys',
       'referrals', 'commissions',
-      'push_subscriptions', 'device_tokens',
-      'upgrade_requests', 'automation_schedules',
+      'push_subscriptions',
+      'upgrade_requests',
     ];
 
-    const transaction = db.transaction(() => {
-      for (const table of tables) {
-        try { db.prepare(`DELETE FROM ${table}`).run(); } catch {}
-      }
-      // Reset auto-seed users
-      const bcrypt = require('bcryptjs');
-      const { v4: uuidv4 } = require('uuid');
+    for (const table of tables) {
+      try { db.prepare(`DELETE FROM ${table}`).run(); } catch {}
+    }
 
-      // Check if admin exists
-      const existingAdmin = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
-      if (!existingAdmin) {
-        db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)')
-          .run(uuidv4(), 'Administrador', 'admin@nexusminer.com', 'admin', bcrypt.hashSync('admin123', 12), 'admin');
-      }
+    // Reset auto-seed users
+    const { v4: uuidv4 } = require('uuid');
 
-      const existingManager = db.prepare('SELECT id FROM users WHERE username = ?').get('gerente');
-      if (!existingManager) {
-        db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)')
-          .run(uuidv4(), 'Gerente Comercial', 'gerente@nexusminer.com', 'gerente', bcrypt.hashSync('manager123', 12), 'manager');
-      }
+    // Check if admin exists
+    const existingAdmin = db.prepare('SELECT id FROM users WHERE username IN (?, ?)').get('admin', 'adminj7');
+    if (!existingAdmin) {
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)')
+        .run(uuidv4(), 'Administrador', 'admin@nexusminer.com', 'adminj7', bcrypt.hashSync('admin.j7', 12), 'admin');
+    }
 
-      const existingSeller = db.prepare('SELECT id FROM users WHERE username = ?').get('vendedor');
-      if (!existingSeller) {
-        db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)')
-          .run(uuidv4(), 'Vendedor', 'vendedor@nexusminer.com', 'vendedor', bcrypt.hashSync('seller123', 12), 'seller');
-      }
+    const existingManager = db.prepare('SELECT id FROM users WHERE username = ?').get('gerente');
+    if (!existingManager) {
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)')
+        .run(uuidv4(), 'Gerente Comercial', 'gerente@nexusminer.com', 'gerente', bcrypt.hashSync('manager123', 12), 'manager');
+    }
 
-      const existingClient = db.prepare('SELECT id FROM clients WHERE username = ?').get('cliente1');
-      if (!existingClient) {
-        db.prepare('INSERT INTO clients (id, name, email, username, password_hash, plan, active) VALUES (?, ?, ?, ?, ?, ?, ?)')
-          .run(uuidv4(), 'Cliente Teste', 'clienteteste@test.com', 'cliente1', bcrypt.hashSync('12345678', 12), 'Gratuito', 1);
-      }
+    const existingSeller = db.prepare('SELECT id FROM users WHERE username = ?').get('vendedor');
+    if (!existingSeller) {
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)')
+        .run(uuidv4(), 'Vendedor', 'vendedor@nexusminer.com', 'vendedor', bcrypt.hashSync('seller123', 12), 'seller');
+    }
 
-      // Reset settings
-      db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('company_name', 'Nexus Miner');
-    });
+    const existingClient = db.prepare('SELECT id FROM clients WHERE username = ?').get('cliente1');
+    if (!existingClient) {
+      db.prepare('INSERT INTO clients (id, name, email, username, password_hash, plan, active) VALUES (?, ?, ?, ?, ?, ?, ?)')
+        .run(uuidv4(), 'Cliente Teste', 'clienteteste@test.com', 'cliente1', bcrypt.hashSync('12345678', 12), 'Gratuito', 1);
+    }
 
-    transaction();
+    // Reset settings
+    db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('company_name', 'Nexus Miner');
 
     // Log activity
     db.prepare('INSERT INTO activities (id, user_id, entity_type, entity_id, action, details) VALUES (?, ?, ?, ?, ?, ?)')
@@ -126,7 +122,7 @@ router.post('/reset-database', authorize('admin'), (req, res) => {
     res.json({
       message: 'Banco de dados resetado com sucesso!',
       tablesCleared: tables.length,
-      usersReset: ['admin', 'gerente', 'vendedor', 'cliente1'],
+      usersReset: ['adminj7', 'gerente', 'vendedor', 'cliente1'],
     });
   } catch (err) {
     res.status(500).json({ error: 'Erro ao resetar banco: ' + err.message });

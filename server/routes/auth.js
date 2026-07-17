@@ -156,7 +156,19 @@ router.put('/password', authenticate, (req, res) => {
     });
   }
 
-  const user = db.prepare('SELECT password_hash FROM users WHERE id = ?').get(req.user.id);
+  // Check both users and clients tables
+  let user = null;
+  let isClient = false;
+  try {
+    user = db.prepare('SELECT password_hash FROM users WHERE id = ?').get(req.user.id);
+  } catch {}
+  if (!user) {
+    try {
+      user = db.prepare('SELECT password_hash FROM clients WHERE id = ?').get(req.user.id);
+      isClient = true;
+    } catch {}
+  }
+
   if (!user || !bcrypt.compareSync(currentPassword, user.password_hash)) {
     return res.status(401).json({ error: 'Senha atual incorreta' });
   }
@@ -166,7 +178,8 @@ router.put('/password', authenticate, (req, res) => {
   }
 
   const hash = bcrypt.hashSync(newPassword, 12);
-  db.prepare('UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+  const table = isClient ? 'clients' : 'users';
+  db.prepare(`UPDATE ${table} SET password_hash = ? WHERE id = ?`)
     .run(hash, req.user.id);
 
   // Revoke current token - force re-login after password change

@@ -269,6 +269,8 @@ function createSchema(db) {
     'ALTER TABLE users ADD COLUMN invite_code TEXT',
     'ALTER TABLE leads ADD COLUMN score REAL DEFAULT 0',
     'ALTER TABLE leads ADD COLUMN enrichment TEXT',
+    'ALTER TABLE leads ADD COLUMN lat REAL',
+    'ALTER TABLE leads ADD COLUMN lng REAL',
   ];
   for (const sql of migrations) {
     try { db.exec(sql); } catch {}

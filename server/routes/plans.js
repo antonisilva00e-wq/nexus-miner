@@ -57,9 +57,6 @@ router.get('/', (req, res) => {
 
 // GET /api/plans/current - Get current user's plan
 router.get('/current', (req, res) => {
-  try { db.prepare("ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'free'"); } catch {}
-  try { db.prepare('ALTER TABLE users ADD COLUMN plan_expiry DATETIME'); } catch {}
-
   let user = null;
   let expiry = null;
   
@@ -174,12 +171,27 @@ router.put('/users/:userId', authorize('admin'), (req, res) => {
 
 // GET /api/plans/check/:feature - Check if user has access to a feature
 router.get('/check/:feature', (req, res) => {
-  const user = db.prepare('SELECT plan FROM users WHERE id = ?').get(req.user.id);
-  const plan = PLANS[user.plan || 'free'] || PLANS.free;
-  const hasAccess = plan.features.includes('all') || plan.features.includes(req.params.feature);
-  const usage = getUsage(req.user.id, user.plan || 'free');
+  let planId = 'free';
 
-  res.json({ hasAccess, plan: user.plan || 'free', usage });
+  // Check users table first
+  try {
+    const user = db.prepare('SELECT plan FROM users WHERE id = ?').get(req.user.id);
+    if (user) planId = user.plan || 'free';
+  } catch {}
+
+  // If not found, check clients table
+  if (planId === 'free') {
+    try {
+      const client = db.prepare('SELECT plan FROM clients WHERE id = ?').get(req.user.id);
+      if (client) planId = client.plan || 'free';
+    } catch {}
+  }
+
+  const plan = PLANS[planId] || PLANS.free;
+  const hasAccess = plan.features.includes('all') || plan.features.includes(req.params.feature);
+  const usage = getUsage(req.user.id, planId);
+
+  res.json({ hasAccess, plan: planId, usage });
 });
 
 // ============================================================

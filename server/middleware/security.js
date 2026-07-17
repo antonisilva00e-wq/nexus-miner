@@ -324,11 +324,12 @@ function securityHeaders(req, res, next) {
   // CSP - balanced security and functionality
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "font-src 'self' https://fonts.gstatic.com",
-    "img-src 'self' data: blob: https://*.tile.openstreetmap.org https://unpkg.com",
+    "img-src 'self' data: blob: https://server.arcgisonline.com https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org https://unpkg.com",
     "connect-src 'self' ws: wss:",
+    "worker-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

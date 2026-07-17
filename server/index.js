@@ -220,7 +220,7 @@ async function main() {
       timestamp: new Date().toISOString()
     };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll(notification.message, '/#/financial', 'commission');
+    await pushAll('Nexus Miner', notification.message, '/#/financial', 'commission');
     res.json({ ok: true });
   });
 
@@ -233,7 +233,7 @@ async function main() {
       timestamp: new Date().toISOString()
     };
     if (global.__io) global.__io.emit('notification', notification);
-    await pushAll(notification.message, '/#/leads', 'lead');
+    await pushAll('Nexus Miner', notification.message, '/#/leads', 'lead');
     res.json({ ok: true });
   });
 

@@ -13,12 +13,6 @@ const {
 
 const router = express.Router();
 
-// Garantir que colunas existam
-try { db.prepare('ALTER TABLE clients ADD COLUMN invite_code TEXT'); } catch {}
-try { db.prepare('ALTER TABLE clients ADD COLUMN referred_by TEXT'); } catch {}
-try { db.prepare('ALTER TABLE clients ADD COLUMN commission_balance REAL DEFAULT 0'); } catch {}
-try { db.prepare('ALTER TABLE users ADD COLUMN invite_code TEXT'); } catch {}
-
 // GET /api/referrals/my-code - Meu código de convite (requer login)
 router.get('/my-code', authenticate, (req, res) => {
   const baseUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
