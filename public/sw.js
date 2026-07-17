@@ -1,5 +1,5 @@
-// Nexus Miner Service Worker v8
-const SW_VERSION = '8.0';
+// Nexus Miner Service Worker v9
+const SW_VERSION = '9.0';
 const CACHE_NAME = `nexus-v${SW_VERSION}`;
 
 // Install — skip waiting to activate immediately

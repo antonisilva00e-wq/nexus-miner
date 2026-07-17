@@ -57,7 +57,7 @@ const Notifications = {
     // Service Worker
     if ('serviceWorker' in navigator) {
       try {
-        this.swRegistration = await navigator.serviceWorker.register('/sw.js');
+        this.swRegistration = await navigator.serviceWorker.register('/sw.js?v=9.0');
         console.log('[SW] OK');
       } catch (e) { console.error('[SW]', e); }
     }
