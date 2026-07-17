@@ -123,26 +123,57 @@ async function main() {
   }
 
   app.post('/api/webhook/sale', async (req, res) => {
-    const { clientName, value } = req.body;
-    const formattedVal = parseFloat(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    // Parser inteligente para múltiplas gateways de pagamento brasileiras (Kiwify, Hotmart, Monetizze, Yampi, Cartpanda)
+    const payload = req.body || {};
+    let rawValue = 0;
 
-    // Usa template customizado salvo nas configuracoes
-    // O texto que o usuario escreveu vira o HEADING (titulo em negrito)
-    // O valor da venda vira o BODY (detalhe menor abaixo)
+    // 1. Kiwify
+    if (payload.amount !== undefined && payload.order_status) {
+      // Kiwify envia o valor em centavos (ex: 19700 para R$ 197,00)
+      rawValue = parseFloat(payload.amount) / 100;
+    }
+    // 2. Hotmart
+    else if (payload.data && payload.data.purchase && payload.data.purchase.price) {
+      rawValue = parseFloat(payload.data.purchase.price.value || 0);
+    }
+    // 3. Monetizze
+    else if (payload.venda && payload.venda.valor) {
+      rawValue = parseFloat(payload.venda.valor);
+    }
+    // 4. Yampi (resource.total_price)
+    else if (payload.resource && payload.resource.total_price) {
+      rawValue = parseFloat(payload.resource.total_price);
+    }
+    // 5. Cartpanda
+    else if (payload.total_price !== undefined) {
+      rawValue = parseFloat(payload.total_price);
+    }
+    // Fallback: busca campos genéricos comuns
+    else {
+      rawValue = parseFloat(payload.value || payload.amount || payload.price || payload.total || 0);
+      // Se for um número inteiro muito alto (ex: 19700), assume que está em centavos e divide por 100
+      if (Number.isInteger(rawValue) && rawValue > 1000) {
+        rawValue = rawValue / 100;
+      }
+    }
+
+    const formattedVal = rawValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    // Usa o template customizado salvo nas configurações
     let saleHeading = 'Venda conclu\u00edda';
     try {
       const template = db.prepare("SELECT value FROM settings WHERE key = 'notification_sale_message'").get();
       if (template && template.value) {
-        // Substitui {valor} dentro do heading se quiser, ex: "Venda: {valor}"
         saleHeading = template.value.replace(/\{valor\}/g, formattedVal);
       }
     } catch {}
 
     const notification = { type: 'sale', title: saleHeading, message: formattedVal, timestamp: new Date().toISOString() };
     if (global.__io) global.__io.emit('notification', notification);
-    // heading = o texto customizado (titulo negrito), body = o valor (detalhe)
+    
+    // heading = texto customizado, body = valor formatado
     await pushAll(saleHeading, formattedVal, '/#/financial', 'sale');
-    res.json({ ok: true, notification });
+    res.json({ ok: true, parsedValue: rawValue, notification });
   });
   app.post('/api/webhook/commission', async (req, res) => {
     const { sellerName, amount } = req.body;
