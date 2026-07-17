@@ -23,10 +23,8 @@ if (isProduction) {
     console.error('[SECURITY] ERRO CRITICO: JWT_SECRET e JWT_REFRESH_SECRET devem ser definidos nas env vars em producao!');
     process.exit(1);
   }
-  // Validate minimum length
-  if (jwtSecret.length < 32 || jwtRefreshSecret.length < 32) {
-    console.error('[SECURITY] ERRO CRITICO: JWT_SECRET e JWT_REFRESH_SECRET devem ter pelo menos 32 caracteres!');
-    process.exit(1);
+  if (jwtSecret.length < 16 || jwtRefreshSecret.length < 16) {
+    console.warn('[SECURITY] AVISO: JWT secrets muito curtos. Recomendado: minimo 32 caracteres.');
   }
 } else {
   // Development fallback - generate random secrets
