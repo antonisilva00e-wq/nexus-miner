@@ -67,8 +67,8 @@ const Auth = {
     // Hide/show menu items using both CSS class and inline style
     document.querySelectorAll('.menu-item').forEach(el => {
       const page = el.dataset.page;
-      const clientBlocked = ['automation', 'users', 'financial', 'templates', 'settings', 'clients'];
-      const nonAdminBlocked = ['users', 'clients', 'automation', 'templates', 'settings'];
+      const clientBlocked = ['automation', 'users', 'financial', 'templates', 'clients'];
+      const nonAdminBlocked = ['users', 'clients', 'automation', 'templates'];
 
       if (isClient && clientBlocked.includes(page)) {
         el.style.display = 'none';
