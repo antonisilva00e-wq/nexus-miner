@@ -110,7 +110,6 @@ async function main() {
   });
 
   // 8. Webhooks
-  const { sendPush, broadcast } = require('./services/pushService');
 
   // Helper: send push to all subscribers
   async function pushAll(title, message, url, type) {
