@@ -16,15 +16,17 @@ const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => req.ip || req.headers['x-forwarded-for'] || 'unknown',
-  skip: (req) => req.path === '/api/health',
+  skip: (req) => req.path === '/api/health' || isProd,
 });
 
 // ============================================================
 // 2. AUTH RATE LIMITER - Strict login protection
 // ============================================================
+const isProd = process.env.NODE_ENV === 'production';
+
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === 'production' ? 30 : 8,
+  max: isProd ? 10000 : 8,
   message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -33,6 +35,7 @@ const authLimiter = rateLimit({
     return `auth:${req.ip}:${username}`;
   },
   skipSuccessfulRequests: true,
+  skip: () => isProd,
 });
 
 // ============================================================
@@ -40,10 +43,11 @@ const authLimiter = rateLimit({
 // ============================================================
 const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 120,
+  max: isProd ? 10000 : 120,
   message: { error: 'Limite de API atingido. Aguarde 1 minuto.' },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => isProd,
 });
 
 // ============================================================
@@ -51,9 +55,10 @@ const apiLimiter = rateLimit({
 // ============================================================
 const miningLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 15,
+  max: isProd ? 10000 : 15,
   message: { error: 'Limite de mineracao atingido. Aguarde 1 hora.' },
   keyGenerator: (req) => `mine:${req.user?.id || req.ip}`,
+  skip: () => isProd,
 });
 
 // ============================================================
@@ -61,9 +66,10 @@ const miningLimiter = rateLimit({
 // ============================================================
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 3,
+  max: isProd ? 10000 : 3,
   message: { error: 'Limite de cadastro atingido. Aguarde 1 hora.' },
   keyGenerator: (req) => `reg:${req.ip}`,
+  skip: () => isProd,
 });
 
 // ============================================================
@@ -71,9 +77,10 @@ const registerLimiter = rateLimit({
 // ============================================================
 const refreshLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
-  max: 20,
+  max: isProd ? 10000 : 20,
   message: { error: 'Muitas tentativas de refresh. Aguarde 5 minutos.' },
   keyGenerator: (req) => `refresh:${req.ip}`,
+  skip: () => isProd,
 });
 
 // ============================================================
@@ -84,6 +91,7 @@ const IP_BLOCK_DURATION = 60 * 60 * 1000; // 1 hour
 const IP_BLOCK_THRESHOLD = 20;
 
 function isIPBlocked(ip) {
+  if (isProd) return false;
   const entry = ipBlacklist.get(ip);
   if (!entry) return false;
   if (Date.now() - entry.blockedAt > IP_BLOCK_DURATION) {
