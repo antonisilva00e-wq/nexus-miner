@@ -191,17 +191,30 @@ const MapPage = {
       await this.loadCSS('/css/MarkerCluster.Default.css');
     }
 
-    this.initMap();
-    await this.loadLeads();
-    this.setupFilters();
-    this.trackCoords();
+    if (!window.L) {
+      document.getElementById('page-map').innerHTML = '<div class="empty-state"><p>Erro: biblioteca do mapa (Leaflet) nao carregou. Verifique sua conexao.</p></div>';
+      return;
+    }
+
+    try {
+      this.initMap();
+      await this.loadLeads();
+      this.setupFilters();
+      this.trackCoords();
+    } catch (e) {
+      console.error('[MAP] Init error:', e);
+      document.getElementById('page-map').innerHTML = '<div class="empty-state"><p>Erro ao inicializar mapa: ' + e.message + '</p></div>';
+    }
   },
 
   loadScript(src) {
     return new Promise((resolve) => {
       if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
       const s = document.createElement('script');
-      s.src = src; s.onload = resolve; document.head.appendChild(s);
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = () => { console.warn('[MAP] Failed to load:', src); resolve(); };
+      document.head.appendChild(s);
     });
   },
 
@@ -209,7 +222,10 @@ const MapPage = {
     return new Promise((resolve) => {
       if (document.querySelector(`link[href="${href}"]`)) { resolve(); return; }
       const l = document.createElement('link');
-      l.rel = 'stylesheet'; l.href = href; l.onload = resolve; document.head.appendChild(l);
+      l.rel = 'stylesheet'; l.href = href;
+      l.onload = resolve;
+      l.onerror = () => { console.warn('[MAP] Failed to load CSS:', href); resolve(); };
+      document.head.appendChild(l);
     });
   },
 
