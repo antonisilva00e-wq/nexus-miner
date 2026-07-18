@@ -58,13 +58,13 @@ async function main() {
         insertClient.run(uuidv4(), c[0], c[1], c[2], bcrypt.hashSync('12345678', 12), c[3], 1, c[4], c[5] + ' 10:00:00');
       });
 
-      // 280 clientes demo — 289 total
+      // 80 clientes demo — total ~89 ativos
       const planos = ['Empresarial', 'Profissional'];
       const precos = { Empresarial: 297, Profissional: 97 };
       const empresas = ['Comercial ABC','Grupo Delta','Rede Express','Studio Criativo','Construcoes Beta','Clinica Saude+','Escola Futuro','Pizzaria Napoli','Loja Virtual','Escritorio Juridico','Padaria Central','Academia Total','Pet Care Plus','Bar do Ze','Oficina Mecanica','Floricultura Rosas','Salao Beleza','Otica Visual','Farmacia Popular','Supermercado Mix'];
-      const demoHash = '$2a$04$d3X5MfgD08q2ltBtmURMzOXrMYkfiZeZZlsIlklI8f93uSR5aKC/y'; // bcrypt('12345678', 4) pre-computed
+      const demoHash = '$2a$04$d3X5MfgD08q2ltBtmURMzOXrMYkfiZeZZlsIlklI8f93uSR5aKC/y';
 
-      for (let i = 0; i < 280; i++) {
+      for (let i = 0; i < 80; i++) {
         const plano = planos[i % 2];
         const nome = empresas[i % empresas.length] + ' ' + (i + 10);
         const email = 'cli' + (i + 10) + '@demo.com';
@@ -73,7 +73,7 @@ async function main() {
         const dia = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');
         insertClient.run(uuidv4(), nome, email, username, demoHash, plano, 1, precos[plano], '2026-' + mes + '-' + dia + ' 10:00:00');
       }
-      console.log('[SEED] 289 clientes criados');
+      console.log('[SEED] ~89 clientes criados');
 
       // Seed financial data — totalizando R$ 84.566,67
       const allClients = db.prepare('SELECT id FROM clients').all();
@@ -114,9 +114,10 @@ async function main() {
       const currentTotal = db.prepare('SELECT COALESCE(SUM(amount), 0) as total FROM payments').get().total;
       const diff = 84566.67 - currentTotal;
       if (Math.abs(diff) > 0.01) {
-        const lastPayment = db.prepare('SELECT id FROM payments ORDER BY rowid DESC LIMIT 1').get();
+        const lastPayment = db.prepare('SELECT id, amount FROM payments ORDER BY created_at DESC LIMIT 1').get();
         if (lastPayment) {
-          db.prepare('UPDATE payments SET amount = ROUND(amount + ?, 2) WHERE id = ?').run(diff, lastPayment.id);
+          const newAmount = Math.round((parseFloat(lastPayment.amount || 0) + diff) * 100) / 100;
+          db.prepare('UPDATE payments SET amount = ? WHERE id = ?').run(newAmount, lastPayment.id);
         }
       }
       console.log('[SEED] Dados financeiros criados (R$ 84.566,67 em vendas)');
