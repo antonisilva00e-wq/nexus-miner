@@ -111,7 +111,7 @@ async function main() {
         insPayment.run(uuidv4(), clientIds[p[0]], p[1], p[2], methods[p[3]], 'paid', p[4]);
       });
       // Ajustar para totalizar exatamente R$ 84.566,67
-      const currentTotal = db.prepare('SELECT SUM(amount) FROM payments').get()['SUM(amount)'];
+      const currentTotal = db.prepare('SELECT COALESCE(SUM(amount), 0) as total FROM payments').get().total;
       const diff = 84566.67 - currentTotal;
       if (Math.abs(diff) > 0.01) {
         const lastPayment = db.prepare('SELECT id FROM payments ORDER BY rowid DESC LIMIT 1').get();
@@ -425,7 +425,7 @@ async function main() {
 
   // Socket.IO middleware: verify JWT on connection
   const jwt = require('jsonwebtoken');
-  const { db: authDb } = require('./database/connection');
+  const { getDb: getAuthDb } = require('./database/connection');
 
   io.use((socket, next) => {
     const token = socket.handshake.auth?.token || socket.handshake.query?.token;
@@ -469,7 +469,7 @@ async function main() {
       }
       // Verify admin role from DB
       try {
-        const user = authDb.prepare('SELECT role FROM users WHERE id = ?').get(socket.authUserId);
+        const user = getAuthDb().prepare('SELECT role FROM users WHERE id = ?').get(socket.authUserId);
         if (user && user.role === 'admin') {
           socket.join('admin');
           console.log('[WS] Admin joined admin room');

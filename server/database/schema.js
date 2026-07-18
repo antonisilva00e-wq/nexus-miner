@@ -265,7 +265,7 @@ function createSchema(db) {
     CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON push_subscriptions(user_id);
     CREATE INDEX IF NOT EXISTS idx_commissions_referrer ON commissions(referrer_client_id);
     CREATE INDEX IF NOT EXISTS idx_referrals_referrer ON referrals(referrer_client_id);
-    CREATE INDEX IF NOT EXISTS idx_leads_pipeline ON leads(assigned_to, pipeline_stage, updated_at);
+    CREATE INDEX IF NOT EXISTS idx_leads_pipeline_composite ON leads(assigned_to, pipeline_stage, updated_at);
   `);
 
   // Upgrade requests table
