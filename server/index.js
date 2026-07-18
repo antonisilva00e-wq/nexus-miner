@@ -62,7 +62,7 @@ async function main() {
       const planos = ['Empresarial', 'Profissional'];
       const precos = { Empresarial: 297, Profissional: 97 };
       const empresas = ['Comercial ABC','Grupo Delta','Rede Express','Studio Criativo','Construcoes Beta','Clinica Saude+','Escola Futuro','Pizzaria Napoli','Loja Virtual','Escritorio Juridico','Padaria Central','Academia Total','Pet Care Plus','Bar do Ze','Oficina Mecanica','Floricultura Rosas','Salao Beleza','Otica Visual','Farmacia Popular','Supermercado Mix'];
-      const demoHash = bcrypt.hashSync('12345678', 4); // rounds 4 para seed rapida
+      const demoHash = '$2a$04$d3X5MfgD08q2ltBtmURMzOXrMYkfiZeZZlsIlklI8f93uSR5aKC/y'; // bcrypt('12345678', 4) pre-computed
 
       for (let i = 0; i < 280; i++) {
         const plano = planos[i % 2];

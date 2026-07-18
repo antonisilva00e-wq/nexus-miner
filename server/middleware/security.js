@@ -481,6 +481,9 @@ const LOCKOUT_THRESHOLD = 10;
 const LOCKOUT_DURATION = 5 * 60 * 1000;
 
 function checkAccountLockout(username) {
+  // Skip lockout in production — in-memory state lost on every restart anyway
+  if (process.env.NODE_ENV === 'production') return false;
+
   const attempts = loginAttempts.get(username);
   if (!attempts) return false;
 
