@@ -24,7 +24,7 @@ const globalLimiter = rateLimit({
 // ============================================================
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 8,
+  max: process.env.NODE_ENV === 'production' ? 30 : 8,
   message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -477,8 +477,8 @@ function hasSequentialChars(pwd) {
 // 19. ACCOUNT LOCKOUT - Enhanced with IP tracking
 // ============================================================
 const loginAttempts = new Map();
-const LOCKOUT_THRESHOLD = 5;
-const LOCKOUT_DURATION = 30 * 60 * 1000;
+const LOCKOUT_THRESHOLD = 10;
+const LOCKOUT_DURATION = 5 * 60 * 1000;
 
 function checkAccountLockout(username) {
   const attempts = loginAttempts.get(username);
