@@ -317,9 +317,8 @@ function securityHeaders(req, res, next) {
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
-  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  // NOTE: COOP/COEP/CORP removed — they block cross-origin tiles (Leaflet/OSM),
+  // Google Fonts, CDN resources, and Socket.IO websocket upgrades.
 
   // CSP - balanced security and functionality
   const csp = [
