@@ -202,8 +202,8 @@ const MapPage = {
       this.setupFilters();
       this.trackCoords();
     } catch (e) {
-      console.error('[MAP] Init error:', e);
-      document.getElementById('page-map').innerHTML = '<div class="empty-state"><p>Erro ao inicializar mapa: ' + e.message + '</p></div>';
+      console.error('[MAP] Render error:', e);
+      document.getElementById('page-map').innerHTML = '<div class="empty-state"><p>Erro ao carregar mapa: ' + e.message + '</p><button class="btn btn-primary" onclick="MapPage.render()">Tentar novamente</button></div>';
     }
   },
 
