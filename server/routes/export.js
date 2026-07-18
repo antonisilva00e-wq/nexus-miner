@@ -68,10 +68,14 @@ router.get('/socios', async (req, res) => {
   const { lookupCNPJ } = require('../services/leadService');
   const rows = [];
 
-  for (const cnpj of cnpjs.slice(0, 100)) {
-    try {
-      const data = await lookupCNPJ(cnpj);
-      if (data && data.socios) {
+  const BATCH_SIZE = 5;
+  const cnpjsToProcess = cnpjs.slice(0, 100);
+  for (let i = 0; i < cnpjsToProcess.length; i += BATCH_SIZE) {
+    const batch = cnpjsToProcess.slice(i, i + BATCH_SIZE);
+    const results = await Promise.allSettled(batch.map(cnpj => lookupCNPJ(cnpj)));
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value && result.value.socios) {
+        const data = result.value;
         for (const s of data.socios) {
           rows.push({
             socio_nome: s.nome,
@@ -89,7 +93,7 @@ router.get('/socios', async (req, res) => {
           });
         }
       }
-    } catch { /* skip */ }
+    }
   }
 
   const headers = ['socio_nome', 'qualificacao', 'empresa', 'cnpj', 'atividade', 'capital_social', 'endereco', 'cidade', 'uf', 'telefone', 'email', 'situacao'];
@@ -128,8 +132,8 @@ router.get('/pipeline', (req, res) => {
 // GET /api/export/clients - Export clients as CSV
 // ============================================================
 router.get('/clients', (req, res) => {
-  const clients = db.prepare('SELECT * FROM clients ORDER BY created_at DESC').all();
-  const headers = ['name', 'cnpj', 'email', 'phone', 'address', 'city', 'state', 'price', 'plan_name', 'status', 'expiry', 'created_at'];
+  const clients = db.prepare('SELECT name, email, phone, plan, price, status, plan_expiry, created_at, username FROM clients ORDER BY created_at DESC').all();
+  const headers = ['name', 'email', 'phone', 'plan', 'price', 'status', 'plan_expiry', 'created_at', 'username'];
   const csv = toCSV(clients, headers);
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');

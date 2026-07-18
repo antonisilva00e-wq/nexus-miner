@@ -74,12 +74,12 @@ const KanbanPage = {
       <div class="kanban-card" draggable="true" data-lead-id="${l.id}"
         ondragstart="KanbanPage.onDragStart(event, '${l.id}')"
         ondragend="KanbanPage.onDragEnd(event)">
-        <div class="kanban-card-name">${l.name}</div>
-        <div class="kanban-card-company">${l.activity || ''} ${l.city ? '· ' + l.city : ''}</div>
-        ${l.phone ? `<div class="kanban-card-phone"><i data-lucide="phone" style="width:12px;height:12px;"></i>${l.phone}</div>` : ''}
+        <div class="kanban-card-name">${escapeHtml(l.name)}</div>
+        <div class="kanban-card-company">${escapeHtml(l.activity || '')} ${l.city ? '· ' + escapeHtml(l.city) : ''}</div>
+        ${l.phone ? `<div class="kanban-card-phone"><i data-lucide="phone" style="width:12px;height:12px;"></i>${escapeHtml(l.phone)}</div>` : ''}
         <div class="kanban-card-footer">
           <span class="kanban-card-date" style="color:${urgency};">${days === 0 ? 'Hoje' : `${days}d atras`}</span>
-          ${l.assigned_name ? `<span class="kanban-card-assignee">${l.assigned_name}</span>` : ''}
+          ${l.assigned_name ? `<span class="kanban-card-assignee">${escapeHtml(l.assigned_name)}</span>` : ''}
         </div>
       </div>
     `;

@@ -297,7 +297,14 @@ const MapPage = {
 
   async loadLeads() {
     try {
-      const data = await API.get('/leads?limit=500');
+      const state = document.getElementById('map-filter-state')?.value;
+      const source = document.getElementById('map-filter-source')?.value;
+      const stage = document.getElementById('map-filter-stage')?.value;
+      let url = '/leads?limit=500';
+      if (state) url += `&state=${encodeURIComponent(state)}`;
+      if (source) url += `&source=${encodeURIComponent(source)}`;
+      if (stage) url += `&stage=${encodeURIComponent(stage)}`;
+      const data = await API.get(url);
       const leads = data.leads || [];
       this.renderLeads(leads);
     } catch (e) {

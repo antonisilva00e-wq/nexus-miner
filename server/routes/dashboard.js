@@ -99,7 +99,7 @@ router.get('/leads-chart', (req, res) => {
   const data = db.prepare(`
     SELECT ${groupBy} as period, COUNT(*) as count
     FROM leads WHERE created_at >= ${periodDate} ${sellerFilter}
-    GROUP BY period ORDER BY period
+    GROUP BY 1 ORDER BY 1
   `).all(...sellerParam);
 
   res.json({ data });

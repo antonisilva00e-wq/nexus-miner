@@ -35,8 +35,8 @@ function createSchema(db) {
       source TEXT DEFAULT 'manual',
       status TEXT DEFAULT 'novo',
       pipeline_stage TEXT DEFAULT 'leads',
-      assigned_to TEXT REFERENCES users(id),
-      created_by TEXT REFERENCES users(id),
+      assigned_to TEXT REFERENCES users(id) ON DELETE SET NULL,
+      created_by TEXT REFERENCES users(id) ON DELETE SET NULL,
       score REAL DEFAULT 0,
       enrichment TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -99,8 +99,8 @@ function createSchema(db) {
     -- Pagamentos
     CREATE TABLE IF NOT EXISTS payments (
       id TEXT PRIMARY KEY,
-      subscription_id TEXT REFERENCES subscriptions(id),
-      client_id TEXT REFERENCES clients(id),
+      subscription_id TEXT REFERENCES subscriptions(id) ON DELETE CASCADE,
+      client_id TEXT REFERENCES clients(id) ON DELETE CASCADE,
       amount REAL NOT NULL,
       payment_date DATE NOT NULL,
       payment_method TEXT,
@@ -116,27 +116,27 @@ function createSchema(db) {
       content TEXT NOT NULL,
       category TEXT DEFAULT 'followup',
       variables TEXT,
-      created_by TEXT REFERENCES users(id),
+      created_by TEXT REFERENCES users(id) ON DELETE SET NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
     -- Mensagens enviadas
     CREATE TABLE IF NOT EXISTS messages_sent (
       id TEXT PRIMARY KEY,
-      lead_id TEXT REFERENCES leads(id),
-      client_id TEXT REFERENCES clients(id),
-      template_id TEXT REFERENCES message_templates(id),
+      lead_id TEXT REFERENCES leads(id) ON DELETE CASCADE,
+      client_id TEXT REFERENCES clients(id) ON DELETE CASCADE,
+      template_id TEXT REFERENCES message_templates(id) ON DELETE SET NULL,
       channel TEXT NOT NULL,
       content TEXT NOT NULL,
       status TEXT DEFAULT 'sent',
-      sent_by TEXT REFERENCES users(id),
+      sent_by TEXT REFERENCES users(id) ON DELETE SET NULL,
       sent_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
     -- Audit log / atividades
     CREATE TABLE IF NOT EXISTS activities (
       id TEXT PRIMARY KEY,
-      user_id TEXT REFERENCES users(id),
+      user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
       entity_type TEXT NOT NULL,
       entity_id TEXT,
       action TEXT NOT NULL,
@@ -241,6 +241,31 @@ function createSchema(db) {
     CREATE INDEX IF NOT EXISTS idx_bookings_token ON bookings(token);
     CREATE INDEX IF NOT EXISTS idx_appointments_date ON appointments(date);
     CREATE INDEX IF NOT EXISTS idx_appointments_booking ON appointments(booking_id);
+
+    -- Push subscriptions
+    CREATE TABLE IF NOT EXISTS push_subscriptions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      endpoint TEXT NOT NULL,
+      keys_p256dh TEXT NOT NULL,
+      keys_auth TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Performance indexes
+    CREATE INDEX IF NOT EXISTS idx_leads_cnpj ON leads(cnpj);
+    CREATE INDEX IF NOT EXISTS idx_leads_email ON leads(email);
+    CREATE INDEX IF NOT EXISTS idx_leads_source ON leads(source);
+    CREATE INDEX IF NOT EXISTS idx_leads_created_at ON leads(created_at);
+    CREATE INDEX IF NOT EXISTS idx_leads_created_by ON leads(created_by);
+    CREATE INDEX IF NOT EXISTS idx_leads_pipeline_stage ON leads(pipeline_stage);
+    CREATE INDEX IF NOT EXISTS idx_leads_activity ON leads(activity);
+    CREATE INDEX IF NOT EXISTS idx_payments_client_id ON payments(client_id);
+    CREATE INDEX IF NOT EXISTS idx_payments_payment_date ON payments(payment_date);
+    CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user_id ON push_subscriptions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_commissions_referrer ON commissions(referrer_client_id);
+    CREATE INDEX IF NOT EXISTS idx_referrals_referrer ON referrals(referrer_client_id);
+    CREATE INDEX IF NOT EXISTS idx_leads_pipeline ON leads(assigned_to, pipeline_stage, updated_at);
   `);
 
   // Upgrade requests table

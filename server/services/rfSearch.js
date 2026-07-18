@@ -11,19 +11,21 @@ let index = null;
 let loaded = false;
 
 // ============================================================
-// LOAD INDEX
+// LOAD INDEX (async)
 // ============================================================
-function loadIndex() {
+async function loadIndex() {
   if (loaded) return index;
-  
-  if (!fs.existsSync(INDEX_FILE)) {
+
+  const { existsSync, promises: fsPromises } = fs;
+
+  if (!existsSync(INDEX_FILE)) {
     index = null;
     loaded = true;
     return null;
   }
-  
+
   try {
-    const raw = fs.readFileSync(INDEX_FILE, 'utf8');
+    const raw = await fsPromises.readFile(INDEX_FILE, 'utf8');
     index = JSON.parse(raw);
     loaded = true;
     const cities = Object.keys(index);
@@ -42,8 +44,8 @@ function loadIndex() {
 // ============================================================
 // SEARCH
 // ============================================================
-function searchByCity(city, cnaeFilter, limit = 100) {
-  const idx = loadIndex();
+async function searchByCity(city, cnaeFilter, limit = 100) {
+  const idx = await loadIndex();
   if (!idx) return { results: [], total: 0, indexAvailable: false };
   
   const cityUpper = city.toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -88,8 +90,8 @@ function searchByCity(city, cnaeFilter, limit = 100) {
   };
 }
 
-function getStats() {
-  const idx = loadIndex();
+async function getStats() {
+  const idx = await loadIndex();
   if (!idx) return { available: false };
   
   const cities = Object.keys(idx);

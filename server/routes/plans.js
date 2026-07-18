@@ -140,7 +140,7 @@ router.post('/upgrade-requests/:id/reject', authorize('admin'), (req, res) => {
 // PUT /api/plans/users/:userId - ONLY main admin can manually change user plan
 router.put('/users/:userId', authorize('admin'), (req, res) => {
   // EXTRA SECURITY: Only the main admin account can manually change plans
-  if (req.user.username !== 'admin') {
+  if (req.user.role !== 'admin') {
     return res.status(403).json({ error: 'Apenas o administrador principal pode alterar planos' });
   }
 

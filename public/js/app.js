@@ -1,3 +1,11 @@
+// Global HTML escape utility - prevents XSS when injecting data into innerHTML
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}
+
 // Main App - Simple & Robust
 const App = {
   currentPage: null,
@@ -133,6 +141,10 @@ const App = {
       telegram: 'Telegram',
     };
     document.getElementById('page-title').textContent = titles[pageName] || pageName;
+
+    // Clean up intervals from previous page
+    if (typeof DashboardPage !== 'undefined') DashboardPage.stopAutoRefresh();
+    if (typeof FinancialPage !== 'undefined') FinancialPage.stopClock();
 
     // Destroy old charts
     if (typeof Charts !== 'undefined') Charts.destroyAll();

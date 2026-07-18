@@ -11,20 +11,20 @@ const router = express.Router();
 router.use(authenticate);
 
 // GET /api/rfsearch/status - Check if RF index is available
-router.get('/status', (req, res) => {
-  const stats = getStats();
+router.get('/status', async (req, res) => {
+  const stats = await getStats();
   res.json(stats);
 });
 
 // GET /api/rfsearch/search?city=X&cnae=Y&limit=Z - Search CNPJs from RF index
-router.get('/search', (req, res) => {
+router.get('/search', async (req, res) => {
   const { city, cnae, limit = 50 } = req.query;
-  
+
   if (!city) {
     return res.status(400).json({ error: 'Parametro "city" obrigatorio' });
   }
-  
-  const result = searchByCity(city, cnae, parseInt(limit));
+
+  const result = await searchByCity(city, cnae, parseInt(limit));
   res.json(result);
 });
 

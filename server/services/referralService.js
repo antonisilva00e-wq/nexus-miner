@@ -47,23 +47,29 @@ function registerReferral(referrerId, newClientData) {
   const bcrypt = require('bcryptjs');
   const hash = bcrypt.hashSync(newClientData.password, 12);
 
-  // Criar novo cliente
-  db.prepare('INSERT INTO clients (id, name, email, username, password_hash, plan, price, referred_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-    .run(id, newClientData.name, newClientData.email, newClientData.username, hash, newClientData.plan, newClientData.price, referrerId);
+  try {
+    // Criar novo cliente
+    db.prepare('INSERT INTO clients (id, name, email, username, password_hash, plan, price, referred_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(id, newClientData.name, newClientData.email, newClientData.username, hash, newClientData.plan, newClientData.price, referrerId);
 
-  // Calcular comissão
-  const commission = (newClientData.price * COMMISSION_PERCENT) / 100;
+    // Calcular comissão
+    const commission = (newClientData.price * COMMISSION_PERCENT) / 100;
 
-  // Registrar comissão
-  const commId = generateId();
-  db.prepare('INSERT INTO commissions (id, referrer_client_id, lead_value, commission_amount, platform_amount, status) VALUES (?, ?, ?, ?, ?, ?)')
-    .run(commId, referrerId, newClientData.price, commission, 0, 'pending');
+    // Registrar comissão
+    const commId = generateId();
+    db.prepare('INSERT INTO commissions (id, referrer_client_id, lead_value, commission_amount, platform_amount, status) VALUES (?, ?, ?, ?, ?, ?)')
+      .run(commId, referrerId, newClientData.price, commission, 0, 'pending');
 
-  // Atualizar saldo do indicador
-  db.prepare('UPDATE clients SET commission_balance = COALESCE(commission_balance, 0) + ? WHERE id = ?')
-    .run(commission, referrerId);
+    // Atualizar saldo do indicador
+    db.prepare('UPDATE clients SET commission_balance = COALESCE(commission_balance, 0) + ? WHERE id = ?')
+      .run(commission, referrerId);
 
-  return { clientId: id, commission };
+    return { clientId: id, commission };
+  } catch (err) {
+    console.error('[Referral] registerReferral failed, rolling back:', err.message);
+    try { db.prepare('DELETE FROM clients WHERE id = ?').run(id); } catch {}
+    throw err;
+  }
 }
 
 // ============================================================

@@ -107,10 +107,10 @@ const FinancialPage = {
 
       <!-- TABS -->
       <div class="fin-tabs">
-        <button class="fin-tab active" onclick="FinancialPage.switchTab('overview')"><i data-lucide="layout-dashboard"></i>Visao Geral</button>
-        <button class="fin-tab" onclick="FinancialPage.switchTab('clients')"><i data-lucide="users"></i>Clientes</button>
-        <button class="fin-tab" onclick="FinancialPage.switchTab('payments')"><i data-lucide="credit-card"></i>Pagamentos</button>
-        <button class="fin-tab" onclick="FinancialPage.switchTab('forecast')"><i data-lucide="trending-up"></i>Previsao</button>
+        <button class="fin-tab active" onclick="FinancialPage.switchTab('overview', event)"><i data-lucide="layout-dashboard"></i>Visao Geral</button>
+        <button class="fin-tab" onclick="FinancialPage.switchTab('clients', event)"><i data-lucide="users"></i>Clientes</button>
+        <button class="fin-tab" onclick="FinancialPage.switchTab('payments', event)"><i data-lucide="credit-card"></i>Pagamentos</button>
+        <button class="fin-tab" onclick="FinancialPage.switchTab('forecast', event)"><i data-lucide="trending-up"></i>Previsao</button>
       </div>
 
       <!-- TAB CONTENT -->
@@ -120,7 +120,7 @@ const FinancialPage = {
     this.renderTabContent();
   },
 
-  switchTab(tab) {
+  switchTab(tab, event) {
     this.currentTab = tab;
     document.querySelectorAll('.fin-tab').forEach(t => t.classList.remove('active'));
     event.currentTarget.classList.add('active');

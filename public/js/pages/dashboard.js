@@ -2,6 +2,7 @@
 const DashboardPage = {
   currentPeriod: '30d',
   refreshInterval: null,
+  cachedData: null,
 
   async render() {
     const el = document.getElementById('page-dashboard');
@@ -25,6 +26,18 @@ const DashboardPage = {
       ]);
 
       const totalPipeline = pipelineChart.data.reduce((s, d) => s + d.count, 0);
+
+      // Cache data for export
+      this.cachedData = {
+        totalLeads: overview.totalLeads,
+        conversionRate: overview.conversionRate,
+        mrr: overview.mrr,
+        activeClients: overview.activeClients,
+        totalClients: overview.totalClients,
+        totalPipeline,
+        newLeadsPeriod: leadsChart.data.reduce((s, d) => s + d.count, 0),
+        pipeline: pipelineChart.data,
+      };
 
       el.innerHTML = `
         <!-- Top Bar: Period Filter + Export -->
@@ -311,9 +324,8 @@ const DashboardPage = {
   },
 
   exportDashboard() {
-    // Generate PDF with current data
-    const data = {
-      totalLeads: document.querySelector('[data-counter]')?.dataset?.counter || 0,
+    const data = this.cachedData || {
+      totalLeads: 0,
       conversionRate: 0,
       mrr: 0,
       activeClients: 0,
@@ -321,18 +333,6 @@ const DashboardPage = {
       newLeadsPeriod: 0,
       pipeline: []
     };
-
-    // Try to get real data from the page
-    try {
-      const cards = document.querySelectorAll('.kpi-value');
-      if (cards.length >= 5) {
-        data.totalLeads = parseInt(cards[0]?.textContent) || 0;
-        data.conversionRate = parseFloat(cards[1]?.textContent) || 0;
-        data.mrr = parseInt(cards[2]?.textContent?.replace(/[R$\s.]/g, '')) || 0;
-        data.activeClients = parseInt(cards[3]?.textContent) || 0;
-        data.totalPipeline = parseInt(cards[4]?.textContent) || 0;
-      }
-    } catch {}
 
     PDFExport.generateDashboardPDF(data);
   },
@@ -366,7 +366,7 @@ const DashboardPage = {
       const pct = total > 0 ? Math.round((d.count / total) * 100) : 0;
       return `
         <div class="pipeline-bar-item">
-          <span class="pipeline-bar-label">${stageLabels[d.pipeline_stage] || d.pipeline_stage}</span>
+          <span class="pipeline-bar-label">${escapeHtml(stageLabels[d.pipeline_stage] || d.pipeline_stage)}</span>
           <div class="pipeline-bar-track">
             <div class="pipeline-bar-fill ${d.pipeline_stage}" style="width:${pct}%;"></div>
           </div>
@@ -387,7 +387,7 @@ const DashboardPage = {
       return `
         <div class="funnel-stage" style="width:${width}%;background:${colors[i]};opacity:${1 - (i * 0.15)};">
           <div class="funnel-stage-content">
-            <span class="funnel-stage-name">${s.name}</span>
+            <span class="funnel-stage-name">${escapeHtml(s.name)}</span>
             <span class="funnel-stage-count">${s.count}</span>
             <span class="funnel-stage-pct">${s.pct}%</span>
           </div>
@@ -409,8 +409,8 @@ const DashboardPage = {
             <span class="city-rank">#${i + 1}</span>
             <div class="city-info">
               <div class="city-name-row">
-                <span class="city-name">${c.city}</span>
-                <span class="city-state">${c.state}</span>
+                <span class="city-name">${escapeHtml(c.city)}</span>
+                <span class="city-state">${escapeHtml(c.state)}</span>
               </div>
               <div class="city-bar-track">
                 <div class="city-bar-fill" style="width:${pct}%;"></div>
@@ -436,7 +436,7 @@ const DashboardPage = {
         <div class="activity-item">
           <div class="activity-dot" style="background:${colors[a.action] || '#6b7280'}"></div>
           <div>
-            <div class="activity-text"><strong>${a.user_name || 'Sistema'}</strong> ${labels[a.action] || a.action} ${a.entity_type}</div>
+            <div class="activity-text"><strong>${escapeHtml(a.user_name || 'Sistema')}</strong> ${escapeHtml(labels[a.action] || a.action)} ${escapeHtml(a.entity_type)}</div>
             <div class="activity-time">${this.timeAgo(a.created_at)}</div>
           </div>
         </div>
@@ -459,7 +459,7 @@ const DashboardPage = {
             <div class="seller-avatar" style="background:${avatarColors[i % avatarColors.length]};">${initials}</div>
             <span class="seller-rank">#${i + 1}</span>
             <div class="seller-info">
-              <span class="seller-name">${s.name}</span>
+              <span class="seller-name">${escapeHtml(s.name)}</span>
               <span class="seller-stats">${s.lead_count} leads · ${s.closed_count} fechados</span>
             </div>
             <div class="seller-bar">

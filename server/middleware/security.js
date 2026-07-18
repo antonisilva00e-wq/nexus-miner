@@ -417,11 +417,8 @@ const corsOptions = {
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      // In production, log but still allow (avoid crashes from misconfigured CORS)
-      if (process.env.NODE_ENV === 'production') {
-        console.warn(`[CORS] Unknown origin: ${origin}`);
-      }
-      callback(null, true);
+      console.warn(`[CORS] Blocked unknown origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
@@ -514,7 +511,7 @@ function recordLoginAttempt(username, success) {
 // ============================================================
 function verifyWebhookHMAC(req, res, next) {
   const secret = process.env.WEBHOOK_SECRET;
-  if (!secret) return next(); // No secret = skip verification
+  if (!secret) return res.status(503).json({ error: 'Webhook not configured' });
 
   const signature = req.headers['x-webhook-signature'] || req.headers['x-hub-signature-256'];
   if (!signature) {

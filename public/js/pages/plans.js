@@ -1,4 +1,6 @@
 // Plans Page - Subscription Management
+const plans_order = ['free', 'pro', 'enterprise'];
+
 const PlansPage = {
   async render() {
     document.getElementById('page-title').textContent = 'Planos';
@@ -107,5 +109,3 @@ const PlansPage = {
     }
   },
 };
-
-const plans_order = ['free', 'pro', 'enterprise'];

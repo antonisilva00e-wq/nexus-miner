@@ -1,7 +1,7 @@
 // Modal component
 const Modal = {
   open(title, bodyHTML, footerHTML) {
-    document.getElementById('modal-title').innerHTML = title;
+    document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-body').innerHTML = bodyHTML;
     document.getElementById('modal-footer').innerHTML = footerHTML || '';
     document.getElementById('modal-backdrop').classList.add('active');

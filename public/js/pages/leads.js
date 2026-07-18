@@ -319,8 +319,8 @@ const LeadsPage = {
                     <i data-lucide="user" style="color:white;width:20px;height:20px;"></i>
                   </div>
                   <div>
-                    <h4 style="color:white;font-size:0.95rem;font-weight:600;margin:0;">${p.nome}</h4>
-                    <p style="color:var(--accent-secondary);font-size:0.78rem;margin:2px 0 0;">${p.qualificacao}</p>
+                    <h4 style="color:white;font-size:0.95rem;font-weight:600;margin:0;">${escapeHtml(p.nome)}</h4>
+                    <p style="color:var(--accent-secondary);font-size:0.78rem;margin:2px 0 0;">${escapeHtml(p.qualificacao)}</p>
                   </div>
                 </div>
                 <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(16,185,129,0.12);color:#10b981;padding:3px 8px;border-radius:12px;font-size:0.65rem;font-weight:600;border:1px solid rgba(16,185,129,0.2);">DADOS REAIS</span>
@@ -328,7 +328,7 @@ const LeadsPage = {
               <div style="padding:0.75rem 1.25rem;">
                 <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.5rem;">
                   <i data-lucide="building-2" style="width:12px;height:12px;color:var(--text-tertiary);"></i>
-                  <span style="font-size:0.82rem;color:white;font-weight:500;">${p.empresa}</span>
+                  <span style="font-size:0.82rem;color:white;font-weight:500;">${escapeHtml(p.empresa)}</span>
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.4rem;font-size:0.78rem;">
                   <div style="display:flex;align-items:center;gap:0.3rem;"><span style="color:var(--text-tertiary);">CNPJ:</span><span style="color:var(--text-secondary);font-family:monospace;">${p.cnpj}</span></div>
@@ -452,12 +452,12 @@ const LeadsPage = {
           ${data.results.map(r => `
             <div style="background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.1);border-radius:var(--border-radius-sm);padding:0.85rem;" data-cnpj="${r.cnpj.replace(/\D/g, '')}">
               <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.4rem;">
-                <h4 style="color:white;font-size:0.88rem;font-weight:600;margin:0;flex:1;">${r.nome || 'Sem nome'}</h4>
+                <h4 style="color:white;font-size:0.88rem;font-weight:600;margin:0;flex:1;">${escapeHtml(r.nome || 'Sem nome')}</h4>
                 <input type="checkbox" class="rf-check" value="${r.cnpj}" style="accent-color:#f59e0b;" checked>
               </div>
-              <p style="font-size:0.75rem;color:var(--text-tertiary);font-family:monospace;margin:0 0 0.3rem;">CNPJ: ${r.cnpj}</p>
-              ${r.endereco ? `<p style="font-size:0.75rem;color:var(--text-secondary);margin:0 0 0.3rem;">📍 ${r.endereco}</p>` : ''}
-              ${r.telefone ? `<p style="font-size:0.75rem;color:#818cf8;margin:0;">📞 ${r.telefone}</p>` : ''}
+              <p style="font-size:0.75rem;color:var(--text-tertiary);font-family:monospace;margin:0 0 0.3rem;">CNPJ: ${escapeHtml(r.cnpj)}</p>
+              ${r.endereco ? `<p style="font-size:0.75rem;color:var(--text-secondary);margin:0 0 0.3rem;">📍 ${escapeHtml(r.endereco)}</p>` : ''}
+              ${r.telefone ? `<p style="font-size:0.75rem;color:#818cf8;margin:0;">📞 ${escapeHtml(r.telefone)}</p>` : ''}
             </div>
           `).join('')}
         </div>
@@ -503,17 +503,17 @@ const LeadsPage = {
           <div style="background:rgba(16,185,129,0.04);border:1px solid rgba(16,185,129,0.12);border-radius:var(--border-radius-md);overflow:hidden;">
             <div style="padding:1rem 1.25rem;border-bottom:1px solid rgba(16,185,129,0.08);display:flex;justify-content:space-between;align-items:start;">
               <div>
-                <h4 style="color:white;font-size:0.95rem;font-weight:600;margin:0;">${d.nomeFantasia || d.razaoSocial}</h4>
-                <p style="color:var(--text-tertiary);font-size:0.75rem;margin:2px 0 0;font-family:monospace;">${d.cnpj}</p>
+                <h4 style="color:white;font-size:0.95rem;font-weight:600;margin:0;">${escapeHtml(d.nomeFantasia || d.razaoSocial)}</h4>
+                <p style="color:var(--text-tertiary);font-size:0.75rem;margin:2px 0 0;font-family:monospace;">${escapeHtml(d.cnpj)}</p>
               </div>
               <span style="background:rgba(16,185,129,0.12);color:#10b981;padding:3px 8px;border-radius:12px;font-size:0.65rem;font-weight:600;">RF REAL</span>
             </div>
             <div style="padding:0.75rem 1.25rem;font-size:0.78rem;">
-              <p style="color:var(--text-secondary);margin:0 0 0.3rem;"><strong>${d.razaoSocial}</strong></p>
-              <p style="color:var(--text-tertiary);margin:0 0 0.3rem;">${d.cnaePrincipal || ''} | Capital: R$ ${(d.capitalSocial || 0).toLocaleString('pt-BR')}</p>
-              ${d.telefone1 ? `<p style="color:#818cf8;margin:0 0 0.3rem;">📞 ${d.telefone1}</p>` : ''}
-              ${d.email ? `<p style="color:#818cf8;margin:0 0 0.3rem;">✉️ ${d.email}</p>` : ''}
-              ${d.socios?.length ? `<div style="margin-top:0.5rem;"><p style="color:var(--text-tertiary);font-size:0.7rem;margin:0 0 4px;">SÓCIOS REAIS:</p>${d.socios.map(s => `<span style="display:inline-block;background:rgba(129,140,248,0.1);color:#818cf8;padding:2px 8px;border-radius:12px;font-size:0.7rem;margin:2px;">${s.nome} (${s.qualificacao})</span>`).join('')}</div>` : ''}
+              <p style="color:var(--text-secondary);margin:0 0 0.3rem;"><strong>${escapeHtml(d.razaoSocial)}</strong></p>
+              <p style="color:var(--text-tertiary);margin:0 0 0.3rem;">${escapeHtml(d.cnaePrincipal || '')} | Capital: R$ ${(d.capitalSocial || 0).toLocaleString('pt-BR')}</p>
+              ${d.telefone1 ? `<p style="color:#818cf8;margin:0 0 0.3rem;">📞 ${escapeHtml(d.telefone1)}</p>` : ''}
+              ${d.email ? `<p style="color:#818cf8;margin:0 0 0.3rem;">✉️ ${escapeHtml(d.email)}</p>` : ''}
+              ${d.socios?.length ? `<div style="margin-top:0.5rem;"><p style="color:var(--text-tertiary);font-size:0.7rem;margin:0 0 4px;">SÓCIOS REAIS:</p>${d.socios.map(s => `<span style="display:inline-block;background:rgba(129,140,248,0.1);color:#818cf8;padding:2px 8px;border-radius:12px;font-size:0.7rem;margin:2px;">${escapeHtml(s.nome)} (${escapeHtml(s.qualificacao)})</span>`).join('')}</div>` : ''}
             </div>
             <div style="padding:0.5rem 1.25rem;background:rgba(0,0,0,0.15);display:flex;justify-content:flex-end;">
               <button class="btn btn-sm btn-primary" onclick='LeadsPage.saveCNPJLead(${JSON.stringify(d).replace(/'/g, "\\'")})' style="display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;">
@@ -548,24 +548,24 @@ const LeadsPage = {
         <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:var(--border-radius-md);padding:1.25rem;">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.75rem;">
             <div>
-              <h4 style="color:white;font-size:1rem;">${d.nomeFantasia || d.razaoSocial}</h4>
-              <p style="color:var(--text-tertiary);font-size:0.8rem;">${d.razaoSocial}</p>
+              <h4 style="color:white;font-size:1rem;">${escapeHtml(d.nomeFantasia || d.razaoSocial)}</h4>
+              <p style="color:var(--text-tertiary);font-size:0.8rem;">${escapeHtml(d.razaoSocial)}</p>
             </div>
             <span class="badge badge-success">${d.situacaoCadastral}</span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;font-size:0.82rem;">
-            <div><span style="color:var(--text-tertiary);">CNPJ:</span><br><strong style="color:white;">${d.cnpj}</strong></div>
+            <div><span style="color:var(--text-tertiary);">CNPJ:</span><br><strong style="color:white;">${escapeHtml(d.cnpj)}</strong></div>
             <div><span style="color:var(--text-tertiary);">Capital Social:</span><br><strong style="color:var(--accent-secondary);">R$ ${(d.capitalSocial || 0).toLocaleString('pt-BR')}</strong></div>
-            <div><span style="color:var(--text-tertiary);">Porte:</span><br><strong style="color:white;">${d.porte || 'N/I'}</strong></div>
-            <div><span style="color:var(--text-tertiary);">CNAE:</span><br><strong style="color:white;">${d.cnaePrincipal || 'N/I'}</strong></div>
-            <div><span style="color:var(--text-tertiary);">Regime:</span><br><strong style="color:white;">${d.regimeTributario || 'N/I'}</strong></div>
-            <div><span style="color:var(--text-tertiary);">Abertura:</span><br><strong style="color:white;">${d.dataAbertura || 'N/I'}</strong></div>
-            <div><span style="color:var(--text-tertiary);">Telefone:</span><br><strong style="color:white;">${d.telefone1 || 'N/I'}</strong></div>
+            <div><span style="color:var(--text-tertiary);">Porte:</span><br><strong style="color:white;">${escapeHtml(d.porte || 'N/I')}</strong></div>
+            <div><span style="color:var(--text-tertiary);">CNAE:</span><br><strong style="color:white;">${escapeHtml(d.cnaePrincipal || 'N/I')}</strong></div>
+            <div><span style="color:var(--text-tertiary);">Regime:</span><br><strong style="color:white;">${escapeHtml(d.regimeTributario || 'N/I')}</strong></div>
+            <div><span style="color:var(--text-tertiary);">Abertura:</span><br><strong style="color:white;">${escapeHtml(d.dataAbertura || 'N/I')}</strong></div>
+            <div><span style="color:var(--text-tertiary);">Telefone:</span><br><strong style="color:white;">${escapeHtml(d.telefone1 || 'N/I')}</strong></div>
             <div><span style="color:var(--text-tertiary);">Simples:</span><br><strong style="color:white;">${d.opcaoSimples ? 'Sim' : 'Não'}</strong></div>
             <div><span style="color:var(--text-tertiary);">MEI:</span><br><strong style="color:white;">${d.opcaoMEI ? 'Sim' : 'Não'}</strong></div>
           </div>
           ${d.endereco ? `<p style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-secondary);">📍 ${d.endereco.logradouro || ''}, ${d.endereco.numero || ''} - ${d.endereco.bairro || ''}, ${d.endereco.municipio || ''} - ${d.endereco.uf || ''}</p>` : ''}
-          ${d.socios?.length ? `<div style="margin-top:0.75rem;"><p style="font-size:0.75rem;color:var(--text-tertiary);margin-bottom:0.3rem;">SÓCIOS:</p>${d.socios.map(s => `<span style="display:inline-block;background:rgba(129,140,248,0.1);color:var(--accent-primary);padding:2px 8px;border-radius:12px;font-size:0.75rem;margin:2px;">${s.nome} (${s.qualificacao})</span>`).join('')}</div>` : ''}
+          ${d.socios?.length ? `<div style="margin-top:0.75rem;"><p style="font-size:0.75rem;color:var(--text-tertiary);margin-bottom:0.3rem;">SÓCIOS:</p>${d.socios.map(s => `<span style="display:inline-block;background:rgba(129,140,248,0.1);color:var(--accent-primary);padding:2px 8px;border-radius:12px;font-size:0.75rem;margin:2px;">${escapeHtml(s.nome)} (${escapeHtml(s.qualificacao)})</span>`).join('')}</div>` : ''}
           <button class="btn btn-sm btn-primary" style="margin-top:0.75rem;" onclick='LeadsPage.saveCNPJLead(${JSON.stringify(d).replace(/'/g,"\\'")})'><i data-lucide="plus"></i>Salvar como Lead</button>
         </div>
       `;
@@ -605,8 +605,8 @@ const LeadsPage = {
                 <i data-lucide="user-check" style="color:white;width:24px;height:24px;"></i>
               </div>
               <div>
-                <h3 style="color:white;font-size:1.1rem;font-weight:700;margin:0;">${d.nome}</h3>
-                <p style="color:var(--text-tertiary);font-size:0.82rem;margin:2px 0 0;font-family:monospace;letter-spacing:0.5px;">CPF: ${d.cpf}</p>
+                <h3 style="color:white;font-size:1.1rem;font-weight:700;margin:0;">${escapeHtml(d.nome)}</h3>
+                <p style="color:var(--text-tertiary);font-size:0.82rem;margin:2px 0 0;font-family:monospace;letter-spacing:0.5px;">CPF: ${escapeHtml(d.cpf)}</p>
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:0.5rem;">
@@ -624,15 +624,15 @@ const LeadsPage = {
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem;">
               <div>
                 <p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.03em;">Nome Completo</p>
-                <p style="font-size:0.88rem;color:white;font-weight:600;margin:0;">${d.nome}</p>
+                <p style="font-size:0.88rem;color:white;font-weight:600;margin:0;">${escapeHtml(d.nome)}</p>
               </div>
               <div>
                 <p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.03em;">Nome da Mae</p>
-                <p style="font-size:0.88rem;color:white;font-weight:600;margin:0;">${d.nomeMae || 'Nao informado'}</p>
+                <p style="font-size:0.88rem;color:white;font-weight:600;margin:0;">${escapeHtml(d.nomeMae || 'Nao informado')}</p>
               </div>
               <div>
                 <p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.03em;">Data de Nascimento</p>
-                <p style="font-size:0.88rem;color:#22d3ee;font-weight:600;margin:0;">${d.dataNascimento || 'Nao informado'}</p>
+                <p style="font-size:0.88rem;color:#22d3ee;font-weight:600;margin:0;">${escapeHtml(d.dataNascimento || 'Nao informado')}</p>
               </div>
               <div>
                 <p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.03em;">Idade</p>
@@ -642,19 +642,19 @@ const LeadsPage = {
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
               <div>
                 <p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.03em;">Sexo</p>
-                <p style="font-size:0.88rem;color:white;font-weight:600;margin:0;">${d.sexo || 'Nao informado'}</p>
+                <p style="font-size:0.88rem;color:white;font-weight:600;margin:0;">${escapeHtml(d.sexo || 'Nao informado')}</p>
               </div>
               <div>
                 <p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.03em;">Municipio</p>
-                <p style="font-size:0.88rem;color:white;font-weight:600;margin:0;">${d.municipio || 'Nao informado'}</p>
+                <p style="font-size:0.88rem;color:white;font-weight:600;margin:0;">${escapeHtml(d.municipio || 'Nao informado')}</p>
               </div>
               <div>
                 <p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.03em;">UF</p>
-                <p style="font-size:0.88rem;color:white;font-weight:600;margin:0;">${d.uf || 'Nao informado'}</p>
+                <p style="font-size:0.88rem;color:white;font-weight:600;margin:0;">${escapeHtml(d.uf || 'Nao informado')}</p>
               </div>
               <div>
                 <p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;letter-spacing:0.03em;">Situacao Cadastral</p>
-                <p style="font-size:0.88rem;color:${statusColor};font-weight:600;margin:0;">${d.situacaoCadastral}</p>
+                <p style="font-size:0.88rem;color:${statusColor};font-weight:600;margin:0;">${escapeHtml(d.situacaoCadastral)}</p>
               </div>
             </div>
           </div>
@@ -667,8 +667,8 @@ const LeadsPage = {
               <span style="font-size:0.75rem;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.05em;">Contato</span>
             </div>
             <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
-              ${d.telefone ? `<div><p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;">Telefone</p><p style="font-size:0.88rem;color:#818cf8;font-weight:600;margin:0;">${d.telefone}</p></div>` : ''}
-              ${d.email ? `<div><p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;">Email</p><p style="font-size:0.88rem;color:#818cf8;font-weight:600;margin:0;">${d.email}</p></div>` : ''}
+              ${d.telefone ? `<div><p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;">Telefone</p><p style="font-size:0.88rem;color:#818cf8;font-weight:600;margin:0;">${escapeHtml(d.telefone)}</p></div>` : ''}
+              ${d.email ? `<div><p style="font-size:0.7rem;color:var(--text-tertiary);margin:0 0 4px;text-transform:uppercase;">Email</p><p style="font-size:0.88rem;color:#818cf8;font-weight:600;margin:0;">${escapeHtml(d.email)}</p></div>` : ''}
             </div>
           </div>` : ''}
 
@@ -771,22 +771,22 @@ const LeadsPage = {
       return `
         <div class="card" style="padding:1.25rem;position:relative;">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
-            <h4 style="color:white;font-size:0.95rem;flex:1;">${l.name}</h4>
+            <h4 style="color:white;font-size:0.95rem;flex:1;">${escapeHtml(l.name)}</h4>
             <div style="display:flex;align-items:center;gap:0.3rem;background:rgba(255,255,255,0.04);padding:2px 8px;border-radius:20px;">
               <span style="width:6px;height:6px;border-radius:50%;background:${scoreColor};"></span>
               <span style="font-size:0.7rem;font-weight:700;color:${scoreColor};">${l.score || 0}%</span>
             </div>
           </div>
           <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.5rem;">
-            <span class="badge" style="background:${sourceColor}18;color:${sourceColor};border:1px solid ${sourceColor}33;">${l.fonte || 'N/I'}</span>
-            ${l.activity ? `<span class="badge badge-primary">${l.activity}</span>` : ''}
+            <span class="badge" style="background:${sourceColor}18;color:${sourceColor};border:1px solid ${sourceColor}33;">${escapeHtml(l.fonte || 'N/I')}</span>
+            ${l.activity ? `<span class="badge badge-primary">${escapeHtml(l.activity)}</span>` : ''}
           </div>
-          ${l.cnpj ? `<p style="font-size:0.78rem;color:var(--text-tertiary);font-family:monospace;">CNPJ: ${l.cnpj}</p>` : ''}
-          ${l.address ? `<p style="font-size:0.8rem;color:var(--text-secondary);margin:0.3rem 0;">📍 ${l.address}</p>` : ''}
-          ${l.phone ? `<p style="font-size:0.82rem;color:var(--accent-secondary);">📞 ${l.phone}</p>` : ''}
-          ${l.email ? `<p style="font-size:0.78rem;color:var(--text-tertiary);">✉️ ${l.email}</p>` : ''}
-          ${l.owner ? `<p style="font-size:0.78rem;color:var(--accent-primary);">👤 ${l.owner}</p>` : ''}
-          ${l.bank ? `<div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.3rem;">${LeadsPage.bankBadge(l.bank)}<span style="font-size:0.78rem;color:var(--text-secondary);">${l.bank.name || l.bank}</span></div>` : ''}
+          ${l.cnpj ? `<p style="font-size:0.78rem;color:var(--text-tertiary);font-family:monospace;">CNPJ: ${escapeHtml(l.cnpj)}</p>` : ''}
+          ${l.address ? `<p style="font-size:0.8rem;color:var(--text-secondary);margin:0.3rem 0;">📍 ${escapeHtml(l.address)}</p>` : ''}
+          ${l.phone ? `<p style="font-size:0.82rem;color:var(--accent-secondary);">📞 ${escapeHtml(l.phone)}</p>` : ''}
+          ${l.email ? `<p style="font-size:0.78rem;color:var(--text-tertiary);">✉️ ${escapeHtml(l.email)}</p>` : ''}
+          ${l.owner ? `<p style="font-size:0.78rem;color:var(--accent-primary);">👤 ${escapeHtml(l.owner)}</p>` : ''}
+          ${l.bank ? `<div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.3rem;">${LeadsPage.bankBadge(l.bank)}<span style="font-size:0.78rem;color:var(--text-secondary);">${escapeHtml(l.bank.name || l.bank)}</span></div>` : ''}
           <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.75rem;padding-top:0.5rem;border-top:1px solid var(--border-color);">
             <span style="font-size:0.7rem;color:var(--text-tertiary);">⭐ ${l.rating || '-'}</span>
             <button class="btn btn-sm btn-secondary" onclick="LeadsPage.saveToFunil('${l.id}')"><i data-lucide="plus"></i>Salvar</button>
@@ -909,7 +909,7 @@ const LeadsPage = {
               </div>
               <div>
                 <h2 style="color:white;font-size:1.3rem;font-weight:700;margin:0;">Scripts para Ligacao</h2>
-                <p style="color:var(--text-tertiary);font-size:0.85rem;margin:4px 0 0;">Nicho: <strong style="color:#f59e0b;">${keyword}</strong> | App: <strong style="color:#10b981;">${data.appName}</strong></p>
+                <p style="color:var(--text-tertiary);font-size:0.85rem;margin:4px 0 0;">Nicho: <strong style="color:#f59e0b;">${escapeHtml(keyword)}</strong> | App: <strong style="color:#10b981;">${escapeHtml(data.appName)}</strong></p>
               </div>
             </div>
             <button onclick="LeadsPage.closeScriptsModal()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:36px;height:36px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;">
@@ -924,8 +924,8 @@ const LeadsPage = {
                 <i data-lucide="smartphone" style="color:white;width:16px;height:16px;"></i>
               </div>
               <div>
-                <p style="color:white;font-weight:600;margin:0;font-size:0.95rem;">${data.appName}</p>
-                <p style="color:var(--text-tertiary);font-size:0.8rem;margin:2px 0 0;">${data.appDescription}</p>
+                <p style="color:white;font-weight:600;margin:0;font-size:0.95rem;">${escapeHtml(data.appName)}</p>
+                <p style="color:var(--text-tertiary);font-size:0.8rem;margin:2px 0 0;">${escapeHtml(data.appDescription)}</p>
               </div>
             </div>
           </div>
@@ -938,7 +938,7 @@ const LeadsPage = {
                 <div style="padding:1rem 1.25rem;background:rgba(245,158,11,0.05);border-bottom:1px solid rgba(245,158,11,0.1);display:flex;justify-content:space-between;align-items:center;">
                   <div style="display:flex;align-items:center;gap:0.75rem;">
                     <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:white;">${index + 1}</div>
-                    <h3 style="color:white;font-size:0.95rem;font-weight:600;margin:0;">${script.title}</h3>
+                    <h3 style="color:white;font-size:0.95rem;font-weight:600;margin:0;">${escapeHtml(script.title)}</h3>
                   </div>
                   <button onclick="LeadsPage.copyScript(${index})" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#10b981;padding:6px 12px;border-radius:8px;font-size:0.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.2s;">
                     <i data-lucide="copy" style="width:14px;height:14px;"></i>Copiar
@@ -950,19 +950,19 @@ const LeadsPage = {
                   <!-- Greeting -->
                   <div style="margin-bottom:1rem;">
                     <p style="color:var(--text-tertiary);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;margin:0 0 6px;">ABERTURA</p>
-                    <p style="color:#22d3ee;font-size:0.9rem;line-height:1.6;margin:0;padding:0.75rem;background:rgba(34,211,238,0.05);border-radius:8px;border-left:3px solid #22d3ee;">${script.greeting}</p>
+                    <p style="color:#22d3ee;font-size:0.9rem;line-height:1.6;margin:0;padding:0.75rem;background:rgba(34,211,238,0.05);border-radius:8px;border-left:3px solid #22d3ee;">${escapeHtml(script.greeting)}</p>
                   </div>
                   
                   <!-- Body -->
                   <div style="margin-bottom:1rem;">
                     <p style="color:var(--text-tertiary);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;margin:0 0 6px;">CONTEUDO</p>
-                    <p style="color:white;font-size:0.88rem;line-height:1.7;margin:0;padding:1rem;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid rgba(255,255,255,0.06);">${script.body}</p>
+                    <p style="color:white;font-size:0.88rem;line-height:1.7;margin:0;padding:1rem;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid rgba(255,255,255,0.06);">${escapeHtml(script.body)}</p>
                   </div>
                   
                   <!-- Closing -->
                   <div>
                     <p style="color:var(--text-tertiary);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.05em;margin:0 0 6px;">FECHAMENTO</p>
-                    <p style="color:#10b981;font-size:0.9rem;line-height:1.6;margin:0;padding:0.75rem;background:rgba(16,185,129,0.05);border-radius:8px;border-left:3px solid #10b981;font-weight:500;">${script.closing}</p>
+                    <p style="color:#10b981;font-size:0.9rem;line-height:1.6;margin:0;padding:0.75rem;background:rgba(16,185,129,0.05);border-radius:8px;border-left:3px solid #10b981;font-weight:500;">${escapeHtml(script.closing)}</p>
                   </div>
                 </div>
               </div>
@@ -971,7 +971,7 @@ const LeadsPage = {
 
           <!-- Footer -->
           <div style="padding:1rem 2rem;border-top:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;">
-            <p style="color:var(--text-tertiary);font-size:0.75rem;margin:0;">${data.scripts.length} scripts disponiveis | App: ${data.appName}</p>
+            <p style="color:var(--text-tertiary);font-size:0.75rem;margin:0;">${data.scripts.length} scripts disponiveis | App: ${escapeHtml(data.appName)}</p>
             <button onclick="LeadsPage.closeScriptsModal()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:white;padding:8px 16px;border-radius:8px;font-size:0.85rem;cursor:pointer;transition:all 0.2s;">Fechar</button>
           </div>
         </div>

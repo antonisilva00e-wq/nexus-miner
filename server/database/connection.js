@@ -71,7 +71,6 @@ function createWrapper(database) {
           stmt.bind(params);
           stmt.step();
           stmt.free();
-          saveDatabase();
           return { changes: database.getRowsModified() };
         },
         get(...params) {
@@ -106,7 +105,6 @@ function createWrapper(database) {
     },
     exec(sql) {
       database.exec(sql);
-      saveDatabase();
     },
     pragma(str) {
       try { database.run(`PRAGMA ${str}`); } catch {}

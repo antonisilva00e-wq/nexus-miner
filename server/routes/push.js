@@ -6,18 +6,6 @@ const { sendPush, broadcast, vapidPublicKey } = require('../services/pushService
 
 const router = express.Router();
 
-// Ensure subscriptions table exists
-try {
-  db.prepare(`CREATE TABLE IF NOT EXISTS push_subscriptions (
-    id TEXT PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    endpoint TEXT NOT NULL,
-    keys_p256dh TEXT NOT NULL,
-    keys_auth TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`).run();
-} catch {}
-
 // GET /api/push/vapid-public-key — public key for frontend
 router.get('/vapid-public-key', (req, res) => {
   res.json({ publicKey: vapidPublicKey });

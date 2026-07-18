@@ -41,9 +41,9 @@ const WhatsAppPage = {
       const list = document.getElementById('templates-list');
       if (templates.templates?.length) {
         list.innerHTML = templates.templates.map(t => `
-          <div class="seller-item" style="cursor:pointer;" onclick="WhatsAppPage.viewTemplate('${t.id}', '${t.name}', \`${t.content.replace(/`/g, '\\`')}\`)">
-            <div class="seller-info"><span class="seller-name">${t.name}</span><span class="seller-stats">${t.category} · ${t.content.substring(0, 60)}...</span></div>
-            <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();WhatsAppPage.deleteTemplate('${t.id}')"><i data-lucide="trash-2"></i></button>
+          <div class="seller-item" style="cursor:pointer;" onclick="WhatsAppPage.viewTemplate('${escapeHtml(t.id)}', '${escapeHtml(t.name)}', \`${t.content.replace(/`/g, '\\`').replace(/\\/g, '\\\\')}\`)">
+            <div class="seller-info"><span class="seller-name">${escapeHtml(t.name)}</span><span class="seller-stats">${escapeHtml(t.category)} · ${escapeHtml(t.content.substring(0, 60))}...</span></div>
+            <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();WhatsAppPage.deleteTemplate('${escapeHtml(t.id)}')"><i data-lucide="trash-2"></i></button>
           </div>
         `).join('');
       } else {
@@ -54,8 +54,8 @@ const WhatsAppPage = {
       if (messages.messages?.length) {
         hist.innerHTML = messages.messages.map(m => `
           <div class="seller-item">
-            <div class="seller-info"><span class="seller-name">${m.lead_name || m.client_name || 'N/A'}</span><span class="seller-stats">${m.channel} · ${m.content.substring(0, 50)}...</span></div>
-            <span class="badge badge-primary">${m.status}</span>
+            <div class="seller-info"><span class="seller-name">${escapeHtml(m.lead_name || m.client_name || 'N/A')}</span><span class="seller-stats">${escapeHtml(m.channel)} · ${escapeHtml(m.content.substring(0, 50))}...</span></div>
+            <span class="badge badge-primary">${escapeHtml(m.status)}</span>
           </div>
         `).join('');
       } else {
@@ -100,8 +100,8 @@ const WhatsAppPage = {
 
   viewTemplate(id, name, content) {
     Modal.open(
-      `<i data-lucide="file-text" style="color:var(--accent-primary);"></i> ${name}`,
-      `<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);padding:1rem;color:var(--text-secondary);white-space:pre-wrap;font-size:0.9rem;">${content}</div>`,
+      `${escapeHtml(name)}`,
+      `<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);padding:1rem;color:var(--text-secondary);white-space:pre-wrap;font-size:0.9rem;">${escapeHtml(content)}</div>`,
       `<button class="btn btn-secondary" onclick="Modal.close()">Fechar</button>
        <button class="btn btn-primary" onclick="navigator.clipboard.writeText(\`${content.replace(/`/g, '\\`')}\`);showToast('Copiado!','success');Modal.close();"><i data-lucide="copy"></i>Copiar</button>`
     );

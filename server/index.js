@@ -156,8 +156,10 @@ async function main() {
     if (WEBHOOK_SECRET && req.headers['x-webhook-signature']) {
       return verifyWebhookHMAC(req, res, next);
     }
-    // Fallback to header-based auth
-    if (!WEBHOOK_SECRET) return next();
+    // If no webhook secret is configured, block all webhook requests
+    if (!WEBHOOK_SECRET) {
+      return res.status(503).json({ error: 'Webhook not configured' });
+    }
     const provided = req.headers['x-webhook-secret'] || req.body?.secret;
     if (provided !== WEBHOOK_SECRET) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -345,19 +347,62 @@ async function main() {
   // Track connected sockets per user
   const connectedUsers = new Map();
 
+  // Socket.IO middleware: verify JWT on connection
+  const jwt = require('jsonwebtoken');
+  const { db: authDb } = require('./database/connection');
+
+  io.use((socket, next) => {
+    const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+    if (!token) {
+      return next(new Error('Authentication required'));
+    }
+    try {
+      const decoded = jwt.verify(token, require('./config').jwtSecret, { algorithms: ['HS256'] });
+      socket.authUserId = decoded.userId;
+      socket.authUserType = decoded.userType || 'user';
+      next();
+    } catch (err) {
+      return next(new Error('Invalid token'));
+    }
+  });
+
   io.on('connection', (socket) => {
     console.log('[WS] Client connected:', socket.id);
 
-    socket.on('join', (userId) => {
-      socket.join(`user:${userId}`);
-      socket.userId = userId;
-      connectedUsers.set(socket.id, userId);
-      console.log(`[WS] User ${userId} joined their room`);
+    // Auto-join authenticated user's room
+    const userRoom = `user:${socket.authUserId}`;
+    socket.join(userRoom);
+    socket.userId = socket.authUserId;
+    connectedUsers.set(socket.id, socket.authUserId);
+    console.log(`[WS] User ${socket.authUserId} joined their room`);
+
+    socket.on('join', (requestedUserId) => {
+      // Users can only join their own room
+      if (requestedUserId !== socket.authUserId) {
+        console.warn(`[WS] User ${socket.authUserId} tried to join room of ${requestedUserId} - DENIED`);
+        return;
+      }
+      socket.join(`user:${requestedUserId}`);
     });
 
     socket.on('join-admin', () => {
-      socket.join('admin');
-      console.log('[WS] Admin joined admin room');
+      // Only admin users can join admin room
+      if (socket.authUserType !== 'user') {
+        console.warn(`[WS] Non-admin user ${socket.authUserId} tried to join admin room - DENIED`);
+        return;
+      }
+      // Verify admin role from DB
+      try {
+        const user = authDb.prepare('SELECT role FROM users WHERE id = ?').get(socket.authUserId);
+        if (user && user.role === 'admin') {
+          socket.join('admin');
+          console.log('[WS] Admin joined admin room');
+        } else {
+          console.warn(`[WS] User ${socket.authUserId} is not admin - DENIED`);
+        }
+      } catch (e) {
+        console.error('[WS] Admin check failed:', e.message);
+      }
     });
 
     socket.on('disconnect', () => {
@@ -384,6 +429,7 @@ async function main() {
     console.log(`[OK] Nexus Miner rodando na porta ${config.port}`);
     console.log(`[SECURITY] Modo: ${process.env.NODE_ENV || 'development'}`);
     try { require('./services/backupService').startAutoBackup(); } catch {}
+    try { require('./services/automationService').startScheduler(); } catch {}
 
     // Auto-ping to keep Render awake
     const PING_INTERVAL_MS = 10 * 60 * 1000;

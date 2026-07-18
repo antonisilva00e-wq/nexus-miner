@@ -249,11 +249,6 @@ async function enrichLead(leadId) {
 
   if (googleMaps.status === 'fulfilled' && googleMaps.value) {
     enrichment.sources.googleMaps = googleMaps.value;
-    // Update lead with map data
-    if (googleMaps.value.lat && googleMaps.value.lng) {
-      getDb().prepare('UPDATE leads SET lat = ?, lng = ? WHERE id = ?')
-        .run(googleMaps.value.lat, googleMaps.value.lng, leadId);
-    }
   }
 
   if (businessData.status === 'fulfilled' && businessData.value) {
@@ -270,14 +265,14 @@ async function enrichLead(leadId) {
 
   if (aiScore.status === 'fulfilled' && aiScore.value) {
     enrichment.sources.aiScore = aiScore.value;
-    // Update lead score
-    getDb().prepare('UPDATE leads SET score = ? WHERE id = ?')
-      .run(aiScore.value.score, leadId);
   }
 
-  // Save enrichment data
-  getDb().prepare('UPDATE leads SET enrichment = ? WHERE id = ?')
-    .run(JSON.stringify(enrichment), leadId);
+  // Single atomic update for all enrichment data
+  const lat = googleMaps.status === 'fulfilled' && googleMaps.value?.lat ? googleMaps.value.lat : null;
+  const lng = googleMaps.status === 'fulfilled' && googleMaps.value?.lng ? googleMaps.value.lng : null;
+  const aiScoreVal = aiScore.status === 'fulfilled' && aiScore.value?.score ? aiScore.value.score : null;
+  getDb().prepare('UPDATE leads SET lat = COALESCE(?, lat), lng = COALESCE(?, lng), score = COALESCE(?, score), enrichment = ? WHERE id = ?')
+    .run(lat, lng, aiScoreVal, JSON.stringify(enrichment), leadId);
 
   // Log activity
   getDb().prepare('INSERT INTO activities (id, user_id, entity_type, entity_id, action, details) VALUES (?, ?, ?, ?, ?, ?)')
@@ -302,8 +297,8 @@ async function enrichAllLeads(limit = 50) {
     } catch (err) {
       results.push({ id: lead.id, name: lead.name, status: 'error', error: err.message });
     }
-    // Rate limiting
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Rate limiting (100ms — respects Nominatim 1 req/sec)
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
 
   return results;

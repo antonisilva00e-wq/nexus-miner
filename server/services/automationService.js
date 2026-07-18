@@ -130,6 +130,24 @@ async function checkDueSchedules() {
 }
 
 // ============================================================
+// START SCHEDULER - Check due schedules every 5 minutes
+// ============================================================
+let _schedulerInterval = null;
+
+function startScheduler() {
+  if (_schedulerInterval) return; // prevent double-start
+  console.log('[AUTOMATION] Scheduler started (every 5 min)');
+  _schedulerInterval = setInterval(async () => {
+    try {
+      const results = await checkDueSchedules();
+      if (results.length) console.log(`[AUTOMATION] Ran ${results.length} schedule(s)`);
+    } catch (err) {
+      console.error('[AUTOMATION] Scheduler error:', err.message);
+    }
+  }, 300000);
+}
+
+// ============================================================
 // LEAD ALERTS - New leads matching criteria
 // ============================================================
 function getAlerts(userId) {
@@ -152,5 +170,5 @@ function getAlerts(userId) {
 
 module.exports = {
   loadSchedules, createSchedule, deleteSchedule, toggleSchedule,
-  runSchedule, checkDueSchedules, getAlerts,
+  runSchedule, checkDueSchedules, getAlerts, startScheduler,
 };

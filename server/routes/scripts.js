@@ -258,7 +258,8 @@ router.get('/:keyword', (req, res) => {
   }
 
   const processScript = (script) => {
-    const saudacao = Math.random() > 0.5 ? 'bom dia' : Math.random() > 0.5 ? 'boa tarde' : 'boa noite';
+    const greetings = ['bom dia', 'boa tarde', 'boa noite'];
+    const saudacao = greetings[Math.floor(Math.random() * greetings.length)];
     return {
       ...script,
       greeting: script.greeting.replace('{saudacao}', saudacao),

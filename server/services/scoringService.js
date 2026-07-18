@@ -71,11 +71,35 @@ function scoreLead(lead) {
   if (lead.situacao === 'ATIVA' || lead.status === 'ativo') {
     score += RULES.isAtiva; breakdown.ativa = RULES.isAtiva;
   }
+  // Check for multiple partners via enrichment JSON
+  try {
+    if (lead.enrichment) {
+      const enrichment = typeof lead.enrichment === 'string' ? JSON.parse(lead.enrichment) : lead.enrichment;
+      const socios = enrichment?.sources?.receitaFederal?.socios;
+      if (Array.isArray(socios) && socios.length > 1) {
+        score += RULES.hasMultiplePartners; breakdown.partners = RULES.hasMultiplePartners;
+      }
+    }
+  } catch {}
 
   // Engagement
   if (lead.pipeline_stage && lead.pipeline_stage !== 'leads') {
     score += RULES.inPipeline; breakdown.pipeline = RULES.inPipeline;
   }
+  // Check for conversation notes in lead_notes table
+  try {
+    const noteCount = db.prepare('SELECT COUNT(*) as count FROM lead_notes WHERE lead_id = ?').get(lead.id)?.count || 0;
+    if (noteCount > 0) {
+      score += RULES.hasConversation; breakdown.conversation = RULES.hasConversation;
+    }
+  } catch {}
+  // Check for recent activity (within 30 days)
+  try {
+    const recentActivity = db.prepare("SELECT COUNT(*) as count FROM activities WHERE entity_id = ? AND entity_type = 'lead' AND created_at >= datetime('now', '-30 days')").get(lead.id)?.count || 0;
+    if (recentActivity > 0) {
+      score += RULES.recentlyContacted; breakdown.recentActivity = RULES.recentlyContacted;
+    }
+  } catch {}
 
   return {
     score: Math.min(score, 100),

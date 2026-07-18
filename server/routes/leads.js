@@ -59,6 +59,136 @@ router.get('/stats', (req, res) => {
   res.json({ total, byStatus, byPipeline, byCity, thisMonth });
 });
 
+// POST /api/leads/mine - Power mining with real APIs
+router.post('/mine', async (req, res) => {
+  const { keyword, city, maxResults = 500 } = req.body;
+  if (!keyword || !city) return res.status(400).json({ error: 'Palavra-chave e cidade são obrigatórios' });
+
+  try {
+    const leads = await mineLeads(keyword, city, { maxResults: parseInt(maxResults) });
+
+    // Save leads to database (batch with single prepared statement)
+    const savedLeads = [];
+    const stmt = db.prepare(`INSERT INTO leads (id, name, cnpj, activity, phone, email, site, address, city, state, owner, bank_code, bank_name, rating, source, assigned_to, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+    for (const lead of leads) {
+      const id = generateId();
+      try {
+        stmt.run(id, lead.name, lead.cnpj || null, lead.activity || lead.classificacao || keyword, lead.phone || null, lead.email || null, lead.site || null, lead.address || null, lead.city || city.split(',')[0], lead.state || city.split(',')[1]?.trim() || '', lead.owner || null, lead.bank?.code || null, lead.bank?.name || null, parseFloat(lead.rating) || null, lead.fonte || 'power_mine', req.user.id, req.user.id);
+        savedLeads.push({ ...lead, id });
+      } catch { /* skip duplicates */ }
+    }
+
+    res.json({
+      total: savedLeads.length,
+      leads: savedLeads,
+      sources: [...new Set(savedLeads.map(l => l.fonte))],
+    });
+  } catch (err) {
+    console.error('Mining error:', err);
+    res.status(500).json({ error: 'Erro na mineração: ' + err.message });
+  }
+});
+
+// POST /api/leads/mine-people - Mine real people via CNPJ lookup (Receita Federal)
+router.post('/mine-people', async (req, res) => {
+  const { cnpjs } = req.body;
+  if (!cnpjs || !Array.isArray(cnpjs) || cnpjs.length === 0) {
+    return res.status(400).json({ error: 'Lista de CNPJs obrigatoria' });
+  }
+
+  const { lookupCNPJ } = require('../services/leadService');
+  const results = [];
+
+  for (const cnpj of cnpjs.slice(0, 20)) {
+    try {
+      const data = await lookupCNPJ(cnpj);
+      if (data && data.socios && data.socios.length > 0) {
+        for (const socio of data.socios) {
+          results.push({
+            id: `socio-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+            nome: socio.nome,
+            qualificacao: socio.qualificacao,
+            empresa: data.nomeFantasia || data.razaoSocial,
+            razaoSocial: data.razaoSocial,
+            cnpj: data.cnpj,
+            atividade: data.cnaePrincipal,
+            capitalSocial: data.capitalSocial,
+            endereco: data.endereco ? `${data.endereco.logradouro || ''}, ${data.endereco.numero || ''} - ${data.endereco.bairro || ''}, ${data.endereco.municipio || ''} - ${data.endereco.uf || ''}` : '',
+            telefone: data.telefone1 || '',
+            email: data.email || '',
+            city: data.endereco?.municipio || '',
+            state: data.endereco?.uf || '',
+            situacao: data.situacaoCadastral,
+            porte: data.porte,
+            dataAbertura: data.dataAbertura,
+            fonte: 'Receita Federal via BrasilAPI',
+            score: 95,
+          });
+        }
+      }
+    } catch { /* skip failed lookups */ }
+  }
+
+  res.json({ total: results.length, people: results });
+});
+
+// POST /api/leads/mine-individuals - Mine individual people (Pessoa Física)
+router.post('/mine-individuals', async (req, res) => {
+  try {
+    const { category, city, count = 50 } = req.body;
+    if (!city) return res.status(400).json({ error: 'Cidade obrigatoria' });
+
+    const people = generateIndividualPeople(category, city, Math.min(parseInt(count) || 50, 200));
+
+    let saved = 0;
+    for (const p of people) {
+      try {
+        const id = `lead-${Date.now()}-${Math.random().toString(36).substr(2, 8)}`;
+        db.prepare(`INSERT INTO leads (id, name, activity, phone, email, address, city, state, owner, source, score, created_by)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+          .run(id, p.name, p.activity, p.phone, p.email, p.address, p.city, p.state, p.owner, p.source, p.score, req.user.id);
+        saved++;
+      } catch {}
+    }
+
+    if (saved > 0 && global.__notify) {
+      global.__notify('lead', 'PF Mineradas!', `${saved} pessoas geradas para ${city}`, { count: saved });
+    }
+
+    res.json({ total: people.length, saved, people });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro na mineração de PF: ' + err.message });
+  }
+});
+
+// GET /api/leads/cnpj/:cnpj - Real CNPJ lookup (Receita Federal)
+router.get('/cnpj/:cnpj', async (req, res) => {
+  try {
+    const data = await lookupCNPJ(req.params.cnpj);
+    if (!data) return res.status(404).json({ error: 'CNPJ não encontrado' });
+    res.json({ data });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro na consulta: ' + err.message });
+  }
+});
+
+// GET /api/leads/cpf/:cpf - CPF lookup with data
+router.get('/cpf/:cpf', async (req, res) => {
+  const cpf = req.params.cpf.replace(/\D/g, '');
+  if (cpf.length !== 11) return res.status(400).json({ error: 'CPF invalido - deve ter 11 digitos' });
+
+  // Validate CPF check digits
+  if (!isValidCPF(cpf)) return res.status(400).json({ error: 'CPF invalido - digito verificador incorreto' });
+
+  try {
+    // Try real APIs first
+    const data = await lookupCPF(cpf);
+    res.json({ data, fonte: data.fonte || 'Consulta CPF' });
+  } catch (err) {
+    res.status(500).json({ error: 'Erro na consulta: ' + err.message });
+  }
+});
+
 // GET /api/leads/:id
 router.get('/:id', (req, res) => {
   const lead = db.prepare('SELECT l.*, u.name as assigned_name FROM leads l LEFT JOIN users u ON l.assigned_to = u.id WHERE l.id = ?').get(req.params.id);
@@ -161,136 +291,6 @@ router.delete('/:id', authorize('admin', 'manager'), (req, res) => {
   }
 
   res.json({ message: 'Lead removido' });
-});
-
-// POST /api/leads/mine - Power mining with real APIs
-router.post('/mine', async (req, res) => {
-  const { keyword, city, maxResults = 500 } = req.body;
-  if (!keyword || !city) return res.status(400).json({ error: 'Palavra-chave e cidade são obrigatórios' });
-
-  try {
-    const leads = await mineLeads(keyword, city, { maxResults: parseInt(maxResults) });
-
-    // Save leads to database
-    const savedLeads = [];
-    for (const lead of leads) {
-      const id = generateId();
-      try {
-        db.prepare(`INSERT INTO leads (id, name, cnpj, activity, phone, email, site, address, city, state, owner, bank_code, bank_name, rating, source, assigned_to, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-          .run(id, lead.name, lead.cnpj || null, lead.activity || lead.classificacao || keyword, lead.phone || null, lead.email || null, lead.site || null, lead.address || null, lead.city || city.split(',')[0], lead.state || city.split(',')[1]?.trim() || '', lead.owner || null, lead.bank?.code || null, lead.bank?.name || null, parseFloat(lead.rating) || null, lead.fonte || 'power_mine', req.user.id, req.user.id);
-        savedLeads.push({ ...lead, id });
-      } catch { /* skip duplicates */ }
-    }
-
-    res.json({
-      total: savedLeads.length,
-      leads: savedLeads,
-      sources: [...new Set(savedLeads.map(l => l.fonte))],
-    });
-  } catch (err) {
-    console.error('Mining error:', err);
-    res.status(500).json({ error: 'Erro na mineração: ' + err.message });
-  }
-});
-
-// POST /api/leads/mine-people - Mine real people via CNPJ lookup (Receita Federal)
-router.post('/mine-people', async (req, res) => {
-  const { cnpjs } = req.body;
-  if (!cnpjs || !Array.isArray(cnpjs) || cnpjs.length === 0) {
-    return res.status(400).json({ error: 'Lista de CNPJs obrigatoria' });
-  }
-
-  const { lookupCNPJ } = require('../services/leadService');
-  const results = [];
-
-  for (const cnpj of cnpjs.slice(0, 20)) {
-    try {
-      const data = await lookupCNPJ(cnpj);
-      if (data && data.socios && data.socios.length > 0) {
-        for (const socio of data.socios) {
-          results.push({
-            id: `socio-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-            nome: socio.nome,
-            qualificacao: socio.qualificacao,
-            empresa: data.nomeFantasia || data.razaoSocial,
-            razaoSocial: data.razaoSocial,
-            cnpj: data.cnpj,
-            atividade: data.cnaePrincipal,
-            capitalSocial: data.capitalSocial,
-            endereco: data.endereco ? `${data.endereco.logradouro || ''}, ${data.endereco.numero || ''} - ${data.endereco.bairro || ''}, ${data.endereco.municipio || ''} - ${data.endereco.uf || ''}` : '',
-            telefone: data.telefone1 || '',
-            email: data.email || '',
-            city: data.endereco?.municipio || '',
-            state: data.endereco?.uf || '',
-            situacao: data.situacaoCadastral,
-            porte: data.porte,
-            dataAbertura: data.dataAbertura,
-            fonte: 'Receita Federal via BrasilAPI',
-            score: 95,
-          });
-        }
-      }
-    } catch { /* skip failed lookups */ }
-  }
-
-  res.json({ total: results.length, people: results });
-});
-
-// GET /api/leads/cnpj/:cnpj - Real CNPJ lookup (Receita Federal)
-router.get('/cnpj/:cnpj', async (req, res) => {
-  try {
-    const data = await lookupCNPJ(req.params.cnpj);
-    if (!data) return res.status(404).json({ error: 'CNPJ não encontrado' });
-    res.json({ data });
-  } catch (err) {
-    res.status(500).json({ error: 'Erro na consulta: ' + err.message });
-  }
-});
-
-// GET /api/leads/cpf/:cpf - CPF lookup with data
-router.get('/cpf/:cpf', async (req, res) => {
-  const cpf = req.params.cpf.replace(/\D/g, '');
-  if (cpf.length !== 11) return res.status(400).json({ error: 'CPF invalido - deve ter 11 digitos' });
-
-  // Validate CPF check digits
-  if (!isValidCPF(cpf)) return res.status(400).json({ error: 'CPF invalido - digito verificador incorreto' });
-
-  try {
-    // Try real APIs first
-    const data = await lookupCPF(cpf);
-    res.json({ data, fonte: data.fonte || 'Consulta CPF' });
-  } catch (err) {
-    res.status(500).json({ error: 'Erro na consulta: ' + err.message });
-  }
-});
-
-// POST /api/leads/mine-individuals - Mine individual people (Pessoa Física)
-router.post('/mine-individuals', async (req, res) => {
-  try {
-    const { category, city, count = 50 } = req.body;
-    if (!city) return res.status(400).json({ error: 'Cidade obrigatoria' });
-
-    const people = generateIndividualPeople(category, city, Math.min(parseInt(count) || 50, 200));
-
-    let saved = 0;
-    for (const p of people) {
-      try {
-        const id = `lead-${Date.now()}-${Math.random().toString(36).substr(2, 8)}`;
-        db.prepare(`INSERT INTO leads (id, name, activity, phone, email, address, city, state, owner, source, score, created_by)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-          .run(id, p.name, p.activity, p.phone, p.email, p.address, p.city, p.state, p.owner, p.source, p.score, req.user.id);
-        saved++;
-      } catch {}
-    }
-
-    if (saved > 0 && global.__notify) {
-      global.__notify('lead', 'PF Mineradas!', `${saved} pessoas geradas para ${city}`, { count: saved });
-    }
-
-    res.json({ total: people.length, saved, people });
-  } catch (err) {
-    res.status(500).json({ error: 'Erro na mineração de PF: ' + err.message });
-  }
 });
 
 // POST /api/leads/:id/assign
