@@ -42,8 +42,84 @@ async function main() {
     if (!existingClient) {
       const bcrypt = require('bcryptjs');
       const { v4: uuidv4 } = require('uuid');
-      db.prepare('INSERT INTO clients (id, name, email, username, password_hash, plan, active) VALUES (?, ?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Cliente Teste', 'clienteteste@test.com', 'cliente1', bcrypt.hashSync('12345678', 12), 'Gratuito', 1);
-      console.log('[SEED] Cliente teste criado (cliente1 / 12345678)');
+      const insertClient = db.prepare('INSERT INTO clients (id, name, email, username, password_hash, plan, active, price, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+      const mainClients = [
+        ['Cliente Teste', 'clienteteste@test.com', 'cliente1', 'Gratuito', 0, '2026-01-02'],
+        ['TechSolutions LTDA', 'contato@techsolutions.com.br', 'techsolutions', 'Empresarial', 297, '2026-01-05'],
+        ['Digital Marketing Pro', 'admin@digimarketing.com.br', 'digimarketing', 'Empresarial', 297, '2026-01-10'],
+        ['Construtora Horizonte', 'vendas@horizonte.com.br', 'horizonte', 'Empresarial', 297, '2026-01-15'],
+        ['Clinica VidaPlena', 'contato@vidaplena.com.br', 'vidaplena', 'Profissional', 97, '2026-01-20'],
+        ['Restaurante Sabor Arte', 'gerente@saborarte.com.br', 'saborarte', 'Profissional', 97, '2026-02-10'],
+        ['Imobiliaria CasaForte', 'vendas@casaforte.com.br', 'casaforte', 'Profissional', 97, '2026-02-15'],
+        ['Academia FitZone', 'admin@fitzone.com.br', 'fitzone', 'Empresarial', 297, '2026-03-01'],
+        ['PetShop AmigoFiel', 'contato@amigofiel.com.br', 'amigofiel', 'Empresarial', 297, '2026-03-10'],
+      ];
+      mainClients.forEach(c => {
+        insertClient.run(uuidv4(), c[0], c[1], c[2], bcrypt.hashSync('12345678', 12), c[3], 1, c[4], c[5] + ' 10:00:00');
+      });
+
+      // 280 clientes demo — 289 total
+      const planos = ['Empresarial', 'Profissional'];
+      const precos = { Empresarial: 297, Profissional: 97 };
+      const empresas = ['Comercial ABC','Grupo Delta','Rede Express','Studio Criativo','Construcoes Beta','Clinica Saude+','Escola Futuro','Pizzaria Napoli','Loja Virtual','Escritorio Juridico','Padaria Central','Academia Total','Pet Care Plus','Bar do Ze','Oficina Mecanica','Floricultura Rosas','Salao Beleza','Otica Visual','Farmacia Popular','Supermercado Mix'];
+      const demoHash = bcrypt.hashSync('12345678', 4); // rounds 4 para seed rapida
+
+      for (let i = 0; i < 280; i++) {
+        const plano = planos[i % 2];
+        const nome = empresas[i % empresas.length] + ' ' + (i + 10);
+        const email = 'cli' + (i + 10) + '@demo.com';
+        const username = 'demo' + (i + 10);
+        const mes = String(Math.floor(Math.random() * 6) + 1).padStart(2, '0');
+        const dia = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');
+        insertClient.run(uuidv4(), nome, email, username, demoHash, plano, 1, precos[plano], '2026-' + mes + '-' + dia + ' 10:00:00');
+      }
+      console.log('[SEED] 289 clientes criados');
+
+      // Seed financial data — totalizando R$ 84.566,67
+      const allClients = db.prepare('SELECT id FROM clients').all();
+      const clientIds = allClients.map(c => c.id);
+      const methods = ['pix', 'cartao', 'boleto'];
+      const payData = [
+        // Jan 2026 — onboarding forte
+        [0, 4797, '2026-01-05', 0, 'Plano Empresarial Anual'], [1, 2997, '2026-01-12', 1, 'Plano Profissional Anual'],
+        [2, 4797, '2026-01-18', 0, 'Plano Empresarial Anual'], [3, 2997, '2026-01-25', 2, 'Plano Profissional Anual'],
+        // Feb 2026
+        [4, 4797, '2026-02-10', 0, 'Plano Empresarial Anual'], [5, 2997, '2026-02-17', 1, 'Plano Profissional Anual'],
+        [0, 297, '2026-02-20', 2, 'Mensal Empresarial'], [1, 97, '2026-02-25', 0, 'Mensal Profissional'],
+        // Mar 2026
+        [6, 4797, '2026-03-03', 1, 'Plano Empresarial Anual'], [7, 4797, '2026-03-10', 2, 'Plano Empresarial Anual'],
+        [2, 297, '2026-03-15', 0, 'Mensal Empresarial'], [3, 97, '2026-03-20', 1, 'Mensal Profissional'],
+        // Apr 2026
+        [0, 297, '2026-04-01', 2, 'Renovacao'], [1, 97, '2026-04-08', 0, 'Renovacao'],
+        [4, 297, '2026-04-12', 1, 'Renovacao'], [5, 97, '2026-04-19', 2, 'Renovacao'],
+        [6, 297, '2026-04-22', 0, 'Renovacao'], [7, 297, '2026-04-28', 1, 'Renovacao'],
+        // May 2026
+        [0, 297, '2026-05-02', 2, 'Renovacao'], [1, 97, '2026-05-09', 0, 'Renovacao'],
+        [2, 297, '2026-05-14', 1, 'Renovacao'], [3, 97, '2026-05-19', 2, 'Renovacao'],
+        [4, 297, '2026-05-23', 0, 'Renovacao'], [5, 97, '2026-05-28', 1, 'Renovacao'],
+        // Jun 2026
+        [0, 297, '2026-06-01', 2, 'Renovacao'], [1, 97, '2026-06-08', 0, 'Renovacao'],
+        [2, 297, '2026-06-13', 1, 'Renovacao'], [3, 97, '2026-06-18', 2, 'Renovacao'],
+        [6, 297, '2026-06-22', 0, 'Renovacao'], [7, 297, '2026-06-28', 1, 'Renovacao'],
+        // Jul 2026
+        [0, 297, '2026-07-01', 2, 'Renovacao'], [1, 97, '2026-07-06', 0, 'Renovacao'],
+        [2, 297, '2026-07-10', 1, 'Renovacao'], [3, 97, '2026-07-14', 2, 'Renovacao'],
+        [4, 297, '2026-07-16', 0, 'Renovacao'],
+      ];
+      const insPayment = db.prepare('INSERT INTO payments (id, client_id, amount, payment_date, payment_method, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?)');
+      payData.forEach(p => {
+        insPayment.run(uuidv4(), clientIds[p[0]], p[1], p[2], methods[p[3]], 'paid', p[4]);
+      });
+      // Ajustar para totalizar exatamente R$ 84.566,67
+      const currentTotal = db.prepare('SELECT SUM(amount) FROM payments').get()['SUM(amount)'];
+      const diff = 84566.67 - currentTotal;
+      if (Math.abs(diff) > 0.01) {
+        const lastPayment = db.prepare('SELECT id FROM payments ORDER BY rowid DESC LIMIT 1').get();
+        if (lastPayment) {
+          db.prepare('UPDATE payments SET amount = ROUND(amount + ?, 2) WHERE id = ?').run(diff, lastPayment.id);
+        }
+      }
+      console.log('[SEED] Dados financeiros criados (R$ 84.566,67 em vendas)');
     }
   } catch (e) { console.error('[SEED]', e.message); }
 
