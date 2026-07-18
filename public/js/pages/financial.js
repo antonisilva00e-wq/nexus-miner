@@ -208,6 +208,7 @@ const FinancialPage = {
           </div>
           <div class="fin-chart-container"><canvas id="chart-mrr-plan"></canvas></div>
         </div>
+      </div>
       <!-- TECH METRICS GRID -->
       <h3 style="margin:2.5rem 0 1rem;font-size:1.05rem;font-weight:700;letter-spacing:0.02em;color:white;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="shield-check" style="color:var(--accent-primary);"></i>Metricas SaaS Avançadas</h3>
       <div class="fin-kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));margin-bottom:2rem;gap:1.25rem;">
