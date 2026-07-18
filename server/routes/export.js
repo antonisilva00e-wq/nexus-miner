@@ -132,8 +132,8 @@ router.get('/pipeline', (req, res) => {
 // GET /api/export/clients - Export clients as CSV
 // ============================================================
 router.get('/clients', (req, res) => {
-  const clients = db.prepare('SELECT name, email, phone, plan, price, status, plan_expiry, created_at, username FROM clients ORDER BY created_at DESC').all();
-  const headers = ['name', 'email', 'phone', 'plan', 'price', 'status', 'plan_expiry', 'created_at', 'username'];
+  const clients = db.prepare('SELECT name, email, phone, plan, price, active, expiry, created_at, username FROM clients ORDER BY created_at DESC').all();
+  const headers = ['name', 'email', 'phone', 'plan', 'price', 'active', 'expiry', 'created_at', 'username'];
   const csv = toCSV(clients, headers);
 
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');
