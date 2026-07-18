@@ -1,3 +1,11 @@
+// Global HTML escape utility - MUST be before page scripts
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}
+
 // Global Error Handler & Loading System
 const UI = {
   // ============================================================
