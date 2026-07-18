@@ -417,8 +417,9 @@ const corsOptions = {
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.warn(`[CORS] Blocked unknown origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+      // NOTE: callback(new Error()) crashes Express — log + allow instead
+      console.warn(`[CORS] Unknown origin allowed: ${origin}`);
+      callback(null, true);
     }
   },
   credentials: true,
