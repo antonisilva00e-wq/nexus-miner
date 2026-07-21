@@ -63,19 +63,25 @@ function getDb() {
 // Wrapper to make sql.js API similar to better-sqlite3
 // Provides: prepare().run/get/all, exec, pragma
 function createWrapper(database) {
+  function safeBind(stmt, params) {
+    if (params && params.length > 0) {
+      stmt.bind(params);
+    }
+  }
+
   return {
     prepare(sql) {
       return {
         run(...params) {
           const stmt = database.prepare(sql);
-          stmt.bind(params);
+          safeBind(stmt, params);
           stmt.step();
           stmt.free();
           return { changes: database.getRowsModified() };
         },
         get(...params) {
           const stmt = database.prepare(sql);
-          stmt.bind(params);
+          safeBind(stmt, params);
           if (stmt.step()) {
             const cols = stmt.getColumnNames();
             const values = stmt.get();
@@ -89,7 +95,7 @@ function createWrapper(database) {
         },
         all(...params) {
           const stmt = database.prepare(sql);
-          stmt.bind(params);
+          safeBind(stmt, params);
           const rows = [];
           while (stmt.step()) {
             const cols = stmt.getColumnNames();
