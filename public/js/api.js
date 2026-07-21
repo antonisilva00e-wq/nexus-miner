@@ -44,6 +44,12 @@ const API = {
       if (newToken) {
         return this.request(method, path, body, true);
       }
+      try {
+        const errorData = await res.clone().json();
+        alert('DEBUG ERROR 401 on ' + path + ': ' + (errorData.error || ''));
+      } catch (e) {
+        alert('DEBUG ERROR 401 on ' + path);
+      }
       Auth.logout();
       window.location.reload();
       return null;
