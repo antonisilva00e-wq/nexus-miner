@@ -1,0 +1,197 @@
+/* ==========================================================================
+   VOICE AI AGENT — Holographic Futuristic Voice Widget
+   ========================================================================== */
+
+.voice-agent-wrapper {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  font-family: var(--font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto);
+}
+
+/* --- Mic Button --- */
+.voice-agent-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(10, 14, 30, 0.85);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 15px rgba(99, 102, 241, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.voice-agent-btn i, .voice-agent-btn svg {
+  width: 22px;
+  height: 22px;
+  color: #a78bfa;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.voice-agent-btn:hover {
+  transform: scale(1.08) translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(99, 102, 241, 0.25);
+}
+
+.voice-agent-btn:hover i, .voice-agent-btn:hover svg {
+  color: #c084fc;
+  transform: scale(1.05);
+}
+
+/* --- States --- */
+.voice-agent-btn.listening {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.6);
+  animation: voicePulseListening 1.8s infinite;
+}
+
+.voice-agent-btn.listening i, .voice-agent-btn.listening svg {
+  color: #34d399;
+  animation: voiceIconPulse 1.2s infinite ease-in-out;
+}
+
+.voice-agent-btn.thinking {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.6);
+  animation: voicePulseThinking 1.2s infinite;
+}
+
+.voice-agent-btn.thinking i, .voice-agent-btn.thinking svg {
+  color: #a78bfa;
+  animation: voiceIconSpin 1.5s infinite linear;
+}
+
+/* --- Holographic Soundwaves --- */
+.voice-waves-container {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  display: none;
+}
+
+.voice-agent-btn.listening .voice-waves-container {
+  display: block;
+}
+
+.voice-wave {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  opacity: 0;
+  animation: voiceWaveExpand 2s infinite cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.voice-wave:nth-child(2) { animation-delay: 0.6s; }
+.voice-wave:nth-child(3) { animation-delay: 1.2s; }
+
+/* --- Speech Bubble Dialog --- */
+.voice-bubble {
+  position: absolute;
+  right: 72px;
+  bottom: 0;
+  width: 280px;
+  background: rgba(10, 14, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transform: translateY(10px) scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.voice-bubble.active {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.voice-speech-row {
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.voice-speech-user {
+  color: #34d399;
+  text-align: right;
+  border-right: 2px solid rgba(16, 185, 129, 0.3);
+  padding-right: 8px;
+  font-weight: 500;
+  margin-left: auto;
+  max-width: 90%;
+  word-wrap: break-word;
+}
+
+.voice-speech-ai {
+  color: #e2e8f0;
+  text-align: left;
+  border-left: 2px solid rgba(139, 92, 246, 0.3);
+  padding-left: 8px;
+  font-weight: 400;
+  max-width: 90%;
+  word-wrap: break-word;
+}
+
+.voice-status-text {
+  font-size: 0.65rem;
+  color: var(--text-tertiary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* --- Animations --- */
+@keyframes voicePulseListening {
+  0% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 15px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes voicePulseThinking {
+  0% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 10px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); }
+  50% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 25px rgba(139, 92, 246, 0.5); border-color: rgba(139, 92, 246, 0.8); }
+  100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 10px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.4); }
+}
+
+@keyframes voiceWaveExpand {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+@keyframes voiceIconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes voiceIconSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

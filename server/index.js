@@ -344,6 +344,7 @@ async function main() {
     '/api/enrichment': './routes/enrichment',
     '/api/booking': './routes/booking',
     '/api/intelligence': './routes/intelligence',
+    '/api/voice-agent': './routes/voice',
   };
   for (const [mount, file] of Object.entries(routeMap)) {
     try { app.use(mount, require(file)); } catch (e) { console.error(`[ROUTE] ${mount}:`, e.message); }
