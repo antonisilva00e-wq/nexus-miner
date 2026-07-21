@@ -314,11 +314,6 @@
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistration().then(reg => { if (reg) reg.update(); });
-      navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data?.type === 'SW_UPDATED') {
-          window.location.reload();
-        }
-      });
     }
   </script>
 </body>
