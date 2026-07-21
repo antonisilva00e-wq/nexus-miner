@@ -31,10 +31,10 @@ async function main() {
     const existing = db.prepare('SELECT id FROM users WHERE username = ?').get('adminj7');
     if (!existing) {
       const bcrypt = require('bcryptjs');
-      const { v4: uuidv4 } = require('uuid');
-      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Administrador', 'admin@nexusminer.com', 'adminj7', bcrypt.hashSync('admin.j7', 12), 'admin');
-      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Gerente Comercial', 'gerente@nexusminer.com', 'gerente', bcrypt.hashSync('manager123', 12), 'manager');
-      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run(uuidv4(), 'Vendedor', 'vendedor@nexusminer.com', 'vendedor', bcrypt.hashSync('seller123', 12), 'seller');
+      // Use hardcoded IDs for seeded users so that multiple instances (e.g. during Render deploy) agree on the ID
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run('00000000-0000-0000-0000-000000000001', 'Administrador', 'admin@nexusminer.com', 'adminj7', bcrypt.hashSync('admin.j7', 12), 'admin');
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run('00000000-0000-0000-0000-000000000002', 'Gerente Comercial', 'gerente@nexusminer.com', 'gerente', bcrypt.hashSync('manager123', 12), 'manager');
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run('00000000-0000-0000-0000-000000000003', 'Vendedor', 'vendedor@nexusminer.com', 'vendedor', bcrypt.hashSync('seller123', 12), 'seller');
       db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('company_name', 'Nexus Miner');
       console.log('[SEED] Usuarios criados');
     }

@@ -1,6 +1,8 @@
 {
   "ignore": [
-    "data/*",
-    "public/*"
+    "data/**",
+    "data/",
+    "public/**",
+    "public/"
   ]
 }
