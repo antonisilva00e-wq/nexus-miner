@@ -80,6 +80,8 @@ const App = {
     if (typeof NC !== 'undefined' && NC.showUserId) NC.showUserId();
     // Start onboarding for new users
     if (typeof Onboarding !== 'undefined') Onboarding.init();
+    // Start Voice AI Agent
+    if (typeof VoiceAgent !== 'undefined') VoiceAgent.init();
   },
 
   navigateTo(pageName) {

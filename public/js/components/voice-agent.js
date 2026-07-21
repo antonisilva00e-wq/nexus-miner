@@ -233,11 +233,4 @@ const VoiceAgent = {
   }
 };
 
-// Check load after login
-document.addEventListener('DOMContentLoaded', () => {
-  // If user is already logged in, init the voice agent
-  try {
-    const token = localStorage.getItem('nexus_access_token');
-    if (token) VoiceAgent.init();
-  } catch {}
-});
+// Initialization will be called by App.showApp()
