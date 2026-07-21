@@ -126,6 +126,7 @@ async function main() {
 
   // 4. Express - Security layers in correct order
   const app = express();
+  app.set('trust proxy', 1);
 
   // Layer 1: Request ID (every request gets a unique ID for audit trail)
   app.use(requestID);
