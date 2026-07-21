@@ -180,7 +180,6 @@ const MapPage = {
         <div class="map-coords" id="map-coords">LAT: --.---- | LNG: --.----</div>
       </div>
     `;
-    lucide.createIcons();
 
     // Load Leaflet
     if (!window.L) {
@@ -190,6 +189,8 @@ const MapPage = {
       await this.loadCSS('/css/MarkerCluster.css');
       await this.loadCSS('/css/MarkerCluster.Default.css');
     }
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 
     if (!window.L) {
       document.getElementById('page-map').innerHTML = '<div class="empty-state"><p>Erro: biblioteca do mapa (Leaflet) nao carregou. Verifique sua conexao.</p></div>';
