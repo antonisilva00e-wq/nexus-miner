@@ -12,9 +12,9 @@ if (process.env.DB_PATH) {
   dbPath = path.resolve(__dirname, '..', 'data', 'nexusminer.db');
 }
 
-// JWT secrets - always have fallback, never crash
-const jwtSecret = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
-const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET || crypto.randomBytes(64).toString('hex');
+// JWT secrets - always have fallback, never crash (use static fallback to survive nodemon/render restarts)
+const jwtSecret = process.env.JWT_SECRET || 'nexus_miner_default_jwt_secret_please_change_in_production_12345';
+const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET || 'nexus_miner_default_jwt_refresh_secret_please_change_in_production_12345';
 
 if (!process.env.JWT_SECRET) {
   console.warn('[SECURITY] JWT_SECRET nao definido - usando fallback gerado.');
