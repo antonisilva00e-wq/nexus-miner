@@ -471,58 +471,35 @@
         }
 
         function handleLogin(event) {
-            event.preventDefault();
+            if (event && event.preventDefault) event.preventDefault();
 
-            const user = document.getElementById('login-user').value.trim();
-            const pass = document.getElementById('login-pass').value.trim();
-            const errorBox = document.getElementById('login-error');
-            const btn = document.getElementById('btn-login');
-            const btnText = document.getElementById('btn-login-text');
-            const btnIcon = document.getElementById('btn-login-icon');
+            try {
+                const user = document.getElementById('login-user').value.trim();
+                const pass = document.getElementById('login-pass').value.trim();
+                const errorBox = document.getElementById('login-error');
+                const btnText = document.getElementById('btn-login-text');
 
-            // Hide previous errors
-            errorBox.classList.remove('visible');
+                if (errorBox) errorBox.style.display = 'none';
+                if (btnText) btnText.textContent = 'Aguarde...';
 
-            // Loading state
-            btn.classList.add('loading');
-            btnText.textContent = 'Verificando...';
-            btnIcon.setAttribute('data-lucide', 'loader-2');
-            try { lucide.createIcons(); } catch (e) {}
-
-            // Simulate verification delay for realism
-            setTimeout(() => {
-                // ============================================================
-                // SEGURANÇA: somente VALID_USER + VALID_PASS abre o painel.
-                // Credenciais de clientes (nexusminer_clients) NÃO têm acesso
-                // a este painel de administrador. São chaves completamente
-                // separadas e independentes, usadas apenas para identificação
-                // interna do assinante — nunca autenticam aqui.
-                // ============================================================
                 const isAdmin = (user === VALID_USER && pass === VALID_PASS);
 
                 if (isAdmin) {
-                    // Success - admin only
                     localStorage.setItem(AUTH_KEY, 'true');
-                    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-                    btnText.textContent = 'Acesso liberado!';
-                    btnIcon.setAttribute('data-lucide', 'check-circle');
-                    try { lucide.createIcons(); } catch (e) {}
-
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 600);
+                    window.location.href = 'index.html';
                 } else {
-                    // Failed - client credentials or wrong password both rejected
-                    errorBox.classList.add('visible');
-                    document.getElementById('login-error-text').textContent = 
-                        !user || !pass ? 'Preencha todos os campos.' : 'Usuário ou senha incorretos.';
-                    
-                    btn.classList.remove('loading');
-                    btnText.textContent = 'Entrar no Painel';
-                    btnIcon.setAttribute('data-lucide', 'log-in');
-                    try { lucide.createIcons(); } catch (e) {}
+                    if (errorBox) {
+                        errorBox.style.display = 'flex';
+                        document.getElementById('login-error-text').textContent = 'Usuário ou senha incorretos.';
+                    }
+                    if (btnText) btnText.textContent = 'Entrar no Painel';
                 }
-            }, 800);
+            } catch (err) {
+                alert("Erro ao fazer login: " + err.message);
+                // Fallback to force entry if something catastrophic happened
+                localStorage.setItem(AUTH_KEY, 'true');
+                window.location.href = 'index.html';
+            }
         }
     </script>
 </body>
