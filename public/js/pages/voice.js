@@ -172,7 +172,7 @@ const VoicePage = {
     }
   },
 
-  testCall() {
+  async testCall() {
     const publicKey = document.getElementById('voice-api-key').value;
     const agentId = document.getElementById('voice-agent-id').value;
 
@@ -180,13 +180,15 @@ const VoicePage = {
       return showToast('Por favor, preencha a Chave da API e o ID do Agente antes de testar.', 'warning');
     }
 
-    // Carregar o SDK do Vapi se não estiver carregado
-    if (!window.Vapi) {
+    if (!this.vapiClass) {
       showToast('Carregando motor de voz, aguarde...', 'info');
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/@vapi-ai/web/dist/vapi.umd.js';
-      script.onload = () => this.startVapiCall(publicKey, agentId);
-      document.body.appendChild(script);
+      try {
+        const module = await import('https://esm.sh/@vapi-ai/web');
+        this.vapiClass = module.default || module.Vapi || module;
+        this.startVapiCall(publicKey, agentId);
+      } catch (err) {
+        showToast('Erro ao carregar módulo de voz: ' + err.message, 'danger');
+      }
     } else {
       this.startVapiCall(publicKey, agentId);
     }
@@ -195,7 +197,7 @@ const VoicePage = {
   startVapiCall(publicKey, agentId) {
     try {
       if (!this.vapiInstance) {
-        this.vapiInstance = new window.Vapi(publicKey);
+        this.vapiInstance = new this.vapiClass(publicKey);
         
         this.vapiInstance.on('call-start', () => {
           showToast('Chamada conectada! Pode falar.', 'success');
