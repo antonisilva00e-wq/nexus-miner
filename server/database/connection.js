@@ -110,7 +110,7 @@ function createWrapper(database) {
       };
     },
     exec(sql) {
-      database.exec(sql);
+      return database.exec(sql);
     },
     pragma(str) {
       try { database.run(`PRAGMA ${str}`); } catch {}
