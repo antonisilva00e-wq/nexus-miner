@@ -250,20 +250,9 @@ const VoicePage = {
       );
       lucide.createIcons();
 
-      // Pegar o prompt digitado no nosso painel
-      const promptText = document.getElementById('voice-prompt').value || 'Você é um assistente útil e conciso.';
-
-      // Start the call with overrides to FORCE the AI to speak first
+      // Start the call with a simple first message override, to avoid model validation errors on Vapi server
       this.vapiInstance.start(agentId, {
-        firstMessage: "Olá! A conexão foi estabelecida com sucesso. Estou te ouvindo, como posso ajudar?",
-        model: {
-          messages: [
-            {
-              role: "system",
-              content: promptText
-            }
-          ]
-        }
+        firstMessage: "Olá! Estou ouvindo."
       });
       
     } catch (err) {
