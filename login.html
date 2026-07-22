@@ -39,7 +39,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             position: relative;
         }
 
@@ -52,6 +53,7 @@
                 linear-gradient(90deg, rgba(129, 140, 248, 0.03) 1px, transparent 1px);
             background-size: 60px 60px;
             z-index: 0;
+            pointer-events: none;
         }
 
         .bg-orb {
@@ -60,6 +62,7 @@
             filter: blur(100px);
             opacity: 0.4;
             z-index: 0;
+            pointer-events: none;
             animation: float 8s ease-in-out infinite;
         }
 
@@ -426,6 +429,7 @@
             </form>
 
             <div class="login-footer">
+                <button type="button" onclick="handleLogin(new Event('submit'))" style="background:none;border:none;color:var(--accent-primary);text-decoration:underline;cursor:pointer;margin-bottom:10px;">Forçar Entrada (Alternativa)</button>
                 <p>Painel privado &bull; Acesso exclusivo</p>
                 <div class="secure-badge">
                     <i data-lucide="shield-check"></i>
