@@ -336,7 +336,7 @@ function securityHeaders(req, res, next) {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://server.arcgisonline.com https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org https://unpkg.com",
-    "connect-src 'self' ws: wss:",
+    "connect-src 'self' ws: wss: https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://api.vapi.ai wss://api.vapi.ai https://maps.googleapis.com https://places.googleapis.com",
     "worker-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",

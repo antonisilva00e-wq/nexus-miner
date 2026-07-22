@@ -1,5 +1,5 @@
-// Nexus Miner Service Worker v10
-const SW_VERSION = '10.0';
+// Nexus Miner Service Worker v11
+const SW_VERSION = '11.0';
 const CACHE_NAME = `nexus-v${SW_VERSION}`;
 
 // Install — skip waiting to activate immediately
@@ -20,7 +20,13 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
-  // Always go to network
+
+  // Skip cross-origin requests (CDNs, Google Fonts, external APIs)
+  // Let the browser handle them directly to avoid CSP violations
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.origin !== self.location.origin) return;
+
+  // Only handle same-origin requests
   event.respondWith(fetch(event.request));
 });
 
