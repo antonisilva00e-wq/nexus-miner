@@ -183,7 +183,7 @@ const VoicePage = {
     if (!window.Vapi && !this.vapiClass) {
       showToast('Carregando motor de voz, aguarde...', 'info');
       const script = document.createElement('script');
-      script.src = 'https://unpkg.com/@vapi-ai/web/dist/vapi.min.js';
+      script.src = 'https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.min.js';
       script.onload = () => {
         // vapi.min.js usually exports window.vapi or window.Vapi
         this.vapiClass = window.Vapi || window.vapi;
