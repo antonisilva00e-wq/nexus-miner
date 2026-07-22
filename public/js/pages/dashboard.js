@@ -14,16 +14,33 @@ const DashboardPage = {
 
     try {
       const period = this.currentPeriod;
+
+      // Fetch individually so one failure doesn't blank everything
+      const safe = async (p) => { try { return await p; } catch(e) { console.warn('API fail:', e.message); return null; } };
       const [overview, leadsChart, pipelineChart, topSellers, alerts, geo, funnel, scoreDist] = await Promise.all([
-        API.get(`/dashboard/overview?period=${period}`),
-        API.get(`/dashboard/leads-chart?period=${period}`),
-        API.get('/dashboard/pipeline-chart'),
-        API.get('/dashboard/top-sellers'),
-        API.get('/dashboard/alerts'),
-        API.get('/dashboard/geo'),
-        API.get('/dashboard/funnel'),
-        API.get('/dashboard/score-dist'),
+        safe(API.get(`/dashboard/overview?period=${period}`)),
+        safe(API.get(`/dashboard/leads-chart?period=${period}`)),
+        safe(API.get('/dashboard/pipeline-chart')),
+        safe(API.get('/dashboard/top-sellers')),
+        safe(API.get('/dashboard/alerts')),
+        safe(API.get('/dashboard/geo')),
+        safe(API.get('/dashboard/funnel')),
+        safe(API.get('/dashboard/score-dist')),
       ]);
+
+      // If overview failed, show a clear error instead of blank
+      if (!overview) {
+        el.innerHTML = `<div class="empty-state" style="padding:3rem;text-align:center;">
+          <i data-lucide="wifi-off" style="width:48px;height:48px;color:var(--accent-primary);margin-bottom:1rem;"></i>
+          <p style="font-size:1.1rem;color:white;margin-bottom:0.5rem;">Erro ao carregar dados</p>
+          <span style="color:var(--text-secondary);font-size:0.9rem;">O servidor pode estar iniciando. Aguarde 30 segundos e tente novamente.</span>
+          <br><button class="btn btn-primary" style="margin-top:1.5rem;" onclick="DashboardPage.render()">
+            <i data-lucide="refresh-cw"></i> Tentar Novamente
+          </button>
+        </div>`;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        return;
+      }
 
       const totalPipeline = pipelineChart.data.reduce((s, d) => s + d.count, 0);
 

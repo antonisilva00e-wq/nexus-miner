@@ -66,7 +66,7 @@ router.post('/login', authLimiter, (req, res) => {
   const accessToken = jwt.sign(
     { userId: user.id, role: user.role, userType, jti },
     config.jwtSecret,
-    { algorithm: 'HS256', expiresIn: '15m' }
+    { algorithm: 'HS256', expiresIn: '8h' }
   );
   const refreshToken = jwt.sign(
     { userId: user.id, userType, jti: crypto.randomUUID() },
