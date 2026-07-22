@@ -183,24 +183,25 @@ const VoicePage = {
     if (!window.Vapi && !this.vapiClass) {
       showToast('Carregando motor de voz, aguarde...', 'info');
       
-      // Polyfill for CommonJS exports
-      if (typeof window.exports === 'undefined') {
-        window.exports = {};
-      }
-
       const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.min.js';
-      script.onload = () => {
-        this.vapiClass = window.Vapi || window.vapi || window.exports.default || window.exports.Vapi || window.exports;
+      script.type = 'module';
+      script.textContent = `
+        import Vapi from 'https://esm.sh/@vapi-ai/web';
+        window.Vapi = Vapi;
+        window.dispatchEvent(new Event('vapi-loaded'));
+      `;
+      
+      window.addEventListener('vapi-loaded', () => {
+        this.vapiClass = window.Vapi;
         if (!this.vapiClass) {
           return showToast('Erro crítico: O pacote de voz não foi carregado corretamente.', 'danger');
         }
         this.startVapiCall(publicKey, agentId);
-      };
-      script.onerror = () => showToast('Erro ao baixar motor de voz. Verifique sua conexão.', 'danger');
+      }, { once: true });
+
       document.head.appendChild(script);
     } else {
-      this.vapiClass = window.Vapi || window.vapi || this.vapiClass;
+      this.vapiClass = window.Vapi || this.vapiClass;
       this.startVapiCall(publicKey, agentId);
     }
   },
