@@ -114,9 +114,7 @@ const UI = {
     const msg = err.message || 'Erro desconhecido';
 
     if (err.status === 401) {
-      this.toast('Sessao expirada. Faca login novamente.', 'warning');
-      Auth.logout();
-      setTimeout(() => { window.location.href = '/'; }, 500);
+      this.toast('Sessao expirada ou invalida.', 'warning');
     } else if (err.status === 403) {
       this.toast('Voce nao tem permissao para esta acao.', 'danger');
     } else if (err.status === 404) {

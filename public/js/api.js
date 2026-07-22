@@ -44,9 +44,11 @@ const API = {
       if (newToken) {
         return this.request(method, path, body, true);
       }
-      // Token expirado — limpar estado e voltar pro login
-      Auth.logout();
-      return null;
+      const json = await res.json().catch(() => ({}));
+      const error = new Error(json.error || 'Sessao expirada');
+      error.status = 401;
+      error.data = json;
+      throw error;
     }
 
     const json = await res.json();
