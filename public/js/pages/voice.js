@@ -189,7 +189,26 @@ const VoicePage = {
         import('https://cdn.jsdelivr.net/npm/@vapi-ai/web/+esm')
           .then(module => {
             const exported = module.default || module;
-            window.Vapi = exported.default || exported.Vapi || exported;
+            let VapiClass = exported.default?.default || exported.default || exported.Vapi || exported;
+            
+            if (typeof VapiClass !== 'function') {
+              for (const key in exported) {
+                if (typeof exported[key] === 'function') {
+                  VapiClass = exported[key];
+                  break;
+                }
+              }
+              if (typeof VapiClass !== 'function' && exported.default) {
+                for (const key in exported.default) {
+                  if (typeof exported.default[key] === 'function') {
+                    VapiClass = exported.default[key];
+                    break;
+                  }
+                }
+              }
+            }
+            
+            window.Vapi = VapiClass;
             window.dispatchEvent(new Event('vapi-loaded'));
           })
           .catch(err => {
