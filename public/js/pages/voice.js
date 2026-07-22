@@ -228,8 +228,14 @@ const VoicePage = {
         });
 
         this.vapiInstance.on('error', (e) => {
-          console.error(e);
-          showToast('Erro no Vapi: ' + (e.message || 'Verifique suas chaves'), 'danger');
+          console.error('Vapi Raw Error:', e);
+          let errorMsg = 'Verifique suas chaves';
+          if (typeof e === 'string') errorMsg = e;
+          else if (e?.message) errorMsg = e.message;
+          else if (e?.error?.message) errorMsg = e.error.message;
+          else if (typeof e === 'object') errorMsg = JSON.stringify(e);
+          
+          showToast('Erro Vapi: ' + errorMsg, 'danger');
           Modal.close();
         });
       }
