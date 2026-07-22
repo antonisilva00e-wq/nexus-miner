@@ -183,51 +183,24 @@ const VoicePage = {
     if (!window.Vapi && !this.vapiClass) {
       showToast('Carregando motor de voz, aguarde...', 'info');
       
+      if (typeof window.exports === 'undefined') {
+        window.exports = {};
+      }
+
       const script = document.createElement('script');
-      script.type = 'module';
-      script.textContent = `
-        import('https://cdn.jsdelivr.net/npm/@vapi-ai/web/+esm')
-          .then(module => {
-            const exported = module.default || module;
-            let VapiClass = exported.default?.default || exported.default || exported.Vapi || exported;
-            
-            if (typeof VapiClass !== 'function') {
-              for (const key in exported) {
-                if (typeof exported[key] === 'function') {
-                  VapiClass = exported[key];
-                  break;
-                }
-              }
-              if (typeof VapiClass !== 'function' && exported.default) {
-                for (const key in exported.default) {
-                  if (typeof exported.default[key] === 'function') {
-                    VapiClass = exported.default[key];
-                    break;
-                  }
-                }
-              }
-            }
-            
-            window.Vapi = VapiClass;
-            window.dispatchEvent(new Event('vapi-loaded'));
-          })
-          .catch(err => {
-            console.error('Vapi module load error:', err);
-            window.dispatchEvent(new CustomEvent('vapi-error', { detail: err.message }));
-          });
-      `;
+      script.src = '/js/vapi.min.js';
       
-      window.addEventListener('vapi-loaded', () => {
-        this.vapiClass = window.Vapi;
+      script.onload = () => {
+        this.vapiClass = window.Vapi || window.vapi || window.exports.default || window.exports.Vapi || window.exports;
         if (!this.vapiClass) {
-          return showToast('Erro crítico: O pacote de voz não possui a classe Vapi.', 'danger');
+          return showToast('Erro crítico: O pacote de voz não foi iniciado corretamente.', 'danger');
         }
         this.startVapiCall(publicKey, agentId);
-      }, { once: true });
+      };
 
-      window.addEventListener('vapi-error', (e) => {
-        showToast('Erro ao baixar motor de voz. Verifique sua conexão ou bloqueador de anúncios. Detalhe: ' + e.detail, 'danger');
-      }, { once: true });
+      script.onerror = () => {
+        showToast('Erro ao carregar o arquivo local do Vapi.', 'danger');
+      };
 
       document.head.appendChild(script);
     } else {
