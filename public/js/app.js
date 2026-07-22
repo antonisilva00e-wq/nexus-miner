@@ -56,11 +56,13 @@ const App = {
   },
 
   async handleLogin(e) {
-    if (e && e.preventDefault) e.preventDefault();
-    const user = (document.getElementById('login-user')?.value || '').trim();
-    const pass = (document.getElementById('login-pass')?.value || '').trim();
-    const errorEl = document.getElementById('login-error');
-    const btnText = document.getElementById('login-btn-text');
+    try {
+      if (e && e.preventDefault) e.preventDefault();
+      const user = (document.getElementById('login-user')?.value || '').trim();
+      const pass = (document.getElementById('login-pass')?.value || '').trim();
+      const errorEl = document.getElementById('login-error');
+      const btnText = document.getElementById('login-btn-text');
+
 
     if (!user || !pass) {
       if (errorEl) errorEl.classList.add('visible');
@@ -77,10 +79,14 @@ const App = {
       if (btnText) btnText.textContent = 'Acesso liberado!';
       this.showApp();
     } catch (err) {
+      alert("Erro ao fazer login: " + err.message);
       if (errorEl) errorEl.classList.add('visible');
       const errTxt = document.getElementById('login-error-text');
       if (errTxt) errTxt.textContent = err.message || 'Credenciais invalidas';
       if (btnText) btnText.textContent = 'Entrar no Painel';
+    }
+    } catch (criticalErr) {
+      alert("Erro CRITICO na pagina: " + criticalErr.message);
     }
     return false;
   },
