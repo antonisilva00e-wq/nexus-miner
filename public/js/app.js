@@ -28,31 +28,46 @@ const App = {
     // Init theme
     if (typeof Theme !== 'undefined') Theme.init();
 
-    // Login form
+    // Login form submit prevention
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
-      loginForm.addEventListener('submit', async (e) => {
+      loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const user = document.getElementById('login-user').value.trim();
-        const pass = document.getElementById('login-pass').value.trim();
-        const errorEl = document.getElementById('login-error');
-        const btnText = document.getElementById('login-btn-text');
-
-        errorEl.classList.remove('visible');
-        btnText.textContent = 'Verificando...';
-
-        try {
-          await Auth.login(user, pass);
-          btnText.textContent = 'Acesso liberado!';
-          // Go straight to dashboard - no hash change, no delays
-          App.showApp();
-        } catch (err) {
-          errorEl.classList.add('visible');
-          document.getElementById('login-error-text').textContent = err.message || 'Credenciais invalidas';
-          btnText.textContent = 'Entrar no Painel';
-        }
+        App.handleLogin(e);
+        return false;
       });
     }
+  },
+
+  async handleLogin(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const user = (document.getElementById('login-user')?.value || '').trim();
+    const pass = (document.getElementById('login-pass')?.value || '').trim();
+    const errorEl = document.getElementById('login-error');
+    const btnText = document.getElementById('login-btn-text');
+
+    if (!user || !pass) {
+      if (errorEl) errorEl.classList.add('visible');
+      const errTxt = document.getElementById('login-error-text');
+      if (errTxt) errTxt.textContent = 'Preencha usuario e senha';
+      return false;
+    }
+
+    if (errorEl) errorEl.classList.remove('visible');
+    if (btnText) btnText.textContent = 'Verificando...';
+
+    try {
+      await Auth.login(user, pass);
+      if (btnText) btnText.textContent = 'Acesso liberado!';
+      this.showApp();
+    } catch (err) {
+      if (errorEl) errorEl.classList.add('visible');
+      const errTxt = document.getElementById('login-error-text');
+      if (errTxt) errTxt.textContent = err.message || 'Credenciais invalidas';
+      if (btnText) btnText.textContent = 'Entrar no Painel';
+    }
+    return false;
+  },
 
     // Nav links
     document.querySelectorAll('.menu-item[data-page]').forEach(link => {
