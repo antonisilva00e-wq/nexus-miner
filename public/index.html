@@ -34,6 +34,15 @@
   <link rel="stylesheet" href="/css/financial-premium.css?v=2">
   <link rel="stylesheet" href="/css/global-animations.css?v=1">
   <link rel="stylesheet" href="/css/voice-agent.css?v=1">
+
+  <!-- MATAR TODOS OS SERVICE WORKERS ANTIGOS IMEDIATAMENTE -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(reg) { reg.unregister(); });
+      });
+    }
+  </script>
 </head>
 <body>
   <!-- Tech Background System -->
@@ -148,9 +157,34 @@
           try { localStorage.setItem('nexus_access_token', res.data.accessToken); } catch(e){}
           try { localStorage.setItem('nexus_refresh_token', res.data.refreshToken); } catch(e){}
           try { localStorage.setItem('nexus_user', JSON.stringify(res.data.user)); } catch(e){}
-          // Recarregar a pagina — App.init() vai detectar o token e abrir o dashboard automaticamente
-          btnTxt.textContent = 'Carregando painel...';
-          window.location.reload();
+
+          // Forcar Auth a reconhecer o usuario sem precisar de reload
+          if (typeof Auth !== 'undefined') {
+            Auth.currentUser = res.data.user;
+          }
+
+          // Mostrar painel diretamente (sem reload, para nao cair no SW antigo)
+          document.body.classList.add('logged-in');
+          var loginPage = document.getElementById('page-login');
+          var appShell = document.getElementById('app-shell');
+          if (loginPage) loginPage.style.display = 'none';
+          if (appShell) { appShell.style.display = 'flex'; appShell.style.removeProperty('display'); }
+
+          if (typeof App !== 'undefined' && typeof App.showApp === 'function') {
+            App.showApp();
+          } else if (typeof App !== 'undefined' && typeof App.navigateTo === 'function') {
+            App.navigateTo('dashboard');
+          } else {
+            // Ultimo recurso: aguarda App carregar e tenta de novo
+            btnTxt.textContent = 'Carregando...';
+            setTimeout(function() {
+              if (typeof App !== 'undefined' && typeof App.showApp === 'function') {
+                App.showApp();
+              } else {
+                window.location.replace(window.location.href.split('#')[0]);
+              }
+            }, 800);
+          }
         })
         .catch(function(err) {
           errTxt.textContent = err.message || 'Erro ao conectar. Tente novamente.';
