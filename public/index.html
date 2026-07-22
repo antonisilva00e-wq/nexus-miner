@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexus Miner - ERP de ProspecÃ§Ã£o B2B</title>
+  <title>Nexus Miner V2 - ERP de Prospecção B2B</title>
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.json">
@@ -92,32 +92,100 @@
           <h1>Nexus Miner</h1>
           <p>Acesso restrito ao administrador</p>
         </div>
-        <form id="login-form" class="login-form" action="javascript:void(0);" onsubmit="App.handleLogin(event); return false;">
-          <div class="form-group">
-            <label for="login-user">UsuÃ¡rio</label>
-            <div class="input-wrapper">
-              <i data-lucide="user"></i>
-              <input type="text" id="login-user" placeholder="Digite seu usuÃ¡rio" autocomplete="username" onkeydown="if(event.key==='Enter')App.handleLogin(event)" required>
-            </div>
+        <div class="form-group">
+          <label for="login-user">Usuário</label>
+          <div class="input-wrapper">
+            <i data-lucide="user"></i>
+            <input type="text" id="login-user" placeholder="adminj7" autocomplete="username">
           </div>
-          <div class="form-group">
-            <label for="login-pass">Senha</label>
-            <div class="input-wrapper">
-              <i data-lucide="lock"></i>
-              <input type="password" id="login-pass" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')App.handleLogin(event)" required>
-              <button type="button" class="toggle-password" onclick="toggleLoginPassword()"><i data-lucide="eye" id="login-eye"></i></button>
-            </div>
+        </div>
+        <div class="form-group">
+          <label for="login-pass">Senha</label>
+          <div class="input-wrapper">
+            <i data-lucide="lock"></i>
+            <input type="password" id="login-pass" placeholder="admin.j7" autocomplete="current-password">
           </div>
-          <div class="login-error" id="login-error"><i data-lucide="alert-circle"></i><span id="login-error-text"></span></div>
-          <button type="button" class="btn-login" id="btn-login" onclick="App.handleLogin(event)"><i data-lucide="log-in" id="login-btn-icon"></i><span id="login-btn-text">Entrar no Painel</span></button>
-        </form>
+        </div>
+        <div id="login-error" class="login-error"><i data-lucide="alert-circle"></i><span id="login-error-text"></span></div>
+        <button type="button" id="btn-login" class="btn-login" style="cursor:pointer;">
+          <i data-lucide="log-in"></i><span id="login-btn-text">Entrar no Painel</span>
+        </button>
         <div class="login-footer">
-          <button type="button" onclick="try{ localStorage.setItem('nexus_access_token', '123'); localStorage.setItem('nexus_user', JSON.stringify({role: 'admin', name: 'Admin', userType: 'user'})); document.body.classList.add('logged-in'); document.getElementById('page-login').style.display='none'; document.getElementById('app-shell').style.display='flex'; }catch(e){alert(e.message)}" style="background:var(--danger); color:white; padding:10px 20px; border-radius:8px; border:none; cursor:pointer; width:100%; margin-bottom:10px; font-weight:bold;">👉 FORÇAR ENTRADA DE EMERGÊNCIA 👈</button>
-          <p>Nexus Miner &copy; 2026 &bull; ERP de Prospecção B2B</p>
+          <p>Nexus Miner &copy; 2026 &bull; Painel Privado</p>
         </div>
       </div>
     </div>
   </div>
+  <script>
+    // LOGIN INLINE - Independente de qualquer outro JS
+    (function() {
+      function doLogin() {
+        var user = (document.getElementById('login-user').value || '').trim();
+        var pass = (document.getElementById('login-pass').value || '').trim();
+        var errEl = document.getElementById('login-error');
+        var errTxt = document.getElementById('login-error-text');
+        var btnTxt = document.getElementById('login-btn-text');
+        var btn = document.getElementById('btn-login');
+
+        if (!user || !pass) {
+          errTxt.textContent = 'Preencha usuário e senha';
+          errEl.classList.add('visible');
+          return;
+        }
+        errEl.classList.remove('visible');
+        btnTxt.textContent = 'Aguarde...';
+        btn.disabled = true;
+
+        fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user, password: pass })
+        })
+        .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+        .then(function(res) {
+          if (!res.ok) throw new Error(res.data.error || 'Credenciais inválidas');
+          // Salvar tokens
+          try { localStorage.setItem('nexus_access_token', res.data.accessToken); } catch(e){}
+          try { localStorage.setItem('nexus_refresh_token', res.data.refreshToken); } catch(e){}
+          try { localStorage.setItem('nexus_user', JSON.stringify(res.data.user)); } catch(e){}
+          // Mostrar painel
+          btnTxt.textContent = 'Entrando...';
+          document.body.classList.add('logged-in');
+          // Inicializar App se disponivel
+          if (typeof App !== 'undefined' && typeof App.showApp === 'function') {
+            App.showApp();
+          } else {
+            // Fallback direto
+            var loginPage = document.getElementById('page-login');
+            var appShell = document.getElementById('app-shell');
+            if (loginPage) loginPage.style.display = 'none';
+            if (appShell) appShell.style.display = 'flex';
+            // Trigger App init se disponivel
+            if (typeof App !== 'undefined' && typeof App.navigateTo === 'function') {
+              App.navigateTo('dashboard');
+            }
+          }
+        })
+        .catch(function(err) {
+          errTxt.textContent = err.message || 'Erro ao conectar. Tente novamente.';
+          errEl.classList.add('visible');
+          btnTxt.textContent = 'Entrar no Painel';
+          btn.disabled = false;
+        });
+      }
+
+      // Bind no botao
+      document.addEventListener('DOMContentLoaded', function() {
+        var btn = document.getElementById('btn-login');
+        if (btn) btn.addEventListener('click', doLogin);
+        // Enter nos inputs
+        var u = document.getElementById('login-user');
+        var p = document.getElementById('login-pass');
+        if (u) u.addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+        if (p) p.addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+      });
+    })();
+  </script>
 
   <!-- App Shell -->
   <div id="app-shell" class="app-container">
