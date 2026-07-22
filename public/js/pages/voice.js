@@ -188,7 +188,8 @@ const VoicePage = {
       script.textContent = `
         import('https://cdn.jsdelivr.net/npm/@vapi-ai/web/+esm')
           .then(module => {
-            window.Vapi = module.default || module.Vapi || module;
+            const exported = module.default || module;
+            window.Vapi = exported.default || exported.Vapi || exported;
             window.dispatchEvent(new Event('vapi-loaded'));
           })
           .catch(err => {
