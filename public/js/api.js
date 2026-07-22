@@ -44,8 +44,8 @@ const API = {
       if (newToken) {
         return this.request(method, path, body, true);
       }
+      // Token expirado — limpar estado e voltar pro login
       Auth.logout();
-      window.location.reload();
       return null;
     }
 

@@ -115,7 +115,8 @@ const UI = {
 
     if (err.status === 401) {
       this.toast('Sessao expirada. Faca login novamente.', 'warning');
-      setTimeout(() => { Auth.logout(); window.location.reload(); }, 2000);
+      Auth.logout();
+      setTimeout(() => { window.location.href = '/'; }, 500);
     } else if (err.status === 403) {
       this.toast('Voce nao tem permissao para esta acao.', 'danger');
     } else if (err.status === 404) {
