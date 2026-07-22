@@ -66,20 +66,27 @@ const WhatsAppPage = {
   },
 
   setupSocketListeners() {
-    if (!globalThis.__wa_socket_bound && window.socket) {
-      window.socket.on('wa_status', (data) => {
-        WhatsAppPage.updateUIState(data);
-      });
-      
-      window.socket.on('wa_qr', (data) => {
-        const qrContainer = document.getElementById('wa-qr-container');
-        const text = document.getElementById('wa-connection-text');
-        if (qrContainer && data.qr) {
-          qrContainer.innerHTML = `<img src="${data.qr}" style="width:220px;height:220px;border-radius:12px;border:4px solid white;" />`;
-          if (text) text.innerHTML = "Abra o WhatsApp no seu celular, vá em <b>Aparelhos Conectados</b> e escaneie este QR Code.";
-        }
-      });
-      globalThis.__wa_socket_bound = true;
+    if (!globalThis.__wa_socket_bound) {
+      // Find the socket instance. Notifications.socket is created in app.js
+      const sock = (typeof Notifications !== 'undefined') ? Notifications.socket : null;
+      if (sock) {
+        sock.on('wa_status', (data) => {
+          WhatsAppPage.updateUIState(data);
+        });
+        
+        sock.on('wa_qr', (data) => {
+          const qrContainer = document.getElementById('wa-qr-container');
+          const text = document.getElementById('wa-connection-text');
+          if (qrContainer && data.qr) {
+            qrContainer.innerHTML = `<img src="${data.qr}" style="width:220px;height:220px;border-radius:12px;border:4px solid white;" />`;
+            if (text) text.innerHTML = "Abra o WhatsApp no seu celular, vá em <b>Aparelhos Conectados</b> e escaneie este QR Code.";
+          }
+        });
+        globalThis.__wa_socket_bound = true;
+      } else {
+        // If socket isn't ready yet, try again in 500ms
+        setTimeout(() => WhatsAppPage.setupSocketListeners(), 500);
+      }
     }
   },
 
