@@ -1,23 +1,51 @@
 // Auth module - handles user types and permissions
 const Auth = {
-  currentUser: null,
+  memoryStore: {},
+
+  setItem(key, val) {
+    try { localStorage.setItem(key, val); } catch {}
+    try { sessionStorage.setItem(key, val); } catch {}
+    this.memoryStore[key] = val;
+  },
+
+  getItem(key) {
+    let val = null;
+    try { val = localStorage.getItem(key); } catch {}
+    if (!val) { try { val = sessionStorage.getItem(key); } catch {} }
+    if (!val) { val = this.memoryStore[key] || null; }
+    return val;
+  },
+
+  removeItem(key) {
+    try { localStorage.removeItem(key); } catch {}
+    try { sessionStorage.removeItem(key); } catch {}
+    delete this.memoryStore[key];
+  },
 
   init() {
     try {
-      const user = localStorage.getItem('nexus_user');
-      if (user) this.currentUser = JSON.parse(user);
+      const user = this.getItem('nexus_user');
+      if (user) this.currentUser = typeof user === 'string' ? JSON.parse(user) : user;
     } catch { this.currentUser = null; }
   },
 
   isLoggedIn() {
-    return !!localStorage.getItem('nexus_access_token') && !!this.currentUser;
+    return !!this.getItem('nexus_access_token') && !!this.getUser();
   },
 
-  getUser() { return this.currentUser; },
+  getUser() {
+    if (!this.currentUser) {
+      try {
+        const u = this.getItem('nexus_user');
+        if (u) this.currentUser = typeof u === 'string' ? JSON.parse(u) : u;
+      } catch {}
+    }
+    return this.currentUser;
+  },
 
-  isClient() { return this.currentUser?.userType === 'client' || this.currentUser?.role === 'client'; },
-  isAdmin() { return this.currentUser?.role === 'admin'; },
-  isManager() { return this.currentUser?.role === 'manager'; },
+  isClient() { return this.getUser()?.userType === 'client' || this.getUser()?.role === 'client'; },
+  isAdmin() { return this.getUser()?.role === 'admin'; },
+  isManager() { return this.getUser()?.role === 'manager'; },
 
   async login(username, password) {
     const res = await fetch('/api/auth/login', {
@@ -28,17 +56,17 @@ const Auth = {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Credenciais invalidas');
 
-    localStorage.setItem('nexus_access_token', data.accessToken);
-    localStorage.setItem('nexus_refresh_token', data.refreshToken);
-    localStorage.setItem('nexus_user', JSON.stringify(data.user));
+    this.setItem('nexus_access_token', data.accessToken);
+    this.setItem('nexus_refresh_token', data.refreshToken);
+    this.setItem('nexus_user', JSON.stringify(data.user));
     this.currentUser = data.user;
     return data.user;
   },
 
   logout() {
-    localStorage.removeItem('nexus_access_token');
-    localStorage.removeItem('nexus_refresh_token');
-    localStorage.removeItem('nexus_user');
+    this.removeItem('nexus_access_token');
+    this.removeItem('nexus_refresh_token');
+    this.removeItem('nexus_user');
     this.currentUser = null;
     document.body.classList.remove('logged-in');
   },

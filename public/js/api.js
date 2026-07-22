@@ -1,7 +1,7 @@
 // API Client - with auto token refresh and error handling
 const API = {
-  getToken() { return localStorage.getItem('nexus_access_token'); },
-  getRefreshToken() { return localStorage.getItem('nexus_refresh_token'); },
+  getToken() { return typeof Auth !== 'undefined' ? Auth.getItem('nexus_access_token') : localStorage.getItem('nexus_access_token'); },
+  getRefreshToken() { return typeof Auth !== 'undefined' ? Auth.getItem('nexus_refresh_token') : localStorage.getItem('nexus_refresh_token'); },
 
   async refreshAccessToken() {
     const refreshToken = this.getRefreshToken();
