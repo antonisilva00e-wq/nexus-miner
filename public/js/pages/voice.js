@@ -182,11 +182,16 @@ const VoicePage = {
 
     if (!window.Vapi && !this.vapiClass) {
       showToast('Carregando motor de voz, aguarde...', 'info');
+      
+      // Polyfill for CommonJS exports
+      if (typeof window.exports === 'undefined') {
+        window.exports = {};
+      }
+
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/@vapi-ai/web@latest/dist/vapi.min.js';
       script.onload = () => {
-        // vapi.min.js usually exports window.vapi or window.Vapi
-        this.vapiClass = window.Vapi || window.vapi;
+        this.vapiClass = window.Vapi || window.vapi || window.exports.default || window.exports.Vapi || window.exports;
         if (!this.vapiClass) {
           return showToast('Erro crítico: O pacote de voz não foi carregado corretamente.', 'danger');
         }
