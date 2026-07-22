@@ -172,7 +172,7 @@ const VoicePage = {
     }
   },
 
-  async testCall() {
+  testCall() {
     const publicKey = document.getElementById('voice-api-key').value;
     const agentId = document.getElementById('voice-agent-id').value;
 
@@ -180,16 +180,22 @@ const VoicePage = {
       return showToast('Por favor, preencha a Chave da API e o ID do Agente antes de testar.', 'warning');
     }
 
-    if (!this.vapiClass) {
+    if (!window.Vapi && !this.vapiClass) {
       showToast('Carregando motor de voz, aguarde...', 'info');
-      try {
-        const module = await import('https://esm.sh/@vapi-ai/web');
-        this.vapiClass = module.default || module.Vapi || module;
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/@vapi-ai/web/dist/vapi.min.js';
+      script.onload = () => {
+        // vapi.min.js usually exports window.vapi or window.Vapi
+        this.vapiClass = window.Vapi || window.vapi;
+        if (!this.vapiClass) {
+          return showToast('Erro crítico: O pacote de voz não foi carregado corretamente.', 'danger');
+        }
         this.startVapiCall(publicKey, agentId);
-      } catch (err) {
-        showToast('Erro ao carregar módulo de voz: ' + err.message, 'danger');
-      }
+      };
+      script.onerror = () => showToast('Erro ao baixar motor de voz. Verifique sua conexão.', 'danger');
+      document.head.appendChild(script);
     } else {
+      this.vapiClass = window.Vapi || window.vapi || this.vapiClass;
       this.startVapiCall(publicKey, agentId);
     }
   },
