@@ -173,20 +173,77 @@ const VoicePage = {
   },
 
   testCall() {
-    Modal.open(
-      '🎙️ Teste WebRTC (Navegador)',
-      `<div style="text-align:center;padding:2rem;">
-        <div class="pulse-ring" style="margin:0 auto 2rem auto;position:relative;">
-          <div style="width:80px;height:80px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;margin:0 auto;animation:pulse 2s infinite;">
-            <i data-lucide="mic" style="color:white;width:40px;height:40px;"></i>
+    const publicKey = document.getElementById('voice-api-key').value;
+    const agentId = document.getElementById('voice-agent-id').value;
+
+    if (!publicKey || !agentId) {
+      return showToast('Por favor, preencha a Chave da API e o ID do Agente antes de testar.', 'warning');
+    }
+
+    // Carregar o SDK do Vapi se não estiver carregado
+    if (!window.Vapi) {
+      showToast('Carregando motor de voz, aguarde...', 'info');
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/@vapi-ai/web/dist/vapi.umd.js';
+      script.onload = () => this.startVapiCall(publicKey, agentId);
+      document.body.appendChild(script);
+    } else {
+      this.startVapiCall(publicKey, agentId);
+    }
+  },
+
+  startVapiCall(publicKey, agentId) {
+    try {
+      if (!this.vapiInstance) {
+        this.vapiInstance = new window.Vapi(publicKey);
+        
+        this.vapiInstance.on('call-start', () => {
+          showToast('Chamada conectada! Pode falar.', 'success');
+          document.getElementById('vapi-status-text').textContent = 'Conectado! Fale agora...';
+          document.getElementById('vapi-status-text').style.color = '#10b981';
+        });
+
+        this.vapiInstance.on('call-end', () => {
+          showToast('Chamada encerrada.', 'info');
+          Modal.close();
+        });
+
+        this.vapiInstance.on('error', (e) => {
+          console.error(e);
+          showToast('Erro no Vapi: ' + (e.message || 'Verifique suas chaves'), 'danger');
+          Modal.close();
+        });
+      }
+
+      Modal.open(
+        '🎙️ Teste WebRTC (Navegador)',
+        `<div style="text-align:center;padding:2rem;">
+          <div class="pulse-ring" style="margin:0 auto 2rem auto;position:relative;">
+            <div style="width:80px;height:80px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;margin:0 auto;animation:pulse 2s infinite;">
+              <i data-lucide="mic" style="color:white;width:40px;height:40px;"></i>
+            </div>
           </div>
-        </div>
-        <h3 style="color:white;margin-bottom:1rem;">Iniciando chamada...</h3>
-        <p style="color:var(--text-tertiary);margin-bottom:2rem;">Por favor, permita o acesso ao microfone no seu navegador.</p>
-        <p style="color:#ef4444;font-size:0.85rem;"><i data-lucide="alert-triangle"></i> Requer integração ativa com Vapi.ai / Bland.ai para funcionar.</p>
-       </div>`,
-      `<button class="btn btn-secondary" onclick="Modal.close()">Cancelar</button>`
-    );
+          <h3 id="vapi-status-text" style="color:white;margin-bottom:1rem;">Iniciando chamada...</h3>
+          <p style="color:var(--text-tertiary);margin-bottom:2rem;">Por favor, permita o acesso ao microfone no seu navegador.</p>
+          <button class="btn btn-danger" onclick="VoicePage.endVapiCall()"><i data-lucide="phone-off"></i> Desligar</button>
+         </div>`,
+        `<button class="btn btn-secondary" onclick="VoicePage.endVapiCall()">Cancelar</button>`
+      );
+      lucide.createIcons();
+
+      // Start the call
+      this.vapiInstance.start(agentId);
+      
+    } catch (err) {
+      showToast('Erro ao iniciar Vapi: ' + err.message, 'danger');
+    }
+  },
+
+  endVapiCall() {
+    if (this.vapiInstance) {
+      this.vapiInstance.stop();
+    }
+    Modal.close();
   },
 
   async viewTranscript(id) {
