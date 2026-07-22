@@ -37,6 +37,21 @@ const App = {
         return false;
       });
     }
+
+    // Nav links
+    document.querySelectorAll('.menu-item[data-page]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const page = link.dataset.page;
+        App.navigateTo(page);
+      });
+    });
+
+    // Already logged in?
+    if (Auth.isLoggedIn()) {
+      Auth.applyRole();
+      this.showApp();
+    }
   },
 
   async handleLogin(e) {
@@ -67,22 +82,6 @@ const App = {
       if (btnText) btnText.textContent = 'Entrar no Painel';
     }
     return false;
-  },
-
-    // Nav links
-    document.querySelectorAll('.menu-item[data-page]').forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const page = link.dataset.page;
-        App.navigateTo(page);
-      });
-    });
-
-    // Already logged in?
-    if (Auth.isLoggedIn()) {
-      Auth.applyRole();
-      this.showApp();
-    }
   },
 
   showApp() {
