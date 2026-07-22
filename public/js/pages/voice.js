@@ -256,9 +256,45 @@ const VoicePage = {
       );
       lucide.createIcons();
 
-      // Start the call with a simple first message override, to avoid model validation errors on Vapi server
+      // Get the prompt from the UI if available
+      const promptText = document.getElementById('voice-prompt')?.value || "Você é um atendente inteligente.";
+
+      // Dynamically override the assistant configuration
       this.vapiInstance.start(agentId, {
-        firstMessage: "Olá! Estou ouvindo."
+        firstMessage: "Oi! Tudo bem?",
+        model: {
+          messages: [
+            {
+              role: "system",
+              content: promptText
+            }
+          ],
+          tools: [
+            {
+              type: "function",
+              async: true,
+              function: {
+                name: "enviar_whatsapp",
+                description: "Envia uma mensagem no WhatsApp do cliente. Use isso quando o cliente aceitar comprar o aplicativo ou pedir o link.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    telefone: {
+                      type: "string",
+                      description: "O numero do celular do cliente com DDD."
+                    },
+                    mensagem: {
+                      type: "string",
+                      description: "A mensagem que vai com o link do aplicativo."
+                    }
+                  },
+                  required: ["telefone", "mensagem"]
+                }
+              }
+            }
+          ]
+        },
+        serverUrl: window.location.origin + '/api/vapi/webhook'
       });
       
     } catch (err) {
