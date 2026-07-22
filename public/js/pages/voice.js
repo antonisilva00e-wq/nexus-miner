@@ -245,8 +245,21 @@ const VoicePage = {
       );
       lucide.createIcons();
 
-      // Start the call
-      this.vapiInstance.start(agentId);
+      // Pegar o prompt digitado no nosso painel
+      const promptText = document.getElementById('voice-prompt').value || 'Você é um assistente útil e conciso.';
+
+      // Start the call with overrides to FORCE the AI to speak first
+      this.vapiInstance.start(agentId, {
+        firstMessage: "Olá! A conexão foi estabelecida com sucesso. Estou te ouvindo, como posso ajudar?",
+        model: {
+          messages: [
+            {
+              role: "system",
+              content: promptText
+            }
+          ]
+        }
+      });
       
     } catch (err) {
       showToast('Erro ao iniciar Vapi: ' + err.message, 'danger');
