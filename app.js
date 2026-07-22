@@ -253,6 +253,8 @@ function switchTab(tabId) {
     } else if (tabId === 'clients') {
         titleEl.textContent = 'Gerenciar Clientes';
         renderClientsTable();
+    } else if (tabId === 'automation') {
+        titleEl.textContent = 'Automação Ativa (Outbound)';
     } else {
         titleEl.textContent = 'Configurações do Sistema';
     }

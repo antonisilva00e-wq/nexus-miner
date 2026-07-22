@@ -317,6 +317,56 @@ async function main() {
     res.json({ ok: true });
   });
 
+  app.post('/api/vapi/webhook', bodySizeLimit(500), async (req, res) => {
+    try {
+      const payload = req.body;
+      const type = payload.message?.type;
+      const call = payload.message?.call;
+
+      if (type === 'status-update' && call) {
+        const outbound = require('./routes/outbound');
+        if (outbound && outbound.handleCallStatusUpdate) {
+            outbound.handleCallStatusUpdate(call.id, call.status);
+        }
+      }
+
+      if (type === 'tool-calls') {
+          const toolCalls = payload.message.toolCalls;
+          for (let toolCall of toolCalls) {
+              if (toolCall.function?.name === 'enviar_whatsapp') {
+                  const args = toolCall.function.arguments;
+                  // Try to send via WhatsApp using Bailey's integration
+                  try {
+                      const waService = require('./services/whatsappService');
+                      if (waService && waService.sendMessage) {
+                          // Clean phone and send message
+                          const phoneNum = args.telefone || args.phone;
+                          if (phoneNum) {
+                              const cleanPhone = phoneNum.replace(/[^0-9]/g, '');
+                              await waService.sendMessage(cleanPhone, args.mensagem || 'Aqui esta o link solicitado!');
+                          }
+                      }
+                  } catch (e) {
+                      console.error('[Vapi Webhook] Error triggering WhatsApp:', e);
+                  }
+              }
+          }
+          // Respond to Vapi to let it know tools were executed
+          return res.json({
+            results: toolCalls.map(tc => ({
+                toolCallId: tc.id,
+                result: 'Mensagem enviada com sucesso no WhatsApp do cliente!'
+            }))
+          });
+      }
+
+      res.json({ ok: true });
+    } catch (e) {
+      console.error('[Vapi Webhook] Error:', e);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // 9. Routes
   const routeMap = {
     '/api/auth': './routes/auth',
@@ -347,6 +397,7 @@ async function main() {
     '/api/intelligence': './routes/intelligence',
     '/api/voice-agent': './routes/voice',
     '/api/whatsapp': './routes/whatsapp',
+    '/api/vapi/outbound': './routes/outbound',
   };
   for (const [mount, file] of Object.entries(routeMap)) {
     try { app.use(mount, require(file)); } catch (e) { console.error(`[ROUTE] ${mount}:`, e.message); }

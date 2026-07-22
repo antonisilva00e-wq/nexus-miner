@@ -1,142 +1,132 @@
-// Automation Page - Scheduled Mining & Alerts
-const AutomationPage = {
-  async render() {
-    document.getElementById('page-title').textContent = 'Automacao';
-    document.getElementById('page-subtitle').textContent = 'Mineracao agendada e alertas';
-    const el = document.getElementById('page-automation');
-    el.innerHTML = `
-      <div class="card" style="margin-bottom:1.5rem;">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#818cf8,#6366f1);display:flex;align-items:center;justify-content:center;"><i data-lucide="bot" style="color:white;width:20px;height:20px;"></i></div>
-          <div><h3 style="color:white;font-size:1.1rem;">Novo Agendamento</h3><p style="color:var(--text-tertiary);font-size:0.8rem;">Configure mineracao automatica por cidade e atividade</p></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:1rem;align-items:end;">
-          <div class="form-group">
-            <label>Nome</label>
-            <input type="text" id="auto-name" placeholder="Ex: Restaurantes SP" style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
-          </div>
-          <div class="form-group">
-            <label>Atividade</label>
-            <input type="text" id="auto-keyword" placeholder="Ex: Restaurante" required style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
-          </div>
-          <div class="form-group">
-            <label>Cidade</label>
-            <input type="text" id="auto-city" placeholder="Ex: Curitiba PR" required style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
-          </div>
-          <button class="btn btn-primary" onclick="AutomationPage.create()" style="height:42px;"><i data-lucide="plus"></i>Criar</button>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
-          <div class="form-group">
-            <label>Frequencia</label>
-            <select id="auto-freq" style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
-              <option value="daily">Diario</option>
-              <option value="weekly" selected>Semanal</option>
-              <option value="monthly">Mensal</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Max Leads por Execucao</label>
-            <input type="number" id="auto-max" value="100" min="10" max="500" style="width:100%;padding:0.7rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:var(--text-primary);font-family:var(--font-body);">
-          </div>
-        </div>
-      </div>
+let automationInterval = null;
 
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
-          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;"><i data-lucide="list" style="color:white;width:20px;height:20px;"></i></div>
-          <div><h3 style="color:white;font-size:1.1rem;">Agendamentos Ativos</h3></div>
-        </div>
-        <div id="schedules-list"></div>
-      </div>
-    `;
-    lucide.createIcons();
-    this.loadSchedules();
-  },
+function saveAutomationSettings() {
+    const pk = document.getElementById('automation-private-key').value;
+    const phoneId = document.getElementById('automation-phone-id').value;
+    const agentId = document.getElementById('automation-agent-id').value;
+    
+    if (pk) localStorage.setItem('automation_private_key', pk);
+    if (phoneId) localStorage.setItem('automation_phone_id', phoneId);
+    if (agentId) localStorage.setItem('automation_agent_id', agentId);
+}
 
-  async loadSchedules() {
-    try {
-      const data = await API.get('/automation/schedules');
-      const el = document.getElementById('schedules-list');
-      if (!data.schedules.length) {
-        el.innerHTML = '<p style="color:var(--text-tertiary);text-align:center;padding:1.5rem;">Nenhum agendamento criado</p>';
-        return;
-      }
-      el.innerHTML = data.schedules.map(s => `
-        <div style="display:flex;align-items:center;gap:1rem;padding:0.85rem;border-bottom:1px solid var(--border-color);">
-          <div style="width:8px;height:8px;border-radius:50%;background:${s.active ? '#10b981' : '#6b7280'};flex-shrink:0;"></div>
-          <div style="flex:1;">
-            <div style="display:flex;align-items:center;gap:0.5rem;">
-              <span style="color:white;font-weight:600;font-size:0.9rem;">${s.name}</span>
-              <span style="font-size:0.7rem;color:var(--text-tertiary);background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;">${s.frequency}</span>
-            </div>
-            <p style="font-size:0.78rem;color:var(--text-secondary);margin:2px 0 0;">${s.keyword} em ${s.city} · Max: ${s.maxResults} leads</p>
-            <p style="font-size:0.7rem;color:var(--text-tertiary);margin:2px 0 0;">Ultima execucao: ${s.lastRun ? new Date(s.lastRun).toLocaleDateString('pt-BR') : 'Nunca'} · Proxima: ${new Date(s.nextRun).toLocaleDateString('pt-BR')}</p>
-          </div>
-          <div style="display:flex;gap:0.5rem;">
-            <button class="btn btn-sm btn-secondary" onclick="AutomationPage.toggle('${s.id}')" title="${s.active ? 'Pausar' : 'Ativar'}">
-              <i data-lucide="${s.active ? 'pause' : 'play'}"></i>
-            </button>
-            <button class="btn btn-sm btn-primary" onclick="AutomationPage.runNow('${s.id}')" title="Executar agora">
-              <i data-lucide="play"></i>
-            </button>
-            <button class="btn btn-sm btn-secondary" onclick="AutomationPage.remove('${s.id}')" title="Remover" style="color:var(--danger);">
-              <i data-lucide="trash-2"></i>
-            </button>
-          </div>
-        </div>
-      `).join('');
-      lucide.createIcons();
-    } catch (err) {
-      showToast('Erro ao carregar agendamentos: ' + err.message, 'danger');
+function loadAutomationSettings() {
+    document.getElementById('automation-private-key').value = localStorage.getItem('automation_private_key') || '';
+    document.getElementById('automation-phone-id').value = localStorage.getItem('automation_phone_id') || '';
+    document.getElementById('automation-agent-id').value = localStorage.getItem('automation_agent_id') || '';
+}
+
+// Chamar ao carregar
+document.addEventListener('DOMContentLoaded', loadAutomationSettings);
+
+async function startAutomation() {
+    const privateKey = document.getElementById('automation-private-key').value.trim();
+    const phoneId = document.getElementById('automation-phone-id').value.trim();
+    const agentId = document.getElementById('automation-agent-id').value.trim();
+    const listRaw = document.getElementById('automation-phone-list').value.trim();
+
+    if (!privateKey || !phoneId || !agentId || !listRaw) {
+        return showToast('Por favor, preencha todos os campos obrigatórios!', 'danger');
     }
-  },
 
-  async create() {
-    const name = document.getElementById('auto-name').value.trim();
-    const keyword = document.getElementById('auto-keyword').value.trim();
-    const city = document.getElementById('auto-city').value.trim();
-    const frequency = document.getElementById('auto-freq').value;
-    const maxResults = parseInt(document.getElementById('auto-max').value) || 100;
+    // Processar telefones
+    const phones = listRaw.split('\n')
+        .map(p => p.trim().replace(/\s+/g, ''))
+        .filter(p => p.length > 8);
 
-    if (!keyword || !city) { showToast('Preencha atividade e cidade', 'warning'); return; }
+    if (phones.length === 0) {
+        return showToast('Nenhum número de telefone válido encontrado.', 'danger');
+    }
+
+    saveAutomationSettings();
 
     try {
-      await API.post('/automation/schedules', { name: name || `${keyword} ${city}`, keyword, city, frequency, maxResults });
-      showToast('Agendamento criado!', 'success');
-      this.loadSchedules();
-    } catch (err) {
-      showToast('Erro: ' + err.message, 'danger');
-    }
-  },
+        const response = await fetch('/api/vapi/outbound/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                privateKey,
+                phoneNumberId: phoneId,
+                agentId,
+                phones
+            })
+        });
 
-  async toggle(id) {
-    try {
-      await API.put(`/automation/schedules/${id}/toggle`);
-      this.loadSchedules();
-    } catch (err) {
-      showToast('Erro: ' + err.message, 'danger');
-    }
-  },
+        const data = await response.json();
+        
+        if (!response.ok) throw new Error(data.error || 'Erro ao iniciar campanha');
 
-  async runNow(id) {
-    showToast('Executando mineracao...', 'info');
-    try {
-      const result = await API.post(`/automation/schedules/${id}/run`);
-      showToast(`${result.leadsSaved} leads encontrados!`, 'success');
-      this.loadSchedules();
-    } catch (err) {
-      showToast('Erro: ' + err.message, 'danger');
-    }
-  },
+        showToast('Campanha iniciada com sucesso!', 'success');
+        
+        document.getElementById('btn-start-automation').style.display = 'none';
+        document.getElementById('btn-stop-automation').style.display = 'flex';
+        
+        pollAutomationStatus();
 
-  async remove(id) {
-    if (!confirm('Remover este agendamento?')) return;
-    try {
-      await API.del(`/automation/schedules/${id}`);
-      showToast('Agendamento removido', 'success');
-      this.loadSchedules();
     } catch (err) {
-      showToast('Erro: ' + err.message, 'danger');
+        showToast(err.message, 'danger');
     }
-  },
-};
+}
+
+async function stopAutomation() {
+    try {
+        await fetch('/api/vapi/outbound/stop', { method: 'POST' });
+        showToast('Campanha interrompida.', 'info');
+        
+        document.getElementById('btn-start-automation').style.display = 'flex';
+        document.getElementById('btn-stop-automation').style.display = 'none';
+        
+        if (automationInterval) clearInterval(automationInterval);
+        fetchAutomationStatus(); // Atualiza a tabela uma última vez
+    } catch (err) {
+        showToast('Erro ao parar campanha', 'danger');
+    }
+}
+
+function pollAutomationStatus() {
+    if (automationInterval) clearInterval(automationInterval);
+    fetchAutomationStatus();
+    automationInterval = setInterval(fetchAutomationStatus, 3000);
+}
+
+async function fetchAutomationStatus() {
+    try {
+        const response = await fetch('/api/vapi/outbound/status');
+        const data = await response.json();
+        
+        if (data.active) {
+            document.getElementById('btn-start-automation').style.display = 'none';
+            document.getElementById('btn-stop-automation').style.display = 'flex';
+        } else {
+            document.getElementById('btn-start-automation').style.display = 'flex';
+            document.getElementById('btn-stop-automation').style.display = 'none';
+            if (automationInterval) clearInterval(automationInterval);
+        }
+
+        const tbody = document.getElementById('automation-table-body');
+        if (!data.queue || data.queue.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="2" class="text-center text-secondary">Nenhuma campanha em andamento.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.queue.map(item => {
+            let statusBadge = '';
+            switch(item.status) {
+                case 'queued': statusBadge = '<span style="color: #94a3b8;"><i data-lucide="clock" style="width:14px; margin-right:4px;"></i>Na fila</span>'; break;
+                case 'calling': statusBadge = '<span style="color: #3b82f6;"><i data-lucide="phone-outgoing" style="width:14px; margin-right:4px;"></i>Chamando...</span>'; break;
+                case 'completed': statusBadge = '<span style="color: #22c55e;"><i data-lucide="check-circle" style="width:14px; margin-right:4px;"></i>Concluído</span>'; break;
+                case 'failed': statusBadge = '<span style="color: #ef4444;"><i data-lucide="x-circle" style="width:14px; margin-right:4px;"></i>Falhou</span>'; break;
+                default: statusBadge = item.status;
+            }
+            return `
+                <tr>
+                    <td>${item.phone}</td>
+                    <td>${statusBadge}</td>
+                </tr>
+            `;
+        }).join('');
+        if (window.lucide) { lucide.createIcons(); }
+    } catch (err) {
+        console.error('Erro ao buscar status:', err);
+    }
+}

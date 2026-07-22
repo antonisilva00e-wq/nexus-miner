@@ -43,6 +43,10 @@
                     <span>Gerenciar Clientes</span>
                     <span id="clients-badge" class="sidebar-badge" style="display:none;"></span>
                 </a>
+                <a href="#" class="menu-item" id="menu-automation" onclick="switchTab('automation')">
+                    <i data-lucide="rocket"></i>
+                    <span>Automação Ativa</span>
+                </a>
                 <a href="#" class="menu-item" id="menu-settings" onclick="switchTab('settings')">
                     <i data-lucide="settings"></i>
                     <span>Configurações</span>
@@ -337,6 +341,80 @@
                 </div>
             </div>
 
+            <!-- TAB 5: AUTOMATION -->
+            <div id="tab-automation" class="tab-content">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3><i data-lucide="rocket" style="vertical-align: middle; margin-right: 0.5rem; color: var(--accent-primary);"></i> Automação Ativa de Voz (Vapi)</h3>
+                        <p class="text-secondary" style="margin-top: 0.5rem;">Dispare ligações automáticas com IA para uma lista de clientes.</p>
+                    </div>
+                    
+                    <div class="settings-form" style="margin-top: 1.5rem;">
+                        <div class="form-grid" style="margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label for="automation-private-key">Private API Key (Vapi) *</label>
+                                <div class="input-wrapper">
+                                    <i data-lucide="key" class="field-icon"></i>
+                                    <input type="password" id="automation-private-key" placeholder="Insira sua Private Key">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="automation-phone-id">Phone Number ID (Vapi) *</label>
+                                <div class="input-wrapper">
+                                    <i data-lucide="phone" class="field-icon"></i>
+                                    <input type="text" id="automation-phone-id" placeholder="Ex: 11223344-5566-7788...">
+                                </div>
+                            </div>
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label for="automation-agent-id">Agent ID *</label>
+                                <div class="input-wrapper">
+                                    <i data-lucide="bot" class="field-icon"></i>
+                                    <input type="text" id="automation-agent-id" placeholder="Ex: bdb59498-...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label for="automation-phone-list">Lista de Números (Um por linha) *</label>
+                            <textarea id="automation-phone-list" rows="6" placeholder="+5511999999999\n+5511888888888" style="width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-primary); padding: 1rem; font-family: var(--font-body); resize: vertical;"></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn btn-primary" onclick="startAutomation()" id="btn-start-automation">
+                                <i data-lucide="play"></i>
+                                <span>Iniciar Campanha</span>
+                            </button>
+                            <button class="btn btn-danger" onclick="stopAutomation()" id="btn-stop-automation" style="display: none;">
+                                <i data-lucide="square"></i>
+                                <span>Parar Campanha</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Automation Queue Status -->
+                <div class="chart-card" style="margin-top: 1.5rem;" id="automation-status-card">
+                    <div class="chart-card-header">
+                        <h3><i data-lucide="activity" style="vertical-align: middle; margin-right: 0.5rem; color: var(--accent-secondary);"></i> Progresso da Campanha</h3>
+                    </div>
+                    <div class="table-wrapper" style="margin-top: 1rem;">
+                        <table class="crm-table">
+                            <thead>
+                                <tr>
+                                    <th>Telefone</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="automation-table-body">
+                                <tr>
+                                    <td colspan="2" class="text-center text-secondary">Nenhuma campanha em andamento.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -604,5 +682,6 @@
     <div class="toast-container" id="toast-container"></div>
 
     <script src="app.js"></script>
+    <script src="js/pages/automation.js"></script>
 </body>
 </html>
