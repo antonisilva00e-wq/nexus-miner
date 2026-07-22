@@ -75,7 +75,7 @@ const WhatsAppPage = {
         const qrContainer = document.getElementById('wa-qr-container');
         const text = document.getElementById('wa-connection-text');
         if (qrContainer && data.qr) {
-          qrContainer.innerHTML = \`<img src="\${data.qr}" style="width:220px;height:220px;border-radius:12px;border:4px solid white;" />\`;
+          qrContainer.innerHTML = `<img src="${data.qr}" style="width:220px;height:220px;border-radius:12px;border:4px solid white;" />`;
           if (text) text.innerHTML = "Abra o WhatsApp no seu celular, vá em <b>Aparelhos Conectados</b> e escaneie este QR Code.";
         }
       });
@@ -110,10 +110,10 @@ const WhatsAppPage = {
       
       area.style.display = 'block';
       qrContainer.innerHTML = data.user && data.user.pic 
-        ? \`<img src="\${data.user.pic}" style="width:100px;height:100px;border-radius:50%;margin-bottom:1rem;" />\` 
-        : \`<div style="width:100px;height:100px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;"><i data-lucide="check-circle" style="color:white;width:40px;height:40px;"></i></div>\`;
+        ? `<img src="${data.user.pic}" style="width:100px;height:100px;border-radius:50%;margin-bottom:1rem;" />` 
+        : `<div style="width:100px;height:100px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;"><i data-lucide="check-circle" style="color:white;width:40px;height:40px;"></i></div>`;
       
-      text.innerHTML = \`<h3 style="color:white;margin-bottom:0.25rem;">\${data.user?.name || 'Aparelho'}</h3><p style="color:var(--text-tertiary);">\${data.user?.phone || 'Conectado e pronto'}</p>\`;
+      text.innerHTML = `<h3 style="color:white;margin-bottom:0.25rem;">${data.user?.name || 'Aparelho'}</h3><p style="color:var(--text-tertiary);">${data.user?.phone || 'Conectado e pronto'}</p>`;
       lucide.createIcons();
 
     } else if (data.status === 'connecting' || data.status === 'qr') {
@@ -125,12 +125,12 @@ const WhatsAppPage = {
       
       area.style.display = 'block';
       if (data.status === 'connecting') {
-        qrContainer.innerHTML = \`<i data-lucide="loader-2" style="width:40px;height:40px;animation:spin 1.5s linear infinite;color:var(--accent-primary);"></i>\`;
+        qrContainer.innerHTML = `<i data-lucide="loader-2" style="width:40px;height:40px;animation:spin 1.5s linear infinite;color:var(--accent-primary);"></i>`;
         text.innerHTML = 'Inicializando motor do WhatsApp...';
         lucide.createIcons();
       } else if (data.qr) {
-        qrContainer.innerHTML = \`<img src="\${data.qr}" style="width:220px;height:220px;border-radius:12px;border:4px solid white;" />\`;
-        text.innerHTML = "Abra o WhatsApp no celular e escaneie o código.";
+        qrContainer.innerHTML = `<img src="${data.qr}" style="width:220px;height:220px;border-radius:12px;border:4px solid white;" />`;
+        text.innerHTML = "Abra o WhatsApp no seu celular, vá em <b>Aparelhos Conectados</b> e escaneie este QR Code.";
       }
     } else {
       statusEl.textContent = 'Desconectado';
@@ -175,24 +175,24 @@ const WhatsAppPage = {
 
       const list = document.getElementById('templates-list');
       if (templates.templates?.length) {
-        list.innerHTML = templates.templates.map(t => \`
-          <div class="seller-item" style="cursor:pointer;" onclick="WhatsAppPage.viewTemplate('\${escapeHtml(t.id)}', '\${escapeHtml(t.name)}', \\\`\${t.content.replace(/`/g, '\\\\`').replace(/\\\\/g, '\\\\\\\\')}\\\`)">
-            <div class="seller-info"><span class="seller-name">\${escapeHtml(t.name)}</span><span class="seller-stats">\${escapeHtml(t.category)} · \${escapeHtml(t.content.substring(0, 60))}...</span></div>
-            <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();WhatsAppPage.deleteTemplate('\${escapeHtml(t.id)}')"><i data-lucide="trash-2"></i></button>
+        list.innerHTML = templates.templates.map(t => `
+          <div class="seller-item" style="cursor:pointer;" onclick="WhatsAppPage.viewTemplate('${escapeHtml(t.id)}', '${escapeHtml(t.name)}', \`${t.content.replace(/`/g, '\\`').replace(/\\/g, '\\\\')}\`)">
+            <div class="seller-info"><span class="seller-name">${escapeHtml(t.name)}</span><span class="seller-stats">${escapeHtml(t.category)} · ${escapeHtml(t.content.substring(0, 60))}...</span></div>
+            <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();WhatsAppPage.deleteTemplate('${escapeHtml(t.id)}')"><i data-lucide="trash-2"></i></button>
           </div>
-        \`).join('');
+        `).join('');
       } else {
         list.innerHTML = '<p style="color:var(--text-tertiary);text-align:center;padding:2rem;">Nenhum template criado</p>';
       }
 
       const hist = document.getElementById('messages-history');
       if (messages.messages?.length) {
-        hist.innerHTML = messages.messages.map(m => \`
+        hist.innerHTML = messages.messages.map(m => `
           <div class="seller-item">
-            <div class="seller-info"><span class="seller-name">\${escapeHtml(m.lead_name || m.client_name || 'N/A')}</span><span class="seller-stats">\${escapeHtml(m.channel)} · \${escapeHtml(m.content.substring(0, 50))}...</span></div>
-            <span class="badge badge-primary">\${escapeHtml(m.status)}</span>
+            <div class="seller-info"><span class="seller-name">${escapeHtml(m.lead_name || m.client_name || 'N/A')}</span><span class="seller-stats">${escapeHtml(m.channel)} · ${escapeHtml(m.content.substring(0, 50))}...</span></div>
+            <span class="badge badge-primary">${escapeHtml(m.status)}</span>
           </div>
-        \`).join('');
+        `).join('');
       } else {
         hist.innerHTML = '<p style="color:var(--text-tertiary);text-align:center;padding:2rem;">Nenhuma mensagem enviada</p>';
       }
@@ -227,7 +227,7 @@ const WhatsAppPage = {
   async deleteTemplate(id) {
     if (!confirm('Remover template?')) return;
     try {
-      await API.del(\`/templates/\${id}\`);
+      await API.del(`/templates/${id}`);
       showToast('Template removido', 'success');
       await this.loadData();
     } catch (err) { showToast('Erro: ' + err.message, 'danger'); }
@@ -235,10 +235,10 @@ const WhatsAppPage = {
 
   viewTemplate(id, name, content) {
     Modal.open(
-      `\${escapeHtml(name)}`,
-      `<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);padding:1rem;color:var(--text-secondary);white-space:pre-wrap;font-size:0.9rem;">\${escapeHtml(content)}</div>`,
+      `${escapeHtml(name)}`,
+      `<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);padding:1rem;color:var(--text-secondary);white-space:pre-wrap;font-size:0.9rem;">${escapeHtml(content)}</div>`,
       `<button class="btn btn-secondary" onclick="Modal.close()">Fechar</button>
-       <button class="btn btn-primary" onclick="navigator.clipboard.writeText(\\\`\${content.replace(/`/g, '\\\\`')}\\\`);showToast('Copiado!','success');Modal.close();"><i data-lucide="copy"></i>Copiar</button>`
+       <button class="btn btn-primary" onclick="navigator.clipboard.writeText(\`${content.replace(/`/g, '\\`')}\`);showToast('Copiado!','success');Modal.close();"><i data-lucide="copy"></i>Copiar</button>`
     );
   }
 };
