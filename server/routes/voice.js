@@ -6,12 +6,93 @@ const express = require('express');
 const { db } = require('../db');
 const { authenticate } = require('../middleware/auth');
 
+const fs = require('fs');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 const router = express.Router();
+
+const DATA_DIR = path.join(__dirname, '..', 'data');
+const CONFIG_FILE = path.join(DATA_DIR, 'voice_config.json');
+const CALLS_FILE = path.join(DATA_DIR, 'voice_calls.json');
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Ensure files exist
+if (!fs.existsSync(CONFIG_FILE)) {
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify({
+    prompt: 'Você é um assistente virtual da Nexus Miner. Seu objetivo é ajudar clientes a conhecerem nossos planos de mineração de leads B2B.',
+    voice: 'female_br',
+    language: 'pt-BR',
+    providerKey: '',
+    agentId: ''
+  }));
+}
+if (!fs.existsSync(CALLS_FILE)) {
+  fs.writeFileSync(CALLS_FILE, JSON.stringify([]));
+}
+
+// Helper functions
+const getConfig = () => JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+const saveConfig = (data) => fs.writeFileSync(CONFIG_FILE, JSON.stringify(data, null, 2));
+const getCalls = () => JSON.parse(fs.readFileSync(CALLS_FILE, 'utf8'));
+const saveCalls = (data) => fs.writeFileSync(CALLS_FILE, JSON.stringify(data, null, 2));
 
 // Apply auth middleware to all voice agent requests
 router.use(authenticate);
 
-// POST /api/voice-agent/chat - Send transcribed text to voice agent
+// Get Configuration
+router.get('/config', (req, res) => {
+  try {
+    res.json(getConfig());
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao ler configuração' });
+  }
+});
+
+// Update Configuration
+router.post('/config', (req, res) => {
+  try {
+    const { prompt, voice, language } = req.body;
+    const config = getConfig();
+    if (prompt !== undefined) config.prompt = prompt;
+    if (voice !== undefined) config.voice = voice;
+    if (language !== undefined) config.language = language;
+    saveConfig(config);
+    res.json({ success: true, config });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao salvar configuração' });
+  }
+});
+
+// Update Provider
+router.post('/provider', (req, res) => {
+  try {
+    const { providerKey, agentId } = req.body;
+    const config = getConfig();
+    if (providerKey !== undefined) config.providerKey = providerKey;
+    if (agentId !== undefined) config.agentId = agentId;
+    saveConfig(config);
+    res.json({ success: true, config });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao salvar provedor' });
+  }
+});
+
+// Get Calls
+router.get('/calls', (req, res) => {
+  try {
+    const calls = getCalls();
+    calls.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    res.json(calls);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao ler histórico de chamadas' });
+  }
+});
+
+// POST /chat - Send transcribed text to voice agent
 router.post('/chat', async (req, res) => {
   const { message, mode } = req.body;
   if (!message || typeof message !== 'string') {

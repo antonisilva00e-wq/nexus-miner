@@ -15,6 +15,7 @@ const App = {
     financial: FinancialPage,
     whatsapp: WhatsAppPage,
     telegram: TelegramPage,
+    voice: VoicePage,
     reports: ReportsPage,
     automation: AutomationPage,
     plans: PlansPage,
