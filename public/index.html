@@ -148,23 +148,9 @@
           try { localStorage.setItem('nexus_access_token', res.data.accessToken); } catch(e){}
           try { localStorage.setItem('nexus_refresh_token', res.data.refreshToken); } catch(e){}
           try { localStorage.setItem('nexus_user', JSON.stringify(res.data.user)); } catch(e){}
-          // Mostrar painel
-          btnTxt.textContent = 'Entrando...';
-          document.body.classList.add('logged-in');
-          // Inicializar App se disponivel
-          if (typeof App !== 'undefined' && typeof App.showApp === 'function') {
-            App.showApp();
-          } else {
-            // Fallback direto
-            var loginPage = document.getElementById('page-login');
-            var appShell = document.getElementById('app-shell');
-            if (loginPage) loginPage.style.display = 'none';
-            if (appShell) appShell.style.display = 'flex';
-            // Trigger App init se disponivel
-            if (typeof App !== 'undefined' && typeof App.navigateTo === 'function') {
-              App.navigateTo('dashboard');
-            }
-          }
+          // Recarregar a pagina — App.init() vai detectar o token e abrir o dashboard automaticamente
+          btnTxt.textContent = 'Carregando painel...';
+          window.location.reload();
         })
         .catch(function(err) {
           errTxt.textContent = err.message || 'Erro ao conectar. Tente novamente.';
