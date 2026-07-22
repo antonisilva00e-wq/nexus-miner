@@ -449,7 +449,9 @@
             window.location.href = 'index.html';
         }
 
-        lucide.createIcons();
+        try {
+            lucide.createIcons();
+        } catch (e) {}
 
         function togglePasswordVisibility() {
             const input = document.getElementById('login-pass');
@@ -461,7 +463,7 @@
                 input.type = 'password';
                 icon.setAttribute('data-lucide', 'eye');
             }
-            lucide.createIcons();
+            try { lucide.createIcons(); } catch (e) {}
         }
 
         function handleLogin(event) {
@@ -481,7 +483,7 @@
             btn.classList.add('loading');
             btnText.textContent = 'Verificando...';
             btnIcon.setAttribute('data-lucide', 'loader-2');
-            lucide.createIcons();
+            try { lucide.createIcons(); } catch (e) {}
 
             // Simulate verification delay for realism
             setTimeout(() => {
@@ -500,7 +502,7 @@
                     btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
                     btnText.textContent = 'Acesso liberado!';
                     btnIcon.setAttribute('data-lucide', 'check-circle');
-                    lucide.createIcons();
+                    try { lucide.createIcons(); } catch (e) {}
 
                     setTimeout(() => {
                         window.location.href = 'index.html';
@@ -514,7 +516,7 @@
                     btn.classList.remove('loading');
                     btnText.textContent = 'Entrar no Painel';
                     btnIcon.setAttribute('data-lucide', 'log-in');
-                    lucide.createIcons();
+                    try { lucide.createIcons(); } catch (e) {}
                 }
             }, 800);
         }
