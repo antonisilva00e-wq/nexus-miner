@@ -9,9 +9,11 @@ const crypto = require('crypto');
 // ============================================================
 // 1. GLOBAL RATE LIMITER - Brute force protection
 // ============================================================
+const isProd = process.env.NODE_ENV === 'production';
+
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 150,
+  max: isProd ? 100000 : 500,
   message: { error: 'Muitas tentativas. Tente novamente em 15 minutos.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -22,11 +24,10 @@ const globalLimiter = rateLimit({
 // ============================================================
 // 2. AUTH RATE LIMITER - Strict login protection
 // ============================================================
-const isProd = process.env.NODE_ENV === 'production';
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isProd ? 10000 : 8,
+  max: isProd ? 10000 : 50,
   message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' },
   standardHeaders: true,
   legacyHeaders: false,
