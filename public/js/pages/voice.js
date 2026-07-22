@@ -186,17 +186,27 @@ const VoicePage = {
       const script = document.createElement('script');
       script.type = 'module';
       script.textContent = `
-        import Vapi from 'https://esm.sh/@vapi-ai/web';
-        window.Vapi = Vapi;
-        window.dispatchEvent(new Event('vapi-loaded'));
+        import('https://cdn.jsdelivr.net/npm/@vapi-ai/web/+esm')
+          .then(module => {
+            window.Vapi = module.default || module.Vapi || module;
+            window.dispatchEvent(new Event('vapi-loaded'));
+          })
+          .catch(err => {
+            console.error('Vapi module load error:', err);
+            window.dispatchEvent(new CustomEvent('vapi-error', { detail: err.message }));
+          });
       `;
       
       window.addEventListener('vapi-loaded', () => {
         this.vapiClass = window.Vapi;
         if (!this.vapiClass) {
-          return showToast('Erro crítico: O pacote de voz não foi carregado corretamente.', 'danger');
+          return showToast('Erro crítico: O pacote de voz não possui a classe Vapi.', 'danger');
         }
         this.startVapiCall(publicKey, agentId);
+      }, { once: true });
+
+      window.addEventListener('vapi-error', (e) => {
+        showToast('Erro ao baixar motor de voz. Verifique sua conexão ou bloqueador de anúncios. Detalhe: ' + e.detail, 'danger');
       }, { once: true });
 
       document.head.appendChild(script);
