@@ -191,9 +191,11 @@ const VoicePage = {
       script.src = '/js/vapi.min.js';
       
       script.onload = () => {
-        this.vapiClass = window.Vapi || window.vapi || window.exports.default || window.exports.Vapi || window.exports;
-        if (!this.vapiClass) {
-          return showToast('Erro crítico: O pacote de voz não foi iniciado corretamente.', 'danger');
+        const globalVapi = window.Vapi || window.vapi || window.exports?.default || window.exports;
+        this.vapiClass = globalVapi?.default?.default || globalVapi?.default || globalVapi?.Vapi || globalVapi;
+
+        if (typeof this.vapiClass !== 'function') {
+          return showToast('Erro crítico: O pacote de voz não foi iniciado corretamente. (Não é construtor)', 'danger');
         }
         this.startVapiCall(publicKey, agentId);
       };

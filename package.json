@@ -22,6 +22,7 @@
   "author": "Nexus Miner",
   "license": "ISC",
   "dependencies": {
+    "@vapi-ai/web": "^2.6.1",
     "@whiskeysockets/baileys": "^7.0.0-rc13",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
