@@ -5,12 +5,23 @@ const DashboardPage = {
   cachedData: null,
 
   async render() {
-    const el = document.getElementById('page-dashboard');
-    document.getElementById('page-title').textContent = 'Dashboard';
-    document.getElementById('page-subtitle').textContent = 'Visao geral do sistema';
+    let el;
+    try {
+      el = document.getElementById('page-dashboard');
+      if (!el) { console.error('[Dashboard] #page-dashboard nao encontrado!'); return; }
 
-    Charts.destroyAll();
-    el.innerHTML = this.renderSkeletons();
+      // Garante que o elemento esta visivel antes de qualquer coisa
+      el.style.display = 'block';
+
+      // Atualiza o titulo imediatamente
+      const titleEl = document.getElementById('page-title');
+      const subtitleEl = document.getElementById('page-subtitle');
+      if (titleEl) titleEl.textContent = 'Dashboard';
+      if (subtitleEl) subtitleEl.textContent = 'Visao geral do sistema';
+
+      // Destroi charts e mostra skeletons de forma SINCRONA - antes de qualquer fetch
+      try { Charts.destroyAll(); } catch(e) { console.warn('[Dashboard] destroyAll falhou:', e); }
+      el.innerHTML = this.renderSkeletons();
 
     try {
       const period = this.currentPeriod;
@@ -42,7 +53,7 @@ const DashboardPage = {
         return;
       }
 
-      const totalPipeline = pipelineChart.data.reduce((s, d) => s + d.count, 0);
+      const totalPipeline = pipelineChart?.data?.reduce((s, d) => s + d.count, 0) || 0;
 
       // Cache data for export
       this.cachedData = {
@@ -52,8 +63,8 @@ const DashboardPage = {
         activeClients: overview.activeClients,
         totalClients: overview.totalClients,
         totalPipeline,
-        newLeadsPeriod: leadsChart.data.reduce((s, d) => s + d.count, 0),
-        pipeline: pipelineChart.data,
+        newLeadsPeriod: leadsChart?.data?.reduce((s, d) => s + d.count, 0) || 0,
+        pipeline: pipelineChart?.data || [],
       };
 
       el.innerHTML = `
@@ -77,7 +88,7 @@ const DashboardPage = {
         </div>
 
         <!-- Smart Alerts -->
-        ${alerts.alerts.length > 0 ? `
+        ${alerts?.alerts?.length > 0 ? `
         <div class="dashboard-alerts">
           ${alerts.alerts.map(a => `
             <div class="alert-card alert-${a.type}" onclick="App.navigateTo('${a.action}')">
@@ -161,7 +172,7 @@ const DashboardPage = {
             <div class="kpi-info">
               <span class="kpi-value" data-counter="${totalPipeline}">0</span>
               <span class="kpi-label">Pipeline Ativo</span>
-              <span class="kpi-trend up"><i data-lucide="layers" style="width:12px;height:12px;"></i> ${pipelineChart.data.length} estagios</span>
+              <span class="kpi-trend up"><i data-lucide="layers" style="width:12px;height:12px;"></i> ${pipelineChart?.data?.length || 0} estagios</span>
             </div>
           </div>
           <div class="kpi-card">
@@ -238,63 +249,79 @@ const DashboardPage = {
       this.animateCounters();
 
       // Leads chart
-      const lcLabels = leadsChart.data.map(d => d.period);
-      const lcData = leadsChart.data.map(d => d.count);
+      const lcLabels = leadsChart?.data?.map(d => d.period) || [];
+      const lcData = leadsChart?.data?.map(d => d.count) || [];
       if (lcLabels.length) Charts.createLine('chart-leads-month', lcLabels, lcData, 'Leads');
 
       // Pipeline doughnut
-      const pcLabels = pipelineChart.data.map(d => {
+      const pcLabels = (pipelineChart?.data || []).map(d => {
         const names = { leads: 'Novos', contato: 'Contato', proposta: 'Proposta', fechado: 'Fechado', perdido: 'Perdido' };
         return names[d.pipeline_stage] || d.pipeline_stage;
       });
-      const pcData = pipelineChart.data.map(d => d.count);
+      const pcData = (pipelineChart?.data || []).map(d => d.count);
       if (pcLabels.length) Charts.createDoughnut('chart-pipeline', pcLabels, pcData);
 
       // Score distribution bar chart
-      const sdLabels = scoreDist.data.map(d => d.label);
-      const sdData = scoreDist.data.map(d => d.count);
+      const sdLabels = scoreDist?.data?.map(d => d.label) || [];
+      const sdData = scoreDist?.data?.map(d => d.count) || [];
       if (sdLabels.length) {
         Charts.createBar('chart-score-dist', sdLabels, sdData, 'Leads');
       }
 
       // States bar chart
-      const topStates = geo.byState.slice(0, 12);
+      const topStates = (geo?.byState || []).slice(0, 12);
       if (topStates.length) {
         Charts.createBar('chart-states', topStates.map(s => s.state), topStates.map(s => s.count), 'Leads');
       }
 
       // Pipeline progress bars
-      this.renderPipelineBars(pipelineChart.data, totalPipeline);
+      this.renderPipelineBars(pipelineChart?.data || [], totalPipeline);
 
       // Funnel
-      this.renderFunnel(funnel.stages);
+      this.renderFunnel(funnel?.stages || []);
 
       // Top cities
-      this.renderTopCities(geo.byCity);
+      this.renderTopCities(geo?.byCity || []);
 
       // Activity feed
       this.renderActivityFeed(overview.recentActivities);
 
       // Top sellers with avatars
-      this.renderTopSellers(topSellers.sellers);
+      this.renderTopSellers(topSellers?.sellers || []);
 
       // Auto-refresh every 30s
       this.startAutoRefresh();
 
     } catch (err) {
-      el.innerHTML = `
-        <div class="empty-state">
-          <i data-lucide="alert-triangle"></i>
-          <p>Erro ao carregar dashboard</p>
-          <span class="text-secondary text-sm">${err.message}</span>
-          <button class="btn btn-primary" style="margin-top:1rem;" onclick="DashboardPage.render()">
-            <i data-lucide="refresh-cw"></i> Tentar Novamente
+      if (el) {
+        el.innerHTML = `
+          <div class="empty-state">
+            <i data-lucide="alert-triangle"></i>
+            <p>Erro ao carregar dashboard</p>
+            <span class="text-secondary text-sm">${err.message}</span>
+            <button class="btn btn-primary" style="margin-top:1rem;" onclick="DashboardPage.render()">
+              <i data-lucide="refresh-cw"></i> Tentar Novamente
+            </button>
+          </div>
+        `;
+        try { lucide.createIcons(); } catch(_) {}
+      }
+    }
+
+    } catch (outerErr) {
+      console.error('[Dashboard] Erro critico no render():', outerErr);
+      const pageEl = document.getElementById('page-dashboard');
+      if (pageEl) pageEl.innerHTML = `
+        <div style="padding:3rem;text-align:center;color:white;">
+          <p style="font-size:1.2rem;margin-bottom:0.5rem;">&#9888; Erro critico no dashboard</p>
+          <p style="color:#9ca3af;font-size:0.9rem;margin-bottom:1rem;">${outerErr.message}</p>
+          <button onclick="DashboardPage.render()" style="padding:0.6rem 1.5rem;background:#6366f1;color:white;border:none;border-radius:8px;cursor:pointer;font-size:0.9rem;">
+            Tentar Novamente
           </button>
-        </div>
-      `;
-      lucide.createIcons();
+        </div>`;
     }
   },
+
 
   renderSkeletons() {
     return `

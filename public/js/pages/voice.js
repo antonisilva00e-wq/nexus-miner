@@ -215,11 +215,11 @@ const VoicePage = {
     try {
       if (!this.vapiInstance) {
         this.vapiInstance = new this.vapiClass(publicKey);
-        
+
         this.vapiInstance.on('call-start', () => {
           showToast('Chamada conectada! Pode falar.', 'success');
-          document.getElementById('vapi-status-text').textContent = 'Conectado! Fale agora...';
-          document.getElementById('vapi-status-text').style.color = '#10b981';
+          const statusEl = document.getElementById('vapi-status-text');
+          if (statusEl) { statusEl.textContent = 'Conectado! Fale agora...'; statusEl.style.color = '#10b981'; }
         });
 
         this.vapiInstance.on('call-end', () => {
@@ -228,14 +228,31 @@ const VoicePage = {
         });
 
         this.vapiInstance.on('error', (e) => {
-          console.error('Vapi Raw Error:', e);
-          let errorMsg = 'Verifique suas chaves';
-          if (typeof e === 'string') errorMsg = e;
-          else if (e?.message) errorMsg = e.message;
-          else if (e?.error?.message) errorMsg = e.error.message;
-          else if (typeof e === 'object') errorMsg = JSON.stringify(e);
-          
+          // Log detalhado no console para debug
+          console.error('Vapi Error Object:', e);
+          console.error('Vapi Error Type:', typeof e);
+          try { console.error('Vapi Error JSON:', JSON.stringify(e, null, 2)); } catch(_) {}
+
+          // Extrair mensagem legivel
+          let errorMsg = 'Erro desconhecido';
+          try {
+            if (typeof e === 'string') {
+              errorMsg = e;
+            } else if (e && e.message) {
+              errorMsg = e.message;
+            } else if (e && e.error && e.error.message) {
+              errorMsg = e.error.message;
+            } else if (e && e.errorMessage) {
+              errorMsg = e.errorMessage;
+            } else if (e && e.msg) {
+              errorMsg = e.msg;
+            } else if (e) {
+              errorMsg = JSON.stringify(e);
+            }
+          } catch(_) { errorMsg = 'Erro ao processar resposta do Vapi'; }
+
           showToast('Erro Vapi: ' + errorMsg, 'danger');
+          console.warn('[Voice] Dica: Verifique no console F12 o "Vapi Error JSON" para mais detalhes.');
           Modal.close();
         });
       }
@@ -243,62 +260,26 @@ const VoicePage = {
       Modal.open(
         '🎙️ Teste WebRTC (Navegador)',
         `<div style="text-align:center;padding:2rem;">
-          <div class="pulse-ring" style="margin:0 auto 2rem auto;position:relative;">
-            <div style="width:80px;height:80px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;margin:0 auto;animation:pulse 2s infinite;">
-              <i data-lucide="mic" style="color:white;width:40px;height:40px;"></i>
-            </div>
+          <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;margin:0 auto 2rem auto;animation:pulse 2s infinite;box-shadow:0 0 30px rgba(16,185,129,0.4);">
+            <i data-lucide="mic" style="color:white;width:40px;height:40px;"></i>
           </div>
           <h3 id="vapi-status-text" style="color:white;margin-bottom:1rem;">Iniciando chamada...</h3>
-          <p style="color:var(--text-tertiary);margin-bottom:2rem;">Por favor, permita o acesso ao microfone no seu navegador.</p>
+          <p style="color:var(--text-tertiary);margin-bottom:2rem;">Permita o acesso ao microfone no navegador.</p>
           <button class="btn btn-danger" onclick="VoicePage.endVapiCall()"><i data-lucide="phone-off"></i> Desligar</button>
-         </div>`,
+        </div>`,
         `<button class="btn btn-secondary" onclick="VoicePage.endVapiCall()">Cancelar</button>`
       );
       lucide.createIcons();
 
-      // Get the prompt from the UI if available
-      const promptText = document.getElementById('voice-prompt')?.value || "Você é um atendente inteligente.";
+      const promptText = document.getElementById('voice-prompt')?.value || '';
 
-      // Dynamically override the assistant configuration
-      this.vapiInstance.start(agentId, {
-        firstMessage: "Oi! Tudo bem?",
-        model: {
-          messages: [
-            {
-              role: "system",
-              content: promptText
-            }
-          ],
-          tools: [
-            {
-              type: "function",
-              async: true,
-              function: {
-                name: "enviar_whatsapp",
-                description: "Envia uma mensagem no WhatsApp do cliente. Use isso quando o cliente aceitar comprar o aplicativo ou pedir o link.",
-                parameters: {
-                  type: "object",
-                  properties: {
-                    telefone: {
-                      type: "string",
-                      description: "O numero do celular do cliente com DDD."
-                    },
-                    mensagem: {
-                      type: "string",
-                      description: "A mensagem que vai com o link do aplicativo."
-                    }
-                  },
-                  required: ["telefone", "mensagem"]
-                }
-              }
-            }
-          ]
-        },
-        serverUrl: window.location.origin + '/api/vapi/webhook'
-      });
-      
+      // Inicia com o assistente sem overrides - configuracao vem do dashboard Vapi
+      // Passar overrides de model causa erro 400 se o assistente usa configuracao diferente
+      this.vapiInstance.start(agentId);
+
     } catch (err) {
-      showToast('Erro ao iniciar Vapi: ' + err.message, 'danger');
+      console.error('[Voice] Erro ao iniciar Vapi:', err);
+      showToast('Erro ao iniciar Vapi: ' + (err.message || err), 'danger');
     }
   },
 

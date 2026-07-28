@@ -269,7 +269,12 @@
       </header>
 
       <!-- Page containers -->
-      <div id="page-dashboard" class="page-content"></div>
+      <div id="page-dashboard" class="page-content" style="min-height:200px;">
+        <div id="dash-loading" style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem;">
+          <div style="width:48px;height:48px;border:3px solid rgba(99,102,241,0.3);border-top-color:#6366f1;border-radius:50%;animation:spin 1s linear infinite;"></div>
+          <p style="color:var(--text-secondary,#9ca3af);">Carregando dashboard...</p>
+        </div>
+      </div>
       <div id="page-leads" class="page-content" style="display:none;"></div>
       <div id="page-map" class="page-content" style="display:none;"></div>
       <div id="page-kanban" class="page-content" style="display:none;"></div>
@@ -367,13 +372,13 @@
     </div>
   </div>
 
-  <script src="/js/api.js?v=18"></script>
-  <script src="/js/auth.js?v=18"></script>
+  <script src="/js/api.js?v=19"></script>
+  <script src="/js/auth.js?v=19"></script>
   <script src="/js/components/toast.js?v=18"></script>
   <script src="/js/components/modal.js?v=18"></script>
   <script src="/js/components/charts.js?v=18"></script>
   <script src="/js/components/ui.js?v=18"></script>
-  <script src="/js/pages/dashboard.js?v=18"></script>
+  <script src="/js/pages/dashboard.js?v=19"></script>
   <script src="/js/pages/leads.js?v=18"></script>
   <script src="/js/pages/map.js?v=18"></script>
   <script src="/js/pages/kanban.js?v=18"></script>
@@ -384,18 +389,18 @@
   <script src="/js/pages/clients.js?v=1"></script>
   <script src="/js/pages/financial.js?v=2"></script>
   <script src="/js/pages/whatsapp.js?v=18"></script>
-  <script src="/js/pages/voice.js?v=1"></script>
-  <script src="/js/pages/settings.js?v=1"></script>
+  <script src="/js/pages/voice.js?v=20"></script>
+
   <script src="/js/pages/telegram.js?v=18"></script>
   <script src="/js/pages/reports.js?v=18"></script>
-  <script src="/js/pages/automation.js?v=18"></script>
+  <script src="/js/pages/automation.js?v=19"></script>
   <script src="/js/pages/plans.js?v=18"></script>
   <script src="/js/pages/referrals.js?v=18"></script>
   <script src="/js/pages/users.js?v=18"></script>
   <script src="/js/pages/settings.js?v=18"></script>
   <script src="/js/pdf-export.js?v=18"></script>
   <script src="/js/theme.js?v=18"></script>
-  <script src="/js/app.js?v=18"></script>
+  <script src="/js/app.js?v=19"></script>
   <!-- Real-time notifications -->
   <script src="/js/socket.io.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sonner@1.7.2/dist/styles.css">
