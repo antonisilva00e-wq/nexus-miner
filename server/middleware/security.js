@@ -325,19 +325,19 @@ function securityHeaders(req, res, next) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+  res.setHeader('Permissions-Policy', 'camera=(), geolocation=(), payment=()');
   // NOTE: COOP/COEP/CORP removed — they block cross-origin tiles (Leaflet/OSM),
   // Google Fonts, CDN resources, and Socket.IO websocket upgrades.
 
   // CSP - balanced security and functionality
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://c.daily.co",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://server.arcgisonline.com https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org https://unpkg.com",
-    "connect-src 'self' ws: wss: https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://api.vapi.ai wss://api.vapi.ai https://maps.googleapis.com https://places.googleapis.com",
-    "worker-src 'self'",
+    "connect-src 'self' ws: wss: https://fonts.googleapis.com https://fonts.gstatic.com https://cdn.jsdelivr.net https://api.vapi.ai wss://api.vapi.ai https://maps.googleapis.com https://places.googleapis.com https://*.daily.co wss://*.daily.co",
+    "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
