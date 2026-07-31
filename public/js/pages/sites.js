@@ -579,7 +579,134 @@ const SitesPage = {
   },
 
   async generateSite() {
-    showToast('Iniciando Inteligência Artificial... coletando dados.', 'info');
-    // Implement generation mock here in the future
+    const btn = event.currentTarget;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader" class="fa-spin"></i> Gerando (Pode levar 1 minuto)...';
+    btn.style.opacity = '0.7';
+    btn.disabled = true;
+    if (window.lucide) lucide.createIcons();
+
+    // Get input values (assuming the structure created previously)
+    const formInputs = document.querySelectorAll('.sites-form input, .sites-form select, .sites-form textarea');
+    const name = formInputs[0]?.value || 'Meu Novo Negócio';
+    const segment = formInputs[1]?.value || 'SaaS';
+    const desc = formInputs[2]?.value || 'Site incrível gerado pela IA da NexusMiner.';
+    const prompt = 'Estilo ' + (document.querySelector('.pill-group .pill.active')?.textContent || 'Moderno');
+    const color = document.querySelector('.color-circle.active')?.style.backgroundColor || '#8b5cf6';
+    const objective = document.querySelectorAll('.pill-group')[1]?.querySelector('.active')?.textContent || 'Leads';
+
+    showToast('Iniciando IA... conectando servidores.', 'info');
+
+    // Setup Progress Bar Animation
+    const progressSteps = document.querySelectorAll('.progress-bar-container > div > div');
+    const stepTexts = document.querySelectorAll('.progress-bar-container span');
+    let currentStep = 0;
+    const progressInterval = setInterval(() => {
+      if (currentStep < progressSteps.length - 1) {
+        // Deactivate previous
+        if (currentStep > 0) {
+          progressSteps[currentStep].style.background = '#8b5cf6';
+          progressSteps[currentStep].innerHTML = '<i data-lucide="check" style="width:12px;height:12px;color:#fff;"></i>';
+          stepTexts[currentStep].style.color = '#8b5cf6';
+        }
+        // Activate next
+        currentStep++;
+        progressSteps[currentStep].style.background = '#8b5cf6';
+        progressSteps[currentStep].innerHTML = '<div style="width:6px;height:6px;border-radius:50%;background:#fff;"></div>';
+        stepTexts[currentStep].style.color = '#8b5cf6';
+        if (window.lucide) lucide.createIcons();
+      }
+    }, 4500); // Progress advances every 4.5s while waiting
+
+    try {
+      const token = localStorage.getItem('nexus_token') || '';
+      const response = await fetch('/api/sites/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          name: name,
+          description: desc,
+          services: segment,
+          diff: objective,
+          colors: color,
+          prompt: prompt
+        })
+      });
+
+      clearInterval(progressInterval);
+
+      if (!response.ok) {
+        throw new Error('Falha ao gerar o site na API.');
+      }
+
+      const data = await response.json();
+
+      // Finish all progress steps
+      progressSteps.forEach((step, idx) => {
+        step.style.background = '#10b981';
+        step.innerHTML = '<i data-lucide="check" style="width:12px;height:12px;color:#fff;"></i>';
+        stepTexts[idx].style.color = '#10b981';
+      });
+      if (window.lucide) lucide.createIcons();
+
+      showToast('Site gerado com sucesso!', 'success');
+
+      // Update URL bar
+      const urlBar = document.querySelector('.url-bar');
+      if (urlBar) {
+        urlBar.innerHTML = '<i data-lucide="lock" style="width:12px;height:12px;color:#10b981;"></i> ' + data.slug + '.nexusminer.app';
+      }
+
+      // Replace Preview Canvas with iframe
+      const canvas = document.querySelector('.preview-canvas');
+      canvas.style.padding = '0';
+      canvas.style.overflow = 'hidden';
+      canvas.innerHTML = `
+        <iframe 
+          id="site-preview-iframe"
+          style="width: 100%; height: 100%; border: none; background: #fff; transition: width 0.3s;" 
+          sandbox="allow-scripts allow-same-origin"
+          srcdoc="${data.html.replace(/"/g, '&quot;')}">
+        </iframe>
+      `;
+      if (window.lucide) lucide.createIcons();
+
+      // Make device toggles actually resize the iframe!
+      document.querySelectorAll('.device-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const device = e.currentTarget.getAttribute('title');
+          const iframe = document.getElementById('site-preview-iframe');
+          if (!iframe) return;
+          
+          if (device === 'Mobile') {
+            iframe.style.width = '375px';
+            iframe.style.borderLeft = '1px solid rgba(0,0,0,0.1)';
+            iframe.style.borderRight = '1px solid rgba(0,0,0,0.1)';
+            iframe.style.margin = '0 auto';
+          } else if (device === 'Tablet') {
+            iframe.style.width = '768px';
+            iframe.style.borderLeft = '1px solid rgba(0,0,0,0.1)';
+            iframe.style.borderRight = '1px solid rgba(0,0,0,0.1)';
+            iframe.style.margin = '0 auto';
+          } else {
+            iframe.style.width = '100%';
+            iframe.style.border = 'none';
+            iframe.style.margin = '0';
+          }
+        });
+      });
+
+    } catch (error) {
+      clearInterval(progressInterval);
+      console.error(error);
+      showToast('Erro ao gerar o site: ' + error.message, 'error');
+    } finally {
+      btn.innerHTML = originalText;
+      btn.style.opacity = '1';
+      btn.disabled = false;
+    }
   }
 };
