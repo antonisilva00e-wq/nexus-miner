@@ -120,7 +120,7 @@
   }
   
   .mobile-menu-btn {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     width: 40px;
@@ -132,7 +132,7 @@
     margin-right: 10px;
   }
   .mobile-close-btn {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     width: 40px;
