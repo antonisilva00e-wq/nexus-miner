@@ -119,8 +119,10 @@ const Auth = {
       if (existingLock) existingLock.remove();
 
       let isLocked = false;
-      if (plan === 'starter' && starterBlocked.includes(page)) isLocked = true;
-      if (plan === 'pro' && proBlocked.includes(page)) isLocked = true;
+      if (!isAdmin) {
+        if (plan === 'starter' && starterBlocked.includes(page)) isLocked = true;
+        if (plan === 'pro' && proBlocked.includes(page)) isLocked = true;
+      }
 
       if (isLocked) {
         el.style.display = 'none';
