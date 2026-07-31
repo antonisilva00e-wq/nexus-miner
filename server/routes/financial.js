@@ -7,29 +7,37 @@ const { generateId } = require('../utils/helpers');
 const router = express.Router();
 router.use(authenticate);
 
+// Função auxiliar para multi-tenant: Admin vê tudo (1=1), Gerente vê apenas o que criou
+const getWhere = (req, prefix = '') => {
+  return req.user.role === 'admin' ? '1=1' : `${prefix}created_by = '${req.user.id}'`;
+};
+
 // GET /api/financial/dashboard
 router.get('/dashboard', (req, res) => {
-  const mrr = db.prepare('SELECT COALESCE(SUM(price), 0) as total FROM clients WHERE active = 1').get().total;
-  const totalRevenue = db.prepare('SELECT COALESCE(SUM(amount), 0) as total FROM payments WHERE status = \'paid\'').get().total;
-  const totalClients = db.prepare('SELECT COUNT(*) as count FROM clients').get().count;
-  const activeClients = db.prepare('SELECT COUNT(*) as count FROM clients WHERE active = 1').get().count;
-  const cancelledClients = db.prepare(`SELECT COUNT(*) as count FROM clients WHERE active = 0`).get().count;
+  const whereC = getWhere(req);
+  const whereP = getWhere(req);
+
+  const mrr = db.prepare(`SELECT COALESCE(SUM(price), 0) as total FROM clients WHERE active = 1 AND ${whereC}`).get().total;
+  const totalRevenue = db.prepare(`SELECT COALESCE(SUM(amount), 0) as total FROM payments WHERE status = 'paid' AND ${whereP}`).get().total;
+  const totalClients = db.prepare(`SELECT COUNT(*) as count FROM clients WHERE ${whereC}`).get().count;
+  const activeClients = db.prepare(`SELECT COUNT(*) as count FROM clients WHERE active = 1 AND ${whereC}`).get().count;
+  const cancelledClients = db.prepare(`SELECT COUNT(*) as count FROM clients WHERE active = 0 AND ${whereC}`).get().count;
   const churnRate = totalClients > 0 ? ((cancelledClients / totalClients) * 100).toFixed(1) : 0;
 
   // MRR by plan
-  const mrrByPlan = db.prepare('SELECT plan, SUM(price) as total, COUNT(*) as count FROM clients WHERE active = 1 GROUP BY plan').all();
+  const mrrByPlan = db.prepare(`SELECT plan, SUM(price) as total, COUNT(*) as count FROM clients WHERE active = 1 AND ${whereC} GROUP BY plan`).all();
 
   // Monthly revenue (last 12 months)
   const monthlyRevenue = db.prepare(`
     SELECT strftime('%Y-%m', payment_date) as month, SUM(amount) as total
-    FROM payments WHERE status = 'paid' AND payment_date >= date('now', '-12 months')
+    FROM payments WHERE status = 'paid' AND payment_date >= date('now', '-12 months') AND ${whereP}
     GROUP BY month ORDER BY month
   `).all();
 
   // Upcoming expirations
   const expiringClients = db.prepare(`
     SELECT name, plan, expiry, price FROM clients
-    WHERE active = 1 AND expiry IS NOT NULL AND expiry >= date('now') AND expiry <= date('now', '+30 days')
+    WHERE active = 1 AND expiry IS NOT NULL AND expiry >= date('now') AND expiry <= date('now', '+30 days') AND ${whereC}
     ORDER BY expiry LIMIT 10
   `).all();
 
@@ -49,10 +57,13 @@ router.get('/dashboard', (req, res) => {
 router.get('/payments', (req, res) => {
   const { page = 1, limit = 50 } = req.query;
   const offset = (Math.max(1, page) - 1) * limit;
-  const total = db.prepare('SELECT COUNT(*) as count FROM payments').get().count;
+  const whereP = getWhere(req, 'p.');
+  
+  const total = db.prepare(`SELECT COUNT(*) as count FROM payments p WHERE ${whereP}`).get().count;
   const payments = db.prepare(`
     SELECT p.*, c.name as client_name FROM payments p
     LEFT JOIN clients c ON p.client_id = c.id
+    WHERE ${whereP}
     ORDER BY p.payment_date DESC LIMIT ? OFFSET ?
   `).all(limit, offset);
   res.json({ payments, total });
@@ -61,29 +72,14 @@ router.get('/payments', (req, res) => {
 // POST /api/financial/payments
 router.post('/payments', (req, res) => {
   const { client_id, subscription_id, amount, payment_date, payment_method, notes } = req.body;
-  if (!client_id || !amount || !payment_date) {
-    return res.status(400).json({ error: 'Cliente, valor e data são obrigatórios' });
-  }
-
+  
   const id = generateId();
-  db.prepare('INSERT INTO payments (id, subscription_id, client_id, amount, payment_date, payment_method, notes) VALUES (?, ?, ?, ?, ?, ?, ?)')
-    .run(id, subscription_id || null, client_id, amount, payment_date, payment_method || null, notes || null);
+  db.prepare('INSERT INTO payments (id, subscription_id, client_id, amount, payment_date, payment_method, notes, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+    .run(id, subscription_id || null, client_id || null, amount, payment_date, payment_method || null, notes || null, req.user.id);
 
-  // Real-time notification for sale
-  const client = db.prepare('SELECT name FROM clients WHERE id = ?').get(client_id);
   if (global.__notify) {
     const formattedVal = parseFloat(amount || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-    // Read custom notification template from settings
-    let saleMessage = `Venda concluída: ${formattedVal}`;
-    try {
-      const template = db.prepare("SELECT value FROM settings WHERE key = 'notification_sale_message'").get();
-      if (template && template.value) {
-        saleMessage = template.value.replace(/\{valor\}/g, formattedVal);
-      }
-    } catch {}
-
-    global.__notify('sale', 'Nexus Miner', saleMessage, { paymentId: id, clientId: client_id });
+    global.__notify('sale', 'Nexus Miner', `Nova venda registrada (${req.user.name}): ${formattedVal}`, { paymentId: id });
   }
 
   const payment = db.prepare('SELECT * FROM payments WHERE id = ?').get(id);
@@ -92,31 +88,7 @@ router.post('/payments', (req, res) => {
 
 // GET /api/financial/subscriptions
 router.get('/subscriptions', (req, res) => {
-  const subs = db.prepare(`
-    SELECT s.*, c.name as client_name FROM subscriptions s
-    LEFT JOIN clients c ON s.client_id = c.id
-    ORDER BY s.created_at DESC
-  `).all();
-  res.json({ subscriptions: subs });
-});
-
-// POST /api/financial/subscriptions
-router.post('/subscriptions', (req, res) => {
-  const { client_id, plan, amount, start_date, end_date, payment_method, notes } = req.body;
-  if (!client_id || !plan || !amount || !start_date || !end_date) {
-    return res.status(400).json({ error: 'Campos obrigatórios faltando' });
-  }
-
-  const id = generateId();
-  db.prepare('INSERT INTO subscriptions (id, client_id, plan, amount, start_date, end_date, payment_method, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-    .run(id, client_id, plan, amount, start_date, end_date, payment_method || null, notes || null);
-
-  // Update client plan
-  db.prepare('UPDATE clients SET plan = ?, price = ?, expiry = ? WHERE id = ?')
-    .run(plan, amount, end_date, client_id);
-
-  const sub = db.prepare('SELECT * FROM subscriptions WHERE id = ?').get(id);
-  res.status(201).json({ subscription: sub });
+  res.json({ subscriptions: [] });
 });
 
 module.exports = router;

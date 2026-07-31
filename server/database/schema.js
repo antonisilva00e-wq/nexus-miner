@@ -307,6 +307,8 @@ function createSchema(db) {
     'ALTER TABLE clients ADD COLUMN commission_balance REAL DEFAULT 0',
     'ALTER TABLE clients ADD COLUMN invite_code TEXT',
     'ALTER TABLE clients ADD COLUMN referred_by TEXT',
+    'ALTER TABLE clients ADD COLUMN created_by TEXT',
+    'ALTER TABLE payments ADD COLUMN created_by TEXT',
     'ALTER TABLE users ADD COLUMN plan TEXT DEFAULT "free"',
     'ALTER TABLE users ADD COLUMN plan_expiry DATETIME',
     'ALTER TABLE users ADD COLUMN invite_code TEXT',
