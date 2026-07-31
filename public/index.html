@@ -20,10 +20,10 @@
   <script src="/js/lucide.min.js"></script>
   <script src="/js/chart.min.js"></script>
   <script src="/js/jspdf.min.js?v=2"></script>
-  <link rel="stylesheet" href="/css/variables.css?v=2">
-  <link rel="stylesheet" href="/css/layout.css?v=2">
+  <link rel="stylesheet" href="/css/variables.css?v=3">
+  <link rel="stylesheet" href="/css/layout.css?v=5">
   <link rel="stylesheet" href="/css/components.css?v=2">
-  <link rel="stylesheet" href="/css/dashboard.css?v=3">
+  <link rel="stylesheet" href="/css/dashboard-premium.css?v=39">
   <link rel="stylesheet" href="/css/kanban.css?v=2">
   <link rel="stylesheet" href="/css/responsive.css?v=2">
   <link rel="stylesheet" href="/css/animations.css?v=2">
@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="/css/tech-background.css?v=3">
   <link rel="stylesheet" href="/css/service-cards.css?v=1">
   <link rel="stylesheet" href="/css/sidebar-premium.css?v=1">
-  <link rel="stylesheet" href="/css/financial-premium.css?v=2">
+  <link rel="stylesheet" href="/css/financial-premium.css?v=5">
   <link rel="stylesheet" href="/css/global-animations.css?v=1">
   <link rel="stylesheet" href="/css/voice-agent.css?v=1">
 
@@ -226,8 +226,10 @@
 
         <div class="sidebar-section-label">Inteligencia</div>
         <a href="#/scoring" class="menu-item" data-page="scoring"><i data-lucide="bar-chart-3"></i><span>Scoring</span></a>
-        <a href="#/enrichment" class="menu-item" data-page="enrichment"><i data-lucide="sparkles"></i><span>Enriquecer IA</span></a>
-        <a href="#/intelligence" class="menu-item" data-page="intelligence"><i data-lucide="brain"></i><span>Inteligencia</span></a>
+        <a href="#/enrichment" class="menu-item" data-page="enrichment" onclick="App.navigateTo('enrichment')"><i data-lucide="zap"></i><span>Enriquecer IA</span></a>
+        <a href="#/intelligence" class="menu-item" data-page="intelligence" onclick="App.navigateTo('intelligence')"><i data-lucide="bar-chart-2"></i><span>Inteligência</span></a>
+        <a href="#/sites" class="menu-item" data-page="sites" onclick="App.navigateTo('sites')"><i data-lucide="layout"></i><span>Criador de Sites</span><span class="badge" style="background:#8b5cf6;margin-left:4px;">IA</span></a>
+        <a href="#/sites-prospecting" class="menu-item" data-page="sites-prospecting" onclick="App.navigateTo('sites-prospecting')"><i data-lucide="globe"></i><span>Prospecção</span></a>
 
         <div class="sidebar-section-label">Gestao</div>
         <a href="#/booking" class="menu-item" data-page="booking"><i data-lucide="calendar"></i><span>Agendamentos</span></a>
@@ -282,6 +284,8 @@
       <div id="page-enrichment" class="page-content" style="display:none;"></div>
       <div id="page-booking" class="page-content" style="display:none;"></div>
       <div id="page-intelligence" class="page-content" style="display:none;"></div>
+      <div id="page-sites" class="page-content" style="display:none;"></div>
+      <div id="page-sites-prospecting" class="page-content" style="display:none;"></div>
       <div id="page-clients" class="page-content" style="display:none;"></div>
       <div id="page-financial" class="page-content" style="display:none;"></div>
       <div id="page-whatsapp" class="page-content" style="display:none;"></div>
@@ -373,34 +377,39 @@
   </div>
 
   <script src="/js/api.js?v=19"></script>
-  <script src="/js/auth.js?v=19"></script>
+  <script src="/js/auth.js?v=22"></script>
   <script src="/js/components/toast.js?v=18"></script>
   <script src="/js/components/modal.js?v=18"></script>
-  <script src="/js/components/charts.js?v=18"></script>
+  <script src="/js/components/charts-premium.js?v=6"></script>
   <script src="/js/components/ui.js?v=18"></script>
-  <script src="/js/pages/dashboard.js?v=19"></script>
+  <script src="/js/pages/dashboard.js?v=35"></script>
   <script src="/js/pages/leads.js?v=18"></script>
   <script src="/js/pages/map.js?v=18"></script>
-  <script src="/js/pages/kanban.js?v=18"></script>
-  <script src="/js/pages/scoring.js?v=18"></script>
-  <script src="/js/pages/enrichment.js?v=18"></script>
-  <script src="/js/pages/booking.js?v=18"></script>
-  <script src="/js/pages/intelligence.js?v=18"></script>
-  <script src="/js/pages/clients.js?v=1"></script>
-  <script src="/js/pages/financial.js?v=2"></script>
-  <script src="/js/pages/whatsapp.js?v=18"></script>
+  <script src="/js/pages/leads.js?v=19"></script>
+  <script src="/js/pages/map.js?v=19"></script>
+  <script src="/js/pages/kanban.js?v=19"></script>
+  <script src="/js/pages/scoring.js?v=19"></script>
+  <script src="/js/pages/enrichment.js?v=19"></script>
+  <script src="/js/pages/booking.js?v=19"></script>
+  <script src="/js/pages/intelligence.js?v=19"></script>
+  <script src="/js/pages/sites.js?v=21"></script>
+  <script src="/js/pages/sites-prospecting.js?v=19"></script>
+  <script src="/js/pages/clients.js?v=19"></script>
+  <script src="/js/pages/financial.js?v=19"></script>
+  <script src="/js/pages/whatsapp.js?v=19"></script>
   <script src="/js/pages/voice.js?v=20"></script>
+  
 
   <script src="/js/pages/telegram.js?v=18"></script>
   <script src="/js/pages/reports.js?v=18"></script>
   <script src="/js/pages/automation.js?v=19"></script>
-  <script src="/js/pages/plans.js?v=18"></script>
+  <script src="/js/pages/plans.js?v=3"></script>
   <script src="/js/pages/referrals.js?v=18"></script>
   <script src="/js/pages/users.js?v=18"></script>
   <script src="/js/pages/settings.js?v=18"></script>
   <script src="/js/pdf-export.js?v=18"></script>
   <script src="/js/theme.js?v=18"></script>
-  <script src="/js/app.js?v=19"></script>
+  
   <!-- Real-time notifications -->
   <script src="/js/socket.io.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sonner@1.7.2/dist/styles.css">
@@ -416,5 +425,6 @@
       navigator.serviceWorker.getRegistration().then(reg => { if (reg) reg.update(); });
     }
   </script>
+<script src="/js/app.js?v=25"></script>
 </body>
 </html>

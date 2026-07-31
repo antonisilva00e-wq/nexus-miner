@@ -93,6 +93,10 @@ const Auth = {
     document.body.classList.add(`role-${this.currentUser.role}`);
 
     // Hide/show menu items using both CSS class and inline style
+    const plan = this.currentUser.plan || 'starter';
+    const starterBlocked = ['scoring', 'enrichment', 'intelligence', 'whatsapp', 'telegram', 'voice', 'reports', 'automation', 'export'];
+    const proBlocked = ['enrichment', 'intelligence', 'telegram', 'voice'];
+
     document.querySelectorAll('.menu-item').forEach(el => {
       const page = el.dataset.page;
       const clientBlocked = ['automation', 'users', 'financial', 'templates', 'clients'];
@@ -107,6 +111,22 @@ const Auth = {
       } else {
         el.style.display = '';
         el.classList.remove('hidden-for-client');
+      }
+
+      // Visual Lock for Plans -> Now completely hidden
+      el.classList.remove('locked-feature');
+      const existingLock = el.querySelector('.lock-icon');
+      if (existingLock) existingLock.remove();
+
+      let isLocked = false;
+      if (plan === 'starter' && starterBlocked.includes(page)) isLocked = true;
+      if (plan === 'pro' && proBlocked.includes(page)) isLocked = true;
+
+      if (isLocked) {
+        el.style.display = 'none';
+        el.classList.add('hidden-by-plan');
+      } else {
+        el.classList.remove('hidden-by-plan');
       }
     });
 

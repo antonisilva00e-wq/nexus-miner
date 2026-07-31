@@ -398,6 +398,7 @@ async function main() {
     '/api/voice-agent': './routes/voice',
     '/api/whatsapp': './routes/whatsapp',
     '/api/vapi/outbound': './routes/outbound',
+    '/api/sites': './routes/sites',
   };
   for (const [mount, file] of Object.entries(routeMap)) {
     try { app.use(mount, require(file)); } catch (e) { console.error(`[ROUTE] ${mount}:`, e.message); }

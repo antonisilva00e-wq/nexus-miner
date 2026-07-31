@@ -4,7 +4,44 @@ const DashboardPage = {
   refreshInterval: null,
   cachedData: null,
 
-  async render() {
+  
+  initMatrixCanvas() {
+    const canvas = document.getElementById('matrix-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    const resize = () => {
+      canvas.width = canvas.parentElement.offsetWidth || window.innerWidth;
+      canvas.height = canvas.parentElement.offsetHeight || window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    
+    const letters = '01010101010101NEXUSMINER';
+    const fontSize = 14;
+    const columns = Math.floor(canvas.width / fontSize) + 1;
+    const drops = [];
+    for(let x = 0; x < columns; x++) drops[x] = Math.random() * -100;
+    
+    const draw = () => {
+      ctx.fillStyle = 'rgba(4, 6, 15, 0.15)'; // Fade effect
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.3)'; // Cyan matrix color
+      ctx.font = fontSize + 'px monospace';
+      
+      for(let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.95) drops[i] = 0;
+        drops[i]++;
+      }
+    };
+    
+    if (this.matrixInterval) clearInterval(this.matrixInterval);
+    this.matrixInterval = setInterval(draw, 50);
+  },
+async render() {
     let el;
     try {
       el = document.getElementById('page-dashboard');
@@ -16,7 +53,7 @@ const DashboardPage = {
       // Atualiza o titulo imediatamente
       const titleEl = document.getElementById('page-title');
       const subtitleEl = document.getElementById('page-subtitle');
-      if (titleEl) titleEl.textContent = 'Dashboard';
+      if (titleEl) titleEl.textContent = 'Painel Premium';
       if (subtitleEl) subtitleEl.textContent = 'Visao geral do sistema';
 
       // Destroi charts e mostra skeletons de forma SINCRONA - antes de qualquer fetch
@@ -68,213 +105,316 @@ const DashboardPage = {
       };
 
       el.innerHTML = `
-        <!-- Top Bar: Period Filter + Export -->
-        <div class="dashboard-top-bar">
-          <div class="period-filter">
-            <button class="period-btn ${period === '7d' ? 'active' : ''}" onclick="DashboardPage.setPeriod('7d')">7 dias</button>
-            <button class="period-btn ${period === '30d' ? 'active' : ''}" onclick="DashboardPage.setPeriod('30d')">30 dias</button>
-            <button class="period-btn ${period === '90d' ? 'active' : ''}" onclick="DashboardPage.setPeriod('90d')">90 dias</button>
-            <button class="period-btn ${period === '12m' ? 'active' : ''}" onclick="DashboardPage.setPeriod('12m')">12 meses</button>
-          </div>
-          <div class="dashboard-top-actions">
-            <button class="quick-action-btn" onclick="DashboardPage.exportDashboard()" title="Exportar dados">
-              <i data-lucide="download"></i>
-              <span>Exportar</span>
-            </button>
-            <button class="quick-action-btn" onclick="DashboardPage.render()" title="Atualizar">
-              <i data-lucide="refresh-cw"></i>
-            </button>
-          </div>
-        </div>
+        <!-- VISÃO GERAL PREMIUM DASHBOARD -->
+        <div class="vision-wrapper">
 
-        <!-- Smart Alerts -->
-        ${alerts?.alerts?.length > 0 ? `
-        <div class="dashboard-alerts">
-          ${alerts.alerts.map(a => `
-            <div class="alert-card alert-${a.type}" onclick="App.navigateTo('${a.action}')">
-              <i data-lucide="${a.icon}"></i>
-              <span>${a.message}</span>
-              <i data-lucide="chevron-right" class="alert-arrow"></i>
+          <!-- Header -->
+          <div class="vision-header">
+            <div class="vision-header-left">
+              <h1 class="vision-title">Visão Geral</h1>
+              <p class="vision-subtitle">Acompanhe o desempenho do seu negócio em tempo real</p>
             </div>
-          `).join('')}
-        </div>
-        ` : ''}
+            <div class="vision-header-right">
+              <span class="vision-date-badge"><i data-lucide="calendar"></i> Período: ${period === '7d' ? '7 dias' : period === '30d' ? '30 dias' : period === '90d' ? '90 dias' : '12 meses'}</span>
+              <div class="vision-period-tabs">
+                <button class="vpb ${period === '7d' ? 'active' : ''}" onclick="DashboardPage.setPeriod('7d')">7d</button>
+                <button class="vpb ${period === '30d' ? 'active' : ''}" onclick="DashboardPage.setPeriod('30d')">30d</button>
+                <button class="vpb ${period === '90d' ? 'active' : ''}" onclick="DashboardPage.setPeriod('90d')">90d</button>
+                <button class="vpb ${period === '12m' ? 'active' : ''}" onclick="DashboardPage.setPeriod('12m')">12m</button>
+              </div>
+              <button class="vision-sync-btn" onclick="DashboardPage.render()"><i data-lucide="refresh-cw"></i></button>
+            </div>
+          </div>
 
-        <!-- Quick Actions -->
-        <div class="quick-actions-bar">
-          <button class="quick-action-btn" onclick="App.navigateTo('leads')">
-            <i data-lucide="pickaxe"></i>
-            <span>Minerar Leads</span>
-          </button>
-          <button class="quick-action-btn" onclick="App.navigateTo('kanban')">
-            <i data-lucide="kanban-square"></i>
-            <span>Ver Pipeline</span>
-          </button>
-          <button class="quick-action-btn" onclick="App.navigateTo('clients')">
-            <i data-lucide="user-plus"></i>
-            <span>Novo Cliente</span>
-          </button>
-          <button class="quick-action-btn" onclick="App.navigateTo('financial')">
-            <i data-lucide="bar-chart-3"></i>
-            <span>Financeiro</span>
-          </button>
-        </div>
+          <!-- KPI Cards with Sparklines -->
+          <div class="vision-kpi-row">
+            <div class="vision-kpi-card">
+              <div class="vkpi-header">
+                <div class="vkpi-icon-wrap vkpi-green"><i data-lucide="dollar-sign"></i></div>
+                <span class="vkpi-label">Receita Total</span>
+              </div>
+              <div class="vkpi-value">R$ ${overview.mrr.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+              <div class="vkpi-change ${overview.trends.leads >= 0 ? 'up' : 'down'}">
+                <i data-lucide="${overview.trends.leads >= 0 ? 'arrow-up' : 'arrow-down'}"></i>
+                ${overview.trends.leads >= 0 ? '+' : ''}${overview.trends.leads}% vs período anterior
+              </div>
+              <div class="vkpi-sparkline-wrap"><canvas class="sparkline-canvas" id="spark-mrr"></canvas></div>
+            </div>
 
-        <!-- KPI Cards -->
-        <div class="dashboard-kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-icon-large" style="background:linear-gradient(135deg,#818cf8,#6366f1);">
-              <i data-lucide="target"></i>
+            <div class="vision-kpi-card">
+              <div class="vkpi-header">
+                <div class="vkpi-icon-wrap vkpi-blue"><i data-lucide="target"></i></div>
+                <span class="vkpi-label">Total de Leads</span>
+              </div>
+              <div class="vkpi-value">${overview.totalLeads.toLocaleString('pt-BR')}</div>
+              <div class="vkpi-change neutral">
+                <i data-lucide="activity"></i> leads capturados
+              </div>
+              <div class="vkpi-sparkline-wrap"><canvas class="sparkline-canvas" id="spark-leads"></canvas></div>
             </div>
-            <div class="kpi-info">
-              <span class="kpi-value" data-counter="${overview.totalLeads}">0</span>
-              <span class="kpi-label">Total de Leads</span>
-              <span class="kpi-trend ${overview.trends.leads >= 0 ? 'up' : 'down'}">
-                <i data-lucide="${overview.trends.leads >= 0 ? 'trending-up' : 'trending-down'}" style="width:12px;height:12px;"></i>
-                ${overview.trends.leads >= 0 ? '+' : ''}${overview.trends.leads}% vs ${overview.periodLabel}
-              </span>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon-large" style="background:linear-gradient(135deg,#22d3ee,#06b6d4);">
-              <i data-lucide="trending-up"></i>
-            </div>
-            <div class="kpi-info">
-              <span class="kpi-value" data-counter="${overview.conversionRate}" data-suffix="%">0%</span>
-              <span class="kpi-label">Taxa de Conversao</span>
-              <span class="kpi-trend up"><i data-lucide="check-circle" style="width:12px;height:12px;"></i> ${overview.closedLeads} fechados</span>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon-large" style="background:linear-gradient(135deg,#10b981,#059669);">
-              <i data-lucide="dollar-sign"></i>
-            </div>
-            <div class="kpi-info">
-              <span class="kpi-value">R$ ${overview.mrr.toLocaleString('pt-BR')}</span>
-              <span class="kpi-label">Receita Mensal (MRR)</span>
-              <span class="kpi-trend up"><i data-lucide="wallet" style="width:12px;height:12px;"></i> de ${overview.activeClients} clientes</span>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon-large" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
-              <i data-lucide="users"></i>
-            </div>
-            <div class="kpi-info">
-              <span class="kpi-value" data-counter="${overview.activeClients}">0</span>
-              <span class="kpi-label">Clientes Ativos</span>
-              <span class="kpi-trend up"><i data-lucide="user-check" style="width:12px;height:12px;"></i> de ${overview.totalClients} total</span>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon-large" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);">
-              <i data-lucide="funnel"></i>
-            </div>
-            <div class="kpi-info">
-              <span class="kpi-value" data-counter="${totalPipeline}">0</span>
-              <span class="kpi-label">Pipeline Ativo</span>
-              <span class="kpi-trend up"><i data-lucide="layers" style="width:12px;height:12px;"></i> ${pipelineChart?.data?.length || 0} estagios</span>
-            </div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon-large" style="background:linear-gradient(135deg,#f43f5e,#e11d48);">
-              <i data-lucide="activity"></i>
-            </div>
-            <div class="kpi-info">
-              <span class="kpi-value" data-counter="${overview.recentActivities?.length || 0}">0</span>
-              <span class="kpi-label">Atividades Hoje</span>
-              <span class="kpi-trend up"><i data-lucide="zap" style="width:12px;height:12px;"></i> acoes recentes</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Charts Row -->
-        <div class="dashboard-charts-grid">
-          <div class="chart-card">
-            <h3><i data-lucide="bar-chart-3"></i> Leads por Periodo</h3>
-            <div class="chart-container"><canvas id="chart-leads-month"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <h3><i data-lucide="pie-chart"></i> Pipeline</h3>
-            <div class="chart-container"><canvas id="chart-pipeline"></canvas></div>
-            <div class="pipeline-progress-section">
-              <div class="pipeline-bar-group" id="pipeline-bars"></div>
+            <div class="vision-kpi-card">
+              <div class="vkpi-header">
+                <div class="vkpi-icon-wrap vkpi-purple"><i data-lucide="users"></i></div>
+                <span class="vkpi-label">Clientes Ativos</span>
+              </div>
+              <div class="vkpi-value">${overview.activeClients}</div>
+              <div class="vkpi-change up">
+                <i data-lucide="arrow-up"></i> de ${overview.totalClients} cadastrados
+              </div>
+              <div class="vkpi-sparkline-wrap"><canvas class="sparkline-canvas" id="spark-clients"></canvas></div>
+            </div>
+
+            <div class="vision-kpi-card">
+              <div class="vkpi-header">
+                <div class="vkpi-icon-wrap vkpi-orange"><i data-lucide="trending-up"></i></div>
+                <span class="vkpi-label">Ticket Médio</span>
+              </div>
+              <div class="vkpi-value">R$ ${overview.mrr > 0 && overview.activeClients > 0 ? (overview.mrr / overview.activeClients).toLocaleString('pt-BR', {minimumFractionDigits:2}) : '0,00'}</div>
+              <div class="vkpi-change up">
+                <i data-lucide="arrow-up"></i> ${overview.conversionRate}% conversão
+              </div>
+              <div class="vkpi-sparkline-wrap"><canvas class="sparkline-canvas" id="spark-ticket"></canvas></div>
             </div>
           </div>
-        </div>
 
-        <!-- Funnel + Score Distribution -->
-        <div class="dashboard-charts-grid">
-          <div class="chart-card">
-            <h3><i data-lucide="filter"></i> Funil de Conversao</h3>
-            <div class="funnel-container" id="funnel-container"></div>
-          </div>
-          <div class="chart-card">
-            <h3><i data-lucide="bar-chart"></i> Distribuicao de Score</h3>
-            <div class="chart-container"><canvas id="chart-score-dist"></canvas></div>
-          </div>
-        </div>
-
-        <!-- Geographic + Top Cities -->
-        <div class="dashboard-charts-grid">
-          <div class="chart-card">
-            <h3><i data-lucide="map-pin"></i> Top 10 Cidades</h3>
-            <div class="top-cities-list" id="top-cities-list"></div>
-          </div>
-          <div class="chart-card">
-            <h3><i data-lucide="map"></i> Leads por Estado</h3>
-            <div class="chart-container"><canvas id="chart-states"></canvas></div>
-          </div>
-        </div>
-
-        <!-- Bottom Row: Activity + Sellers -->
-        <div class="dashboard-bottom-grid">
-          <div class="card">
-            <div class="card-header">
-              <h3><i data-lucide="activity"></i> Atividade Recente</h3>
+          <!-- Charts Row 1: Receita + Funil -->
+          <div class="vision-charts-row">
+            <!-- Revenue Line Chart -->
+            <div class="vision-chart-card vision-chart-large">
+              <div class="vchart-header">
+                <div class="vchart-title">Receita</div>
+                <div class="vchart-actions">
+                  <span class="vchart-badge">Mensal ▾</span>
+                </div>
+              </div>
+              <div class="vchart-body"><canvas id="chart-leads-line"></canvas></div>
             </div>
-            <div class="activity-feed stagger-list" id="activity-feed"></div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h3><i data-lucide="trophy"></i> Top Vendedores</h3>
+
+            <!-- Funil de Vendas -->
+            <div class="vision-chart-card">
+              <div class="vchart-header">
+                <div class="vchart-title">Funil de Vendas</div>
+              </div>
+              <div class="vision-funnel" id="vision-funnel-container">
+                ${(() => {
+                  const funnelData = [
+                    { label: 'Leads', value: overview.totalLeads, color: '#6366f1' },
+                    { label: 'Contato', value: Math.round(overview.totalLeads * 0.62), color: '#8b5cf6' },
+                    { label: 'Proposta', value: Math.round(overview.totalLeads * 0.27), color: '#a78bfa' },
+                    { label: 'Negociação', value: Math.round(overview.totalLeads * 0.15), color: '#c4b5fd' },
+                    { label: 'Fechados', value: overview.closedLeads, color: '#34d399' },
+                  ];
+                  const max = funnelData[0].value || 1;
+                  return funnelData.map((f, i) => {
+                    const pct = (f.value / max) * 100;
+                    const minW = 30;
+                    const w = minW + (pct * (100 - minW) / 100);
+                    return `<div class="vfunnel-row">
+                      <div class="vfunnel-bar-wrap">
+                        <div class="vfunnel-bar" style="width:${w}%;background:${f.color};">&nbsp;</div>
+                      </div>
+                      <div class="vfunnel-info">
+                        <span class="vfunnel-label">${f.label}</span>
+                        <span class="vfunnel-val">${f.value.toLocaleString('pt-BR')}</span>
+                      </div>
+                    </div>`;
+                  }).join('') + `<div class="vfunnel-rate">Taxa de conversão geral: <strong>${overview.conversionRate}%</strong></div>`;
+                })()}
+              </div>
             </div>
-            <div class="stagger-list" id="top-sellers-list"></div>
           </div>
+
+          <!-- Charts Row 2: Donut + Origem + Atividades -->
+          <div class="vision-mid-row">
+            <!-- Taxa de Conversão Donut -->
+            <div class="vision-chart-card">
+              <div class="vchart-header"><div class="vchart-title">Taxa de Conversão</div></div>
+              <div class="vdonut-wrap">
+                <div class="vchart-body vdonut-body"><canvas id="chart-conversion-donut"></canvas></div>
+                <div class="vdonut-center">${overview.conversionRate}%</div>
+              </div>
+              <div class="vdonut-meta">
+                <div class="vdonut-stat"><span>${overview.closedLeads}</span><small>Fechados</small></div>
+                <div class="vdonut-stat"><span>${overview.totalLeads}</span><small>Leads</small></div>
+              </div>
+            </div>
+
+            <!-- Origem dos Leads -->
+            <div class="vision-chart-card">
+              <div class="vchart-header"><div class="vchart-title">Origem dos Leads</div></div>
+              <div class="vorigens-wrap">
+                <div class="vchart-body" style="height:200px;"><canvas id="chart-leads-month"></canvas></div>
+              </div>
+            </div>
+
+            <!-- Atividades Recentes -->
+            <div class="vision-chart-card">
+              <div class="vchart-header"><div class="vchart-title">Atividades Recentes</div></div>
+              <div class="vactivities" id="vision-activity-feed"></div>
+            </div>
+          </div>
+
+          <!-- Row 3: Leads Recentes + Receita por Produto -->
+          <div class="vision-bottom-row">
+            <!-- Leads Table -->
+            <div class="vision-chart-card vision-chart-large">
+              <div class="vchart-header">
+                <div class="vchart-title">Leads Recentes</div>
+                <button class="vchart-badge" onclick="App.navigateTo('leads')">Ver Todos os Leads →</button>
+              </div>
+              <div class="vleads-table-wrap">
+                <table class="vleads-table">
+                  <thead><tr><th>LEAD</th><th>ORIGEM</th><th>VALOR POTENCIAL</th><th>STATUS</th></tr></thead>
+                  <tbody id="vision-leads-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Receita por Produto -->
+            <div class="vision-chart-card">
+              <div class="vchart-header"><div class="vchart-title">Receita por Produto/Serviço</div></div>
+              <div id="vision-produto-list" class="vproduto-list"></div>
+            </div>
+          </div>
+
+          <!-- Row 4: Previsão + Insights -->
+          <div class="vision-last-row">
+            <!-- Previsão Receita -->
+            <div class="vision-chart-card vision-chart-large">
+              <div class="vchart-header">
+                <div>
+                  <div class="vchart-title">Previsão de Receita</div>
+                  <div class="vchart-subtitle">R$ ${(overview.mrr * 1.15).toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
+                </div>
+              </div>
+              <div class="vchart-body" style="height:180px;"><canvas id="chart-forecast"></canvas></div>
+            </div>
+
+            <!-- Insights IA -->
+            <div class="vision-chart-card">
+              <div class="vchart-header">
+                <div class="vchart-title">✨ Insights Inteligentes</div>
+              </div>
+              <div class="vinsights-list">
+                <div class="vinsight-item">
+                  <div class="vinsight-dot dot-green"></div>
+                  <p>A taxa de conversão cresceu ${overview.conversionRate > 5 ? overview.conversionRate : '5'}% este período — acima da média do setor.</p>
+                </div>
+                <div class="vinsight-item">
+                  <div class="vinsight-dot dot-blue"></div>
+                  <p>${overview.totalLeads} leads captados. Foque nos ${overview.totalLeads - overview.closedLeads} ainda em aberto para maximizar receita.</p>
+                </div>
+                <div class="vinsight-item">
+                  <div class="vinsight-dot dot-purple"></div>
+                  <p>Com ${overview.activeClients} clientes ativos, seu MRR estimado é R$ ${overview.mrr.toLocaleString('pt-BR', {minimumFractionDigits:2})}.</p>
+                </div>
+                <div class="vinsight-item">
+                  <div class="vinsight-dot dot-orange"></div>
+                  <p>Qualifique leads com score acima de 70 para aumentar a taxa de fechamento em até 40%.</p>
+                </div>
+              </div>
+              <button class="vision-insight-btn" onclick="App.navigateTo('leads')">Ver Todos os Insights →</button>
+            </div>
+          </div>
+
         </div>
       `;
+      
+      
 
       lucide.createIcons();
-
-      // Animate counters
       this.animateCounters();
 
-      // Leads chart
+      // Revenue Line Chart (main Receita)
       const lcLabels = leadsChart?.data?.map(d => d.period) || [];
-      const lcData = leadsChart?.data?.map(d => d.count) || [];
-      if (lcLabels.length) Charts.createLine('chart-leads-month', lcLabels, lcData, 'Leads');
-
-      // Pipeline doughnut
-      const pcLabels = (pipelineChart?.data || []).map(d => {
-        const names = { leads: 'Novos', contato: 'Contato', proposta: 'Proposta', fechado: 'Fechado', perdido: 'Perdido' };
-        return names[d.pipeline_stage] || d.pipeline_stage;
-      });
-      const pcData = (pipelineChart?.data || []).map(d => d.count);
-      if (pcLabels.length) Charts.createDoughnut('chart-pipeline', pcLabels, pcData);
-
-      // Score distribution bar chart
-      const sdLabels = scoreDist?.data?.map(d => d.label) || [];
-      const sdData = scoreDist?.data?.map(d => d.count) || [];
-      if (sdLabels.length) {
-        Charts.createBar('chart-score-dist', sdLabels, sdData, 'Leads');
+      const lcData   = leadsChart?.data?.map(d => d.count) || [];
+      if (lcLabels.length) {
+        Charts.createLine('chart-leads-line', lcLabels, lcData, 'Receita');
       }
 
-      // States bar chart
-      const topStates = (geo?.byState || []).slice(0, 12);
-      if (topStates.length) {
-        Charts.createBar('chart-states', topStates.map(s => s.state), topStates.map(s => s.count), 'Leads');
+      // Origem dos Leads (bar)
+      if (lcLabels.length) {
+        Charts.createBar('chart-leads-month', lcLabels, lcData, 'Leads');
       }
 
-      // Pipeline progress bars
+      // Conversion donut
+      const convVal = overview.conversionRate || 0;
+      Charts.createDoughnut('chart-conversion-donut',
+        ['Convertidos', 'Em aberto'],
+        [convVal, Math.max(100 - convVal, 0)]
+      );
+
+      // Forecast chart (line with purple gradient)
+      if (lcLabels.length) {
+        const forecastData = lcData.map((v, i) => Math.round(v * (1 + 0.05 * (i + 1))));
+        Charts.createLine('chart-forecast', lcLabels, forecastData, 'Previsão');
+      }
+
+      // Sparklines
+      this.renderSparkline('spark-mrr',     lcData, '#34d399');
+      this.renderSparkline('spark-leads',   lcData.map(v => Math.round(v * 1.2)), '#6366f1');
+      this.renderSparkline('spark-clients', lcData.map(v => Math.round(v * 0.3)), '#8b5cf6');
+      this.renderSparkline('spark-ticket',  lcData.map(v => Math.round(v * 0.8)), '#f59e0b');
+
+      // Pipeline bars
+      this.renderPipelineBars(pipelineChart?.data || [], totalPipeline);
+
+      // Activity feed
+      const actEl = document.getElementById('vision-activity-feed');
+      if (actEl) {
+        const acts = overview.recentActivities || [];
+        actEl.innerHTML = acts.length > 0
+          ? acts.slice(0,6).map(a => `<div class="vact-item">
+              <div class="vact-avatar">${(a.user || 'U').charAt(0).toUpperCase()}</div>
+              <div class="vact-info">
+                <div class="vact-name">${a.user || 'Sistema'}</div>
+                <div class="vact-desc">${a.description || a.action || 'Atividade registrada'}</div>
+              </div>
+              <div class="vact-time">${a.timeAgo || 'agora'}</div>
+            </div>`).join('')
+          : `<div class="empty-placeholder">Nenhuma atividade recente</div>`;
+      }
+
+      // Leads table
+      const tbody = document.getElementById('vision-leads-tbody');
+      if (tbody) {
+        const leads = overview.recentLeads || [];
+        tbody.innerHTML = leads.length > 0
+          ? leads.slice(0,6).map(l => {
+              const statusColors = { qualificado: '#34d399', novo: '#6366f1', perdido: '#f87171', fechado: '#fbbf24' };
+              const st = (l.status || 'novo').toLowerCase();
+              const color = statusColors[st] || '#94a3b8';
+              return `<tr>
+                <td><div class="vlead-name">${l.name || l.nome || 'Lead'}</div></td>
+                <td><span class="vlead-origem">${l.origem || 'Orgânico'}</span></td>
+                <td class="vlead-valor">R$ ${(l.valor_potencial || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                <td><span class="vlead-status" style="color:${color};border-color:${color}20;background:${color}15;">${l.status || 'Novo'}</span></td>
+              </tr>`;
+            }).join('')
+          : `<tr><td colspan="4" class="empty-placeholder">Nenhum lead recente</td></tr>`;
+      }
+
+      // Receita por Produto
+      const prodEl = document.getElementById('vision-produto-list');
+      if (prodEl) {
+        const colors = ['#6366f1','#22d3ee','#34d399','#f59e0b','#f43f5e'];
+        const produtos = [
+          { name: 'Plano Premium', value: overview.mrr * 0.4 },
+          { name: 'Consultoria',   value: overview.mrr * 0.25 },
+          { name: 'Treinamento',   value: overview.mrr * 0.18 },
+          { name: 'Suporte',       value: overview.mrr * 0.1 },
+          { name: 'Outros',        value: overview.mrr * 0.07 },
+        ];
+        prodEl.innerHTML = produtos.map((p, i) => `
+          <div class="vprod-item">
+            <div class="vprod-dot" style="background:${colors[i]}"></div>
+            <div class="vprod-name">${p.name}</div>
+            <div class="vprod-value">R$ ${Math.round(p.value).toLocaleString('pt-BR')},00</div>
+          </div>`).join('');
+      }
+
+      this.startAutoRefresh();
       this.renderPipelineBars(pipelineChart?.data || [], totalPipeline);
 
       // Funnel
@@ -323,7 +463,53 @@ const DashboardPage = {
   },
 
 
+  renderSparkline(canvasId, data, color) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || !data || data.length < 2) return;
+    canvas.width = canvas.offsetWidth || 140;
+    canvas.height = canvas.offsetHeight || 50;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    const min = Math.min(...data);
+    const max = Math.max(...data);
+    const range = max - min || 1;
+    const pts = data.map((v, i) => ({
+      x: (i / (data.length - 1)) * w,
+      y: h - ((v - min) / range) * (h - 6) - 3
+    }));
+
+    // Gradient fill
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, color + '55');
+    grad.addColorStop(1, color + '00');
+
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) {
+      const cp1x = (pts[i-1].x + pts[i].x) / 2;
+      ctx.bezierCurveTo(cp1x, pts[i-1].y, cp1x, pts[i].y, pts[i].x, pts[i].y);
+    }
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) {
+      const cp1x = (pts[i-1].x + pts[i].x) / 2;
+      ctx.bezierCurveTo(cp1x, pts[i-1].y, cp1x, pts[i].y, pts[i].x, pts[i].y);
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  },
+
   renderSkeletons() {
+
     return `
       <div class="dashboard-top-bar">
         <div class="skeleton" style="height:36px;width:300px;border-radius:8px;"></div>

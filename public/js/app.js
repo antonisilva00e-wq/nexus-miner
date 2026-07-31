@@ -22,6 +22,8 @@ const App = {
     referrals: ReferralsPage,
     users: UsersPage,
     settings: SettingsPage,
+    sites: typeof SitesPage !== 'undefined' ? SitesPage : null,
+    'sites-prospecting': typeof SitesProspectingPage !== 'undefined' ? SitesProspectingPage : null,
   },
 
   init() {
@@ -52,6 +54,14 @@ const App = {
     if (Auth.isLoggedIn()) {
       Auth.applyRole();
       this.showApp();
+    } else {
+      document.body.classList.remove('logged-in');
+      const loginPage = document.getElementById('page-login');
+      const appShell = document.getElementById('app-shell');
+      const appContainer = document.getElementById('app');
+      if (loginPage) loginPage.style.display = 'block';
+      if (appShell) appShell.style.display = 'none';
+      if (appContainer) appContainer.style.display = 'none';
     }
   },
 
@@ -118,8 +128,27 @@ const App = {
     // Only admin can access restricted pages
     const adminOnly = ['users', 'clients', 'automation', 'templates'];
     if (adminOnly.includes(pageName) && !Auth.isAdmin()) {
-      showToast('Apenas o administrador pode acessar esta pÃ¡gina', 'warning');
+      showToast('Apenas o administrador pode acessar esta página', 'warning');
       return;
+    }
+
+    // Check Plan Limits
+    if (Auth.currentUser && Auth.currentUser.plan) {
+      const plan = Auth.currentUser.plan;
+      const starterBlocked = ['scoring', 'enrichment', 'intelligence', 'whatsapp', 'telegram', 'voice', 'reports', 'automation', 'export'];
+      const proBlocked = ['enrichment', 'intelligence', 'telegram', 'voice'];
+
+      if (plan === 'starter' && starterBlocked.includes(pageName)) {
+        showToast('Funcionalidade exclusiva dos planos superiores. Faça upgrade!', 'warning');
+        this.navigateTo('plans');
+        return;
+      }
+      
+      if (plan === 'pro' && proBlocked.includes(pageName)) {
+        showToast('Funcionalidade exclusiva dos planos Empresarial e Vitalício. Faça upgrade!', 'warning');
+        this.navigateTo('plans');
+        return;
+      }
     }
 
     // Hide all page-content
@@ -154,6 +183,8 @@ const App = {
       settings: 'Configuracoes',
       map: 'Mapa de Leads',
       telegram: 'Telegram',
+      sites: 'Criador de Sites IA',
+      'sites-prospecting': 'Prospecção de Sites',
     };
     document.getElementById('page-title').textContent = titles[pageName] || pageName;
 

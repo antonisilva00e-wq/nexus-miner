@@ -16,18 +16,18 @@ router.use(authenticate);
 // PLAN DEFINITIONS
 // ============================================================
 const PLANS = {
-  free: {
-    name: 'Gratuito',
-    price: 0,
+  starter: {
+    name: 'Normal',
+    price: 97.00,
     maxLeads: 50,
     maxUsers: 1,
     maxExports: 5,
-    maxAutomations: 0,
+    maxAutomations: 1,
     features: ['leads_basic', 'cnpj_lookup', 'kanban'],
   },
   pro: {
     name: 'Profissional',
-    price: 97,
+    price: 297.00,
     maxLeads: 500,
     maxUsers: 5,
     maxExports: 50,
@@ -36,7 +36,17 @@ const PLANS = {
   },
   enterprise: {
     name: 'Empresarial',
-    price: 297,
+    price: 497.00,
+    maxLeads: -1,
+    maxUsers: -1,
+    maxExports: -1,
+    maxAutomations: -1,
+    features: ['all'],
+  },
+  lifetime: {
+    name: 'Vitalício',
+    price: 1099.99,
+    originalPrice: 3500.00,
     maxLeads: -1,
     maxUsers: -1,
     maxExports: -1,
@@ -72,12 +82,12 @@ router.get('/current', (req, res) => {
     } catch {}
   }
   
-  if (!user) user = { plan: 'free', plan_expiry: null };
+  if (!user) user = { plan: 'starter', plan_expiry: null };
 
   // Map plan names to IDs
-  const planMap = { 'Gratuito': 'free', 'Profissional': 'pro', 'Empresarial': 'enterprise', 'Starter': 'free' };
-  const planId = planMap[user.plan] || user.plan || 'free';
-  const plan = PLANS[planId] || PLANS.free;
+  const planMap = { 'Gratuito': 'starter', 'Normal': 'starter', 'Profissional': 'pro', 'Empresarial': 'enterprise', 'Starter': 'starter', 'Vitalício': 'lifetime' };
+  const planId = planMap[user.plan] || user.plan || 'starter';
+  const plan = PLANS[planId] || PLANS.starter;
   const usage = getUsage(req.user.id, planId);
 
   // Check for pending upgrade request
@@ -171,23 +181,23 @@ router.put('/users/:userId', authorize('admin'), (req, res) => {
 
 // GET /api/plans/check/:feature - Check if user has access to a feature
 router.get('/check/:feature', (req, res) => {
-  let planId = 'free';
+  let planId = 'starter';
 
   // Check users table first
   try {
     const user = db.prepare('SELECT plan FROM users WHERE id = ?').get(req.user.id);
-    if (user) planId = user.plan || 'free';
+    if (user) planId = user.plan || 'starter';
   } catch {}
 
   // If not found, check clients table
-  if (planId === 'free') {
+  if (planId === 'starter') {
     try {
       const client = db.prepare('SELECT plan FROM clients WHERE id = ?').get(req.user.id);
-      if (client) planId = client.plan || 'free';
+      if (client) planId = client.plan || 'starter';
     } catch {}
   }
 
-  const plan = PLANS[planId] || PLANS.free;
+  const plan = PLANS[planId] || PLANS.starter;
   const hasAccess = plan.features.includes('all') || plan.features.includes(req.params.feature);
   const usage = getUsage(req.user.id, planId);
 
@@ -198,7 +208,7 @@ router.get('/check/:feature', (req, res) => {
 // HELPERS
 // ============================================================
 function getUsage(userId, planId) {
-  const plan = PLANS[planId] || PLANS.free;
+  const plan = PLANS[planId] || PLANS.starter;
   let leadCount = 0, exportCount = 0, automationCount = 0;
   try { leadCount = db.prepare('SELECT COUNT(*) as count FROM leads WHERE created_by = ?').get(userId).count; } catch {}
   try { exportCount = db.prepare("SELECT COUNT(*) as count FROM activities WHERE user_id = ? AND action = 'export' AND created_at >= date('now', 'start of month')").get(userId).count; } catch {}

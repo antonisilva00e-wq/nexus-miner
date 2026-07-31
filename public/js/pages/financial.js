@@ -62,6 +62,7 @@ const FinancialPage = {
     el.innerHTML = `
       <!-- HERO BANNER -->
       <div class="fin-hero">
+        <canvas id="fin-matrix-canvas" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; opacity:0.6;"></canvas>
         <div class="fin-hero-orb-2"></div>
         <div class="fin-hero-content">
           <div class="fin-hero-left">
@@ -69,7 +70,7 @@ const FinancialPage = {
               <div class="fin-hero-label">Monthly Recurring Revenue</div>
               <div class="fin-live-clock"><div class="fin-live-dot"></div><span id="fin-clock">--:--:--</span></div>
             </div>
-            <div class="fin-hero-mrr">R$ ${(fin.mrr || 0).toLocaleString('pt-BR')}</div>
+            <div class="fin-hero-mrr balance-text-glow">R$ <span class="count-up-balance" data-value="${fin.mrr || 0}">0,00</span></div>
             <div class="fin-hero-sub">
               Receita recorrente mensal de <strong style="color:var(--text-primary);">${fin.activeClients}</strong> clientes ativos
               <span style="margin-left:0.5rem;padding:2px 8px;border-radius:8px;font-size:0.72rem;font-weight:600;background:${churnColor}15;color:${churnColor};border:1px solid ${churnColor}25;">Churn: ${fin.churnRate || 0}% ${churnLabel}</span>
@@ -118,6 +119,7 @@ const FinancialPage = {
     `;
     lucide.createIcons();
     this.renderTabContent();
+    setTimeout(() => this.initFinancialCanvas(), 100);
   },
 
   switchTab(tab, event) {
@@ -268,7 +270,7 @@ const FinancialPage = {
     if (fin.monthlyRevenue?.length) {
       const labels = fin.monthlyRevenue.map(m => { const [y, mo] = m.month.split('-'); return `${mo}/${y.slice(2)}`; });
       const data = fin.monthlyRevenue.map(m => m.total);
-      Charts.createBar('chart-revenue', labels, data, 'Receita (R$)');
+      Charts.createLine('chart-revenue', labels, data, 'Receita (R$)');
     }
 
     if (fin.mrrByPlan?.length) {
@@ -662,20 +664,7 @@ const FinancialPage = {
     return Math.min(100, Math.max(0, score));
   },
 
-  animateCounters() {
-    document.querySelectorAll('[data-counter]').forEach(el => {
-      const target = parseFloat(el.dataset.counter);
-      const duration = 800;
-      const start = performance.now();
-      function step(now) {
-        const p = Math.min((now - start) / duration, 1);
-        el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target);
-        if (p < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    });
-  },
-
+  // Removed old animateCounters, merged below
   openPaymentModal() {
     Modal.open(
       '<i data-lucide="dollar-sign" style="color:var(--accent-primary);"></i> Registrar Pagamento',
@@ -942,6 +931,100 @@ const FinancialPage = {
         }
       }
     });
+  },
+
+  animateCounters() {
+    // Basic counter
+    const els = document.querySelectorAll('[data-counter]:not(.counted)');
+    els.forEach(el => {
+      const target = parseFloat(el.getAttribute('data-counter')) || 0;
+      el.classList.add('counted');
+      const duration = 800;
+      const start = performance.now();
+      function step(now) {
+        const p = Math.min((now - start) / duration, 1);
+        el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target).toLocaleString('pt-BR');
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+
+    // Premium Balance CountUp
+    const balanceEl = document.querySelector('.count-up-balance:not(.counted)');
+    if (balanceEl) {
+      balanceEl.classList.add('counted');
+      const target = parseFloat(balanceEl.getAttribute('data-value')) || 0;
+      let start = 0;
+      const duration = 1500; // 1.5 seconds
+      const startTime = performance.now();
+
+      const formatCurrency = (val) => {
+        return val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      };
+
+      const animate = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing easeOutQuart
+        const easeOut = 1 - Math.pow(1 - progress, 4);
+        const current = start + (target - start) * easeOut;
+        
+        balanceEl.textContent = formatCurrency(current);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          balanceEl.textContent = formatCurrency(target);
+        }
+      };
+      requestAnimationFrame(animate);
+    }
+  },
+
+  initFinancialCanvas() {
+    const canvas = document.getElementById('fin-matrix-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    
+    const resize = () => {
+      canvas.width = canvas.parentElement.offsetWidth || window.innerWidth;
+      canvas.height = canvas.parentElement.offsetHeight || window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    
+    const particles = [];
+    for(let i=0; i<50; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 2 + 1,
+        speedY: Math.random() * -1 - 0.5,
+        opacity: Math.random() * 0.5 + 0.2
+      });
+    }
+    
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach(p => {
+        ctx.fillStyle = `rgba(16, 185, 129, ${p.opacity})`; // Emerald green
+        if (Math.random() > 0.8) ctx.fillStyle = `rgba(245, 158, 11, ${p.opacity})`; // Gold
+        
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        
+        p.y += p.speedY;
+        if (p.y < 0) {
+          p.y = canvas.height;
+          p.x = Math.random() * canvas.width;
+        }
+      });
+      requestAnimationFrame(draw);
+    };
+    draw();
   },
 
   // ============ SPARKLINE ============

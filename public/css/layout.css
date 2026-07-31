@@ -253,9 +253,12 @@ body:not(.role-admin) #page-users { display: none !important; }
 .main-content {
   flex-grow: 1;
   margin-left: var(--sidebar-width);
-  padding: 2rem 2.5rem;
+  padding: 1.5rem 1.75rem;
   min-width: 0;
+  max-width: calc(100vw - var(--sidebar-width));
+  overflow-x: hidden;
   position: relative;
+  box-sizing: border-box;
 }
 
 .app-header {
@@ -556,3 +559,60 @@ body.logged-in .app-container { display: flex !important; }
 }
 
 .login-footer p { color: var(--text-tertiary); font-size: 0.72rem; }
+
+/* =================================================================
+   COMPACT SIDEBAR (ICONS ONLY)
+   ================================================================= */
+.sidebar {
+  width: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 1rem 0;
+  z-index: 50;
+}
+.sidebar-header {
+  justify-content: center;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+.sidebar-header h2 {
+  display: none;
+}
+.sidebar-section-label {
+  display: none;
+}
+.sidebar-menu {
+  width: 100%;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+/* Hide scrollbar for sidebar */
+.sidebar-menu::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+.menu-item {
+  justify-content: center;
+  padding: 0.85rem 0;
+  width: 100%;
+  border-radius: var(--radius-sm);
+}
+.menu-item span, .menu-item .badge {
+  display: none !important;
+}
+.menu-item i, .menu-item svg {
+  margin: 0;
+  width: 22px;
+  height: 22px;
+}
+.user-info {
+  justify-content: center;
+  padding: 1rem 0;
+}
+.user-info .user-details {
+  display: none;
+}

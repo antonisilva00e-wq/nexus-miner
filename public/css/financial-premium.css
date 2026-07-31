@@ -12,8 +12,8 @@
   );
   border: 1px solid rgba(16, 185, 129, 0.12);
   border-radius: 22px;
-  padding: 2.25rem 2.5rem;
-  margin-bottom: 2rem;
+  padding: 1.5rem 1.5rem;
+  margin-bottom: 1.5rem;
   overflow: hidden;
   backdrop-filter: blur(25px);
   animation: heroReveal 0.6s var(--ease-out);
@@ -92,7 +92,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .fin-hero-left { flex: 1; }
@@ -125,7 +126,7 @@
 
 .fin-hero-mrr {
   font-family: var(--font-heading);
-  font-size: 3.2rem;
+  font-size: clamp(2rem, 4vw, 3.2rem);
   font-weight: 800;
   background: linear-gradient(135deg, #34d399 0%, #22d3ee 40%, #818cf8 80%, #a78bfa 100%);
   background-size: 200% 200%;
@@ -134,6 +135,7 @@
   background-clip: text;
   line-height: 1;
   letter-spacing: -0.03em;
+  white-space: nowrap;
   animation: mrrGradient 6s ease-in-out infinite;
 }
 
@@ -151,17 +153,18 @@
 
 .fin-hero-right {
   display: flex;
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .fin-hero-stat {
   text-align: center;
-  padding: 0.85rem 1.25rem;
+  padding: 0.6rem 1rem;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 14px;
-  min-width: 110px;
+  border-radius: 12px;
+  min-width: 90px;
   transition: all 0.3s var(--ease-out);
 }
 
@@ -173,9 +176,10 @@
 
 .fin-hero-stat-value {
   font-family: var(--font-heading);
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 800;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .fin-hero-stat-label {
@@ -189,8 +193,8 @@
 /* === FINANCIAL HEALTH RING === */
 .fin-health-ring {
   position: relative;
-  width: 150px;
-  height: 150px;
+  width: 90px;
+  height: 90px;
   flex-shrink: 0;
 }
 
@@ -779,8 +783,6 @@
 
 /* === RESPONSIVE === */
 @media (max-width: 1200px) {
-  .fin-kpi-grid { grid-template-columns: repeat(2, 1fr); }
-  .fin-charts-grid { grid-template-columns: 1fr; }
   .fin-bottom-grid { grid-template-columns: 1fr; }
 }
 
@@ -817,6 +819,22 @@
 }
 
 /* === GATEWAY HUBS === */
+.fin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.fin-kpi {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 1.2rem;
+  position: relative;
+  overflow: hidden;
+}
+
 .fin-gateway-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));

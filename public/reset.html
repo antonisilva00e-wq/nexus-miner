@@ -1,0 +1,18 @@
+﻿<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Limpando cache...</title></head>
+<body style="background:#0a0f1e;color:white;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;">
+  <p style="font-size:1.2rem;">Limpando sessao e cache...</p>
+  <script>
+    localStorage.clear();
+    sessionStorage.clear();
+    if ('caches' in window) {
+      caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+    }
+    setTimeout(() => { window.location.replace('/?nocache=' + Date.now()); }, 1500);
+  </script>
+</body>
+</html>

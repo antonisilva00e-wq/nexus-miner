@@ -105,9 +105,9 @@ async function searchNearbyBusinesses(keyword, city, lat, lon, limit = 25) {
           address: buildAddress(addr, item.display_name),
           lat: parseFloat(item.lat),
           lon: parseFloat(item.lon),
-          phone: tags['contact:phone'] || tags.phone || tags.telephone || '',
+          phone: formatStrictBrazilianPhone(tags['contact:phone'] || tags.phone || tags.telephone || ''),
           email: tags['contact:email'] || tags.email || '',
-          site: tags['contact:website'] || tags.website || '',
+          site: tags['contact:website'] || tags.website || null,
           tipo: item.type,
           classificacao: item.class,
           fonte: 'OpenStreetMap Nominatim',
@@ -287,6 +287,7 @@ function generateSmartLeads(keyword, city, count) {
     const phone = `(${ddd}) 9${String(8000 + Math.floor(Math.random() * 1999)).slice(0, 4)}-${String(1000 + Math.floor(Math.random() * 8999))}`;
     const cleanName = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/g, '');
 
+    const hasSite = Math.random() > 0.4;
     results.push({
       id: `smart-${Date.now()}-${i}`,
       name: name,
@@ -294,7 +295,7 @@ function generateSmartLeads(keyword, city, count) {
       address: `${street}, ${num}${streetSuf} - ${neighborhood}, ${city}`,
       phone,
       email: `contato@${cleanName.substring(0, 20)}.com.br`,
-      site: `www.${cleanName.substring(0, 20)}.com.br`,
+      site: hasSite ? `www.${cleanName.substring(0, 20)}.com.br` : null,
       cnpj: generateValidCNPJ(),
       owner: generateOwnerName(),
       bank: getBankFromCNPJ(generateValidCNPJ()),
@@ -309,9 +310,24 @@ function generateSmartLeads(keyword, city, count) {
   return results;
 }
 
+
 // ============================================================
 // UTILITIES
 // ============================================================
+function formatStrictBrazilianPhone(phone) {
+  if (!phone) return null;
+  let clean = phone.toString().replace(/\D/g, '');
+  if (clean.length > 11 && clean.startsWith('55')) {
+    clean = clean.substring(2);
+  }
+  if (clean.length === 10) {
+    return `(${clean.substring(0, 2)}) ${clean.substring(2, 6)}-${clean.substring(6, 10)}`;
+  } else if (clean.length === 11) {
+    return `(${clean.substring(0, 2)}) ${clean.substring(2, 7)}-${clean.substring(7, 11)}`;
+  }
+  return null; // Invalid
+}
+
 function formatCNPJ(cnpj) {
   return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
 }
@@ -615,4 +631,4 @@ function generateIndividualPeople(category, city, count) {
   return results;
 }
 
-module.exports = { lookupCNPJ, lookupCPF, isValidCPF, searchNearbyBusinesses, enrichByCEP, mineLeads, scoreLead, estimateRevenue, generateValidCNPJ, generateIndividualPeople };
+module.exports = { formatStrictBrazilianPhone, lookupCNPJ, lookupCPF, isValidCPF, searchNearbyBusinesses, enrichByCEP, mineLeads, scoreLead, estimateRevenue, generateValidCNPJ, generateIndividualPeople };

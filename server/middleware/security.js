@@ -13,7 +13,7 @@ const isProd = process.env.NODE_ENV === 'production';
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: isProd ? 100000 : 500,
+  max: 100000, // Disabled limit for local testing
   message: { error: 'Muitas tentativas. Tente novamente em 15 minutos.' },
   standardHeaders: true,
   legacyHeaders: false,

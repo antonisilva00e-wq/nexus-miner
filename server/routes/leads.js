@@ -3,7 +3,7 @@ const { db } = require('../db');
 const { authenticate } = require('../middleware/auth');
 const { authorize } = require('../middleware/roles');
 const { generateId, paginate } = require('../utils/helpers');
-const { lookupCNPJ, lookupCPF, isValidCPF, searchNearbyBusinesses, mineLeads, generateValidCNPJ, generateIndividualPeople } = require('../services/leadService');
+const { formatStrictBrazilianPhone, lookupCNPJ, lookupCPF, isValidCPF, searchNearbyBusinesses, mineLeads, generateValidCNPJ, generateIndividualPeople } = require('../services/leadService');
 const { invalidateCache } = require('../services/scoringService');
 
 const router = express.Router();
@@ -43,6 +43,36 @@ router.get('/', (req, res) => {
   const leads = db.prepare(`SELECT l.*, u.name as assigned_name FROM leads l LEFT JOIN users u ON l.assigned_to = u.id ${where} ORDER BY l.${sortCol} ${sortOrder} LIMIT ? OFFSET ?`).all(...params, p.limit, p.offset);
 
   res.json({ leads, total: countRow.total, page: p.page, limit: p.limit });
+});
+
+
+// POST /api/leads/:id/checkin - Validates lead contact strictly
+router.post('/:id/checkin', (req, res) => {
+  const { id } = req.params;
+  const lead = db.prepare(`SELECT * FROM leads WHERE id = ?`).get(id);
+  
+  if (!lead) return res.status(404).json({ error: 'Lead not found' });
+  
+  const formattedPhone = formatStrictBrazilianPhone(lead.phone);
+  
+  let issues = [];
+  if (!formattedPhone) issues.push('Telefone inválido');
+  if (lead.site) issues.push('Já possui site cadastrado');
+
+  db.prepare(`UPDATE leads SET phone = ?, status = ? WHERE id = ?`).run(
+    formattedPhone || lead.phone,
+    formattedPhone ? lead.status : 'invalid',
+    id
+  );
+
+  res.json({
+    id,
+    phone_valid: !!formattedPhone,
+    phone_formatted: formattedPhone,
+    has_site: !!lead.site,
+    issues,
+    status: formattedPhone ? 'OK' : 'INVALID'
+  });
 });
 
 // GET /api/leads/stats
@@ -301,6 +331,43 @@ router.post('/:id/assign', authorize('admin', 'manager'), (req, res) => {
 
   db.prepare('UPDATE leads SET assigned_to = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(assigned_to || null, req.params.id);
   res.json({ message: 'Lead atribuído' });
+});
+
+// POST /api/leads/:id/check-website
+router.post('/:id/check-website', async (req, res) => {
+  const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(req.params.id);
+  if (!lead) return res.status(404).json({ error: 'Lead não encontrado' });
+  
+  if (!lead.site) {
+    db.prepare('UPDATE leads SET has_website = 0, website_status = "none" WHERE id = ?').run(lead.id);
+    return res.json({ has_website: 0, status: 'none' });
+  }
+
+  let siteUrl = lead.site;
+  if (!siteUrl.startsWith('http')) siteUrl = 'http://' + siteUrl;
+
+  try {
+    const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+    const nativeFetch = typeof fetch === 'undefined' ? global.fetch : fetch;
+    
+    // Quick HEAD request with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
+    
+    const response = await nativeFetch(siteUrl, { method: 'HEAD', signal: controller.signal });
+    clearTimeout(timeoutId);
+    
+    if (response.ok) {
+      db.prepare('UPDATE leads SET has_website = 1, website_status = "good" WHERE id = ?').run(lead.id);
+      res.json({ has_website: 1, status: 'good' });
+    } else {
+      db.prepare('UPDATE leads SET has_website = 1, website_status = "bad" WHERE id = ?').run(lead.id);
+      res.json({ has_website: 1, status: 'bad' });
+    }
+  } catch (err) {
+    db.prepare('UPDATE leads SET has_website = 1, website_status = "error" WHERE id = ?').run(lead.id);
+    res.json({ has_website: 1, status: 'error' });
+  }
 });
 
 module.exports = router;

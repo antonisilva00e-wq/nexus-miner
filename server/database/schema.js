@@ -39,6 +39,8 @@ function createSchema(db) {
       created_by TEXT REFERENCES users(id) ON DELETE SET NULL,
       score REAL DEFAULT 0,
       enrichment TEXT,
+      has_website INTEGER DEFAULT -1, -- -1: not checked, 0: no, 1: yes
+      website_status TEXT, -- 'good', 'bad', 'none', 'error'
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -142,6 +144,22 @@ function createSchema(db) {
       action TEXT NOT NULL,
       details TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Criador de Sites
+    CREATE TABLE IF NOT EXISTS sites (
+      id TEXT PRIMARY KEY,
+      lead_id TEXT REFERENCES leads(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      description TEXT,
+      html_content TEXT,
+      css_content TEXT,
+      js_content TEXT,
+      slug TEXT UNIQUE,
+      status TEXT DEFAULT 'draft',
+      created_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
     -- Configurações do sistema

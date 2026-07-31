@@ -50,9 +50,9 @@
   --font-body: 'Plus Jakarta Sans', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-  /* === SPACING === */
-  --sidebar-width: 260px;
-  --sidebar-collapsed: 72px;
+  /* === LAYOUT === */
+  --sidebar-width: 80px;
+  --header-height: 70px;
 
   /* === RADII === */
   --radius-xs: 6px;
