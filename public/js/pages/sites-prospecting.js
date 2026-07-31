@@ -6,17 +6,26 @@ const SitesProspectingPage = {
     document.getElementById('page-subtitle').textContent = 'Encontre leads sem site e gere oportunidades de venda';
 
     document.getElementById('page-sites-prospecting').innerHTML = `
+      <div class="mining-bar" style="margin-bottom: 20px; display: flex; gap: 10px; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); align-items: center;">
+        <div style="font-weight: 600; color: #fff; margin-right: 10px;"><i data-lucide="radar" style="color: #8b5cf6; margin-right: 5px;"></i> Novo Radar:</div>
+        <input type="text" id="prospect-keyword" placeholder="Ex: Dentista, Advogado..." style="flex: 1; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff;">
+        <input type="text" id="prospect-city" placeholder="Cidade e Estado (Ex: São Paulo, SP)" style="flex: 1; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff;">
+        <button class="btn btn-primary" onclick="SitesProspectingPage.mineLeads()" id="btn-prospect-mine" style="background: #8b5cf6; border: none;">
+          <i data-lucide="search"></i> Buscar na Web
+        </button>
+      </div>
+
       <div class="filters-bar" style="margin-bottom: 20px;">
         <div class="search-box" style="flex: 1;">
-          <i data-lucide="search"></i>
-          <input type="text" id="site-prospect-search" placeholder="Buscar por nome ou cidade..." oninput="SitesProspectingPage.filter()">
+          <i data-lucide="filter"></i>
+          <input type="text" id="site-prospect-search" placeholder="Filtrar por nome ou cidade na tabela abaixo..." oninput="SitesProspectingPage.filter()">
         </div>
         <div style="display: flex; gap: 10px;">
           <select id="site-filter-status" onchange="SitesProspectingPage.filter()" style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff;">
             <option value="all">Todos os Leads</option>
             <option value="-1">Não Verificado</option>
-            <option value="0">Sem Site (🔴)</option>
-            <option value="1">Com Site (🟢)</option>
+            <option value="0">Sem Site (❌)</option>
+            <option value="1">Com Site (✅)</option>
           </select>
           <button class="btn btn-primary" onclick="SitesProspectingPage.checkAllUnchecked()">
             <i data-lucide="refresh-cw"></i> Verificar Pendentes
@@ -52,6 +61,43 @@ const SitesProspectingPage = {
       this.filter();
     } catch (err) {
       document.getElementById('sites-prospect-tbody').innerHTML = `<tr><td colspan="4" style="text-align: center; color: #ef4444;">Erro ao carregar leads: ${err.message}</td></tr>`;
+    }
+  },
+
+  async mineLeads() {
+    const keyword = document.getElementById('prospect-keyword').value;
+    const city = document.getElementById('prospect-city').value;
+    const btn = document.getElementById('btn-prospect-mine');
+
+    if (!keyword || !city) {
+      return showToast('Preencha o nicho e a cidade.', 'error');
+    }
+
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader" class="fa-spin"></i> Buscando...';
+    btn.disabled = true;
+    if (window.lucide) lucide.createIcons();
+
+    try {
+      showToast('Buscando empresas no Google Maps...', 'info');
+      const res = await API.post('/leads/mine', { keyword, city, maxResults: 30 });
+      showToast(`${res.saved} novas empresas encontradas e salvas!`, 'success');
+      
+      // Limpar campos
+      document.getElementById('prospect-keyword').value = '';
+      
+      // Recarregar tabela
+      await this.loadLeads();
+      
+      // Iniciar verificacao automatica dos novos
+      setTimeout(() => this.checkAllUnchecked(), 1000);
+      
+    } catch (err) {
+      showToast('Erro ao buscar empresas: ' + err.message, 'error');
+    } finally {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+      if (window.lucide) lucide.createIcons();
     }
   },
 
