@@ -62,13 +62,22 @@ router.post('/login', authLimiter, (req, res) => {
 
   recordLoginAttempt(username, true);
 
-  // HOTFIX: Ensure rafa77 is always a manager
-  if (user.username === 'rafa77' && user.role !== 'manager') {
-    try {
-      db.prepare("UPDATE users SET role = 'manager' WHERE id = ?").run(user.id);
-      user.role = 'manager';
-    } catch (e) {
-      console.error('Failed to update rafa77 role:', e);
+  // HOTFIX: Ensure rafa77 is always a manager and in users table
+  if (user.username === 'rafa77') {
+    if (userType === 'client') {
+      try {
+        db.prepare("INSERT INTO users (id, name, email, username, password_hash, role, active) VALUES (?, ?, ?, ?, ?, 'manager', 1)").run(user.id, user.name || 'Rafa', user.email || 'rafa@nexus.com', user.username, user.password_hash);
+        db.prepare("DELETE FROM clients WHERE id = ?").run(user.id);
+        userType = 'user';
+        user.role = 'manager';
+      } catch (e) {
+        console.error('Failed to migrate rafa77 to users:', e);
+      }
+    } else {
+      try {
+        db.prepare("UPDATE users SET role = 'manager' WHERE id = ?").run(user.id);
+        user.role = 'manager';
+      } catch (e) {}
     }
   }
 
