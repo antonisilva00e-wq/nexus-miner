@@ -616,3 +616,6 @@ body.logged-in .app-container { display: flex !important; }
 .user-info .user-details {
   display: none;
 }
+
+.d-none-desktop { display: none !important; }
+

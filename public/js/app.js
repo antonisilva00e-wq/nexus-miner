@@ -158,6 +158,10 @@ const App = {
     const pageEl = document.getElementById(`page-${pageName}`);
     if (pageEl) pageEl.style.display = 'block';
 
+    // Close sidebar if open (mobile)
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) sidebar.classList.remove('mobile-open');
+
     // Update menu active state
     document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
     const menuItem = document.querySelector(`.menu-item[data-page="${pageName}"]`);
