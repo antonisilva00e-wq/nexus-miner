@@ -28,7 +28,7 @@ const UsersPage = {
       const data = await API.get('/users');
       const user = Auth.getUser();
       const isAdmin = user?.role === 'admin';
-      const roleLabels = { admin: 'Administrador', manager: 'Gerente', seller: 'Vendedor' };
+      const roleLabels = { admin: 'Administrador', manager: 'Divulgador', seller: 'Vendedor' };
       const roleClasses = { admin: 'badge-danger', manager: 'badge-warning', seller: 'badge-primary' };
 
       document.getElementById('users-tbody').innerHTML = data.users.map(u => `
@@ -55,7 +55,7 @@ const UsersPage = {
 
     // Managers can only create sellers
     const roleOptions = isAdmin
-      ? '<option value="seller">Vendedor</option><option value="manager">Gerente</option><option value="admin">Administrador</option>'
+      ? '<option value="seller">Vendedor</option><option value="manager">Divulgador</option><option value="admin">Administrador</option>'
       : '<option value="seller">Vendedor</option>';
 
     Modal.open(

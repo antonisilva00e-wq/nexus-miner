@@ -81,7 +81,7 @@ const Auth = {
     const roleEl = document.getElementById('sidebar-user-role');
     if (nameEl) nameEl.textContent = this.currentUser.name;
     if (roleEl) {
-      const roleLabels = { admin: 'Admin', manager: 'Gerente', seller: 'Vendedor', client: 'Cliente' };
+      const roleLabels = { admin: 'Admin', manager: 'Divulgador', seller: 'Vendedor', client: 'Cliente' };
       roleEl.textContent = roleLabels[this.currentUser.role] || this.currentUser.role;
     }
 
