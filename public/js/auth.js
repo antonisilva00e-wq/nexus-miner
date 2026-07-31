@@ -100,7 +100,7 @@ const Auth = {
     document.querySelectorAll('.menu-item').forEach(el => {
       const page = el.dataset.page;
       const clientBlocked = ['automation', 'users', 'financial', 'templates', 'clients'];
-      const nonAdminBlocked = ['users', 'clients', 'automation', 'templates'];
+      const nonAdminBlocked = ['users', 'clients', 'automation', 'templates', 'financial'];
 
       if (isClient && clientBlocked.includes(page)) {
         el.style.display = 'none';

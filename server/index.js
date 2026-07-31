@@ -38,6 +38,13 @@ async function main() {
       db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('company_name', 'Nexus Miner');
       console.log('[SEED] Usuarios criados');
     }
+    const existingRafa = db.prepare('SELECT id FROM users WHERE username = ?').get('rafa77');
+    if (!existingRafa) {
+      const bcrypt = require('bcryptjs');
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role) VALUES (?, ?, ?, ?, ?, ?)').run('00000000-0000-0000-0000-000000000004', 'Rafael (Divulgador)', 'rafael@nexusminer.com', 'rafa77', bcrypt.hashSync('rafa.77', 12), 'manager');
+      console.log('[SEED] Usuario rafa77 criado com sucesso');
+    }
+
     const existingClient = db.prepare('SELECT id FROM clients WHERE username = ?').get('cliente1');
     if (!existingClient) {
       const bcrypt = require('bcryptjs');
