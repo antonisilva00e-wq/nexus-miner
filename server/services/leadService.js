@@ -191,10 +191,6 @@ async function mineLeads(keyword, city, options = {}) {
     }
   }
 
-  // Step 3: Generate supplementary leads from offline DB
-  const offlineResults = generateSmartLeads(keyword, city, maxResults - results.length);
-  results.push(...offlineResults);
-
   // Step 4: Score and sort all leads
   results.forEach(r => {
     if (!r.score) r.score = scoreLead(r);
