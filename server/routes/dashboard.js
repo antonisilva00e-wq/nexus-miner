@@ -43,9 +43,9 @@ router.get('/overview', (req, res) => {
     const closedLeadsPrev = db.prepare(`SELECT COUNT(*) as count FROM leads WHERE pipeline_stage = 'fechado' AND created_at >= ${prev.prev} AND created_at < ${prev.current} ${sellerFilter}`).get(...sellerParam).count;
     const conversionRate = totalLeads > 0 ? ((closedLeads / totalLeads) * 100).toFixed(1) : 0;
 
-    const totalClients = db.prepare('SELECT COUNT(*) as count FROM clients').get().count;
-    const activeClients = db.prepare(`SELECT COUNT(*) as count FROM clients WHERE active = 1 AND expiry >= date('now')`).get().count;
-    const mrr = db.prepare('SELECT COALESCE(SUM(price), 0) as total FROM clients WHERE active = 1').get().total;
+    const totalClients = db.prepare(`SELECT COUNT(*) as count FROM clients WHERE ${req.user.role === 'admin' ? '1=1' : `created_by = '${req.user.id}'`}`).get().count;
+    const activeClients = db.prepare(`SELECT COUNT(*) as count FROM clients WHERE active = 1 AND expiry >= date('now') AND ${req.user.role === 'admin' ? '1=1' : `created_by = '${req.user.id}'`}`).get().count;
+    const mrr = db.prepare(`SELECT COALESCE(SUM(price), 0) as total FROM clients WHERE active = 1 AND ${req.user.role === 'admin' ? '1=1' : `created_by = '${req.user.id}'`}`).get().total;
 
     let recentActivities = [];
     try {
@@ -176,6 +176,7 @@ router.get('/alerts', (req, res) => {
   const expiringClients = db.prepare(`
     SELECT COUNT(*) as count FROM clients
     WHERE active = 1 AND expiry BETWEEN date('now') AND date('now', '+7 days')
+    AND ${req.user.role === 'admin' ? '1=1' : `created_by = '${req.user.id}'`}
   `).get().count;
   if (expiringClients > 0) {
     alerts.push({ type: 'danger', icon: 'alert-triangle', message: `${expiringClients} assinatura(s) vencendo em 7 dias`, action: 'clients' });

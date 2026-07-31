@@ -125,8 +125,8 @@ const App = {
       }
     }
 
-    // Only admin can access restricted pages
-    const adminOnly = ['users', 'clients', 'automation', 'templates'];
+    // Only admin can access restricted pages (users)
+    const adminOnly = ['users'];
     if (adminOnly.includes(pageName) && !Auth.isAdmin()) {
       showToast('Apenas o administrador pode acessar esta página', 'warning');
       return;
