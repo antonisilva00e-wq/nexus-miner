@@ -87,6 +87,7 @@ const Auth = {
 
     const isClient = this.isClient();
     const isAdmin = this.isAdmin();
+    const isManager = this.isManager();
 
     // Add body class for CSS-based hiding
     document.body.classList.remove('role-client', 'role-admin', 'role-manager', 'role-seller');
@@ -100,7 +101,7 @@ const Auth = {
     document.querySelectorAll('.menu-item').forEach(el => {
       const page = el.dataset.page;
       const clientBlocked = ['automation', 'users', 'financial', 'templates', 'clients'];
-      const nonAdminBlocked = ['users', 'clients', 'automation', 'templates'];
+      const nonAdminBlocked = ['users'];
 
       if (isClient && clientBlocked.includes(page)) {
         el.style.display = 'none';
@@ -119,7 +120,7 @@ const Auth = {
       if (existingLock) existingLock.remove();
 
       let isLocked = false;
-      if (!isAdmin) {
+      if (!isAdmin && !isManager) {
         if (plan === 'starter' && starterBlocked.includes(page)) isLocked = true;
         if (plan === 'pro' && proBlocked.includes(page)) isLocked = true;
       }
