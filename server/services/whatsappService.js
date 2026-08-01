@@ -50,7 +50,9 @@ class WhatsAppService {
         this.status = 'qr';
         try {
           this.qrBase64 = await QRCode.toDataURL(qr);
+          console.log('[WhatsApp] QR Code gerado com sucesso!');
           this.emit('wa_qr', { qr: this.qrBase64 });
+          this.emit('wa_status', { status: 'qr', qr: this.qrBase64 });
         } catch (err) {
           console.error('[WhatsApp] Erro gerando QR:', err);
         }
