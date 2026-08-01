@@ -1,4 +1,4 @@
-const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const path = require('path');
 const fs = require('fs');
@@ -33,8 +33,11 @@ class WhatsAppService {
     this.emit('wa_status', { status: this.status });
 
     const { state, saveCreds } = await useMultiFileAuthState(this.sessionPath);
+    const { version } = await fetchLatestBaileysVersion();
+    console.log(`[WhatsApp] Usando versao web: ${version.join('.')}`);
 
     this.sock = makeWASocket({
+      version,
       auth: state,
       printQRInTerminal: false,
       logger: pino({ level: 'silent' }), // Hide heavy logs
