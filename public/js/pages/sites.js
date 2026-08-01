@@ -683,7 +683,7 @@ const SitesPage = {
       });
       if (window.lucide) lucide.createIcons();
 
-      showToast('Site gerado com sucesso!', 'success');
+      if(data.mocked){ showToast('Chave da IA nao configurada! Usando modelo generico de teste.', 'error'); } else { showToast('Site gerado com sucesso!', 'success'); }
 
       // Update URL bar
       const urlBar = document.querySelector('.url-bar');
