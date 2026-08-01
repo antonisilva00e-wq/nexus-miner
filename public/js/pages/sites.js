@@ -272,8 +272,8 @@ const SitesPage = {
             </div>
             
             <div class="form-group" style="margin-bottom: 16px;">
-              <label>Descrição dos Serviços</label>
-              <textarea rows="3" placeholder="Descreva os serviços, diferenciais e benefícios da sua empresa..."></textarea>
+              <label>Descrição e Comandos Especiais para a IA</label>
+              <textarea rows="3" placeholder="Ex: Crie o site na cor vermelha, adicione botão do WhatsApp flutuante, e foque em vendas diretas..."></textarea>
             </div>
 
             <div class="form-row">
@@ -618,14 +618,34 @@ const SitesPage = {
     btn.disabled = true;
     if (window.lucide) lucide.createIcons();
 
-    // Get input values (assuming the structure created previously)
+    // Get input values correctly by index based on the form structure
     const formInputs = document.querySelectorAll('.sites-form input, .sites-form select, .sites-form textarea');
+    
     const name = formInputs[0]?.value || 'Meu Novo Negócio';
     const segment = formInputs[1]?.value || 'SaaS';
-    const desc = formInputs[2]?.value || 'Site incrível gerado pela IA da NexusMiner.';
-    const prompt = 'Estilo ' + (document.querySelector('.pill-group .pill.active')?.textContent || 'Moderno');
+    const desc = formInputs[2]?.value || 'Site incrível gerado pela IA.';
+    const targetAudience = formInputs[3]?.value || '';
+    const cityState = formInputs[4]?.value || '';
+    const phone = formInputs[5]?.value || '';
+    const whatsapp = formInputs[6]?.value || '';
+    const email = formInputs[7]?.value || '';
+    const website = formInputs[8]?.value || '';
+    const instagram = formInputs[9]?.value || '';
+    const facebook = formInputs[10]?.value || '';
+
+    const style = document.querySelector('.pill-group .pill.active')?.textContent || 'Moderno';
     const color = document.querySelector('.color-circle.active')?.style.backgroundColor || '#8b5cf6';
     const objective = document.querySelectorAll('.pill-group')[1]?.querySelector('.active')?.textContent || 'Leads';
+
+    const payload = {
+      name,
+      description: desc,
+      services: segment,
+      diff: objective,
+      colors: color,
+      prompt: style,
+      contact: { targetAudience, cityState, phone, whatsapp, email, website, instagram, facebook }
+    };
 
     showToast('Iniciando IA... conectando servidores.', 'info');
 
@@ -651,14 +671,7 @@ const SitesPage = {
     }, 4500); // Progress advances every 4.5s while waiting
 
     try {
-      const data = await API.post('/sites/generate', {
-        name: name,
-        description: desc,
-        services: segment,
-        diff: objective,
-        colors: color,
-        prompt: prompt
-      });
+      const data = await API.post('/sites/generate', payload);
 
       clearInterval(progressInterval);
 

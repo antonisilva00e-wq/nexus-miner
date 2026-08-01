@@ -35,7 +35,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/generate', async (req, res) => {
-  const { name, description, colors, services, diff, prompt } = req.body;
+  const { name, description, colors, services, diff, prompt: style, contact } = req.body;
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
   if (!GEMINI_API_KEY) {
@@ -267,7 +267,7 @@ const fallbackHtml = getFallbackHtml(safeName, description);
   }
 
   const systemPrompt = `Você é um desenvolvedor web especialista, focado em criar landing pages de ALTÍSSIMA conversão, extrema beleza estética e visual RICO EM IMAGENS.
-Seu objetivo é gerar um site corporativo / SaaS (Software as a Service) completo, LONGO e de ponta a ponta, estruturado para VENDER COM FACILIDADE.
+Seu objetivo é gerar um site corporativo / SaaS completo, longo e de ponta a ponta, estruturado para VENDER.
 O código deve ser um único arquivo HTML contendo todo o CSS (inline ou tags <style>) e JS necessário.
 O design OBRIGATORIAMENTE deve ser "Premium", "Futurista" ou "Elegante". (Use Dark Mode por padrão, MAS mude para Light Mode se o cliente pedir "claro" ou "branco").
 
