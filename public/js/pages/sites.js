@@ -630,8 +630,8 @@ const SitesPage = {
     showToast('Iniciando IA... conectando servidores.', 'info');
 
     // Setup Progress Bar Animation
-    const progressSteps = document.querySelectorAll('.progress-bar-container > div > div');
-    const stepTexts = document.querySelectorAll('.progress-bar-container span');
+    const stepTexts = Array.from(document.querySelectorAll('.progress-bar-container span'));
+    const progressSteps = stepTexts.map(span => span.previousElementSibling);
     let currentStep = 0;
     const progressInterval = setInterval(() => {
       if (currentStep < progressSteps.length - 1) {
