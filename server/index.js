@@ -45,6 +45,26 @@ async function main() {
       console.log('[SEED] Usuario rafa77 criado com sucesso');
     }
 
+    const existingDemo = db.prepare('SELECT id FROM users WHERE username = ?').get('demo');
+    if (!existingDemo) {
+      const bcrypt = require('bcryptjs');
+      const crypto = require('crypto');
+      const demoId = crypto.randomUUID();
+      const demoHash = bcrypt.hashSync('demo123', 10);
+      db.prepare('INSERT INTO users (id, name, email, username, password_hash, role, active) VALUES (?, ?, ?, ?, ?, ?, ?)').run(demoId, 'Investor Demo', 'demo@nexus.com', 'demo', demoHash, 'manager', 1);
+      
+      for(let i=1; i<=15; i++) {
+        const cId = crypto.randomUUID();
+        const plans = ['Mensal', 'Semestral', 'Anual'];
+        const p = plans[Math.floor(Math.random() * plans.length)];
+        const val = p === 'Mensal' ? 197 : p === 'Semestral' ? 997 : 1997;
+        db.prepare('INSERT INTO clients (id, name, email, phone, username, password_hash, plan, price, expiry, active, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(
+          cId, `Demo Agency Client ${i}`, `client${i}@demo.com`, '5511999999999', `clientdemo${i}`, demoHash, p, val, '2027-01-01', 1, demoId
+        );
+      }
+      console.log('[SEED] Conta DEMO e faturamentos fakes criados com sucesso!');
+    }
+
     const existingClient = db.prepare('SELECT id FROM clients WHERE username = ?').get('cliente1');
     if (!existingClient) {
       const bcrypt = require('bcryptjs');
