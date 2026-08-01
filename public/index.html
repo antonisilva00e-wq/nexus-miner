@@ -252,18 +252,20 @@
         <a href="#/users" class="menu-item admin-only" data-page="users"><i data-lucide="shield"></i><span>Usuarios</span></a>
         <a href="#/settings" class="menu-item" data-page="settings"><i data-lucide="settings"></i><span>Configuracoes</span></a>
       </nav>
-      <div class="sidebar-footer" style="padding-top: 0.5rem; margin-top: 0.25rem;">
-        <div class="user-info" style="margin-bottom: 0.5rem; padding: 0.25rem; display: flex; justify-content: center;">
-          <i data-lucide="user-circle"></i>
-          <span id="sidebar-user-name">Admin</span>
-          <span id="sidebar-user-role" class="role-badge">admin</span>
-        </div>
-        <div style="display: flex; gap: 0.4rem; align-items: stretch;">
-          <button id="theme-toggle" onclick="Theme.toggle()" title="Alternar tema" style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center; padding: 0.55rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm); color: var(--text-primary); cursor: pointer;">
-            <i data-lucide="sun" style="width: 16px; height: 16px;"></i>
+      <div class="sidebar-footer" style="padding: 1rem 0 0 0; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.04);">
+        <div class="user-info" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; padding: 0 0.25rem;">
+          <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(99,102,241,0.1); display: flex; align-items: center; justify-content: center; color: var(--accent-primary);">
+            <i data-lucide="user" style="width: 18px; height: 18px;"></i>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 3px; flex: 1; overflow: hidden;">
+            <span id="sidebar-user-name" style="font-weight: 600; font-size: 0.85rem; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Admin</span>
+            <span id="sidebar-user-role" class="role-badge" style="font-size: 0.65rem; width: fit-content; padding: 2px 6px;">admin</span>
+          </div>
+          <button id="theme-toggle" onclick="Theme.toggle()" title="Alternar tema" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.2s;">
+            <i data-lucide="sun" style="width: 18px; height: 18px;"></i>
           </button>
-          <button class="btn-logout" onclick="App.logout()" style="flex: 1; margin: 0;"><i data-lucide="log-out"></i><span>Sair</span></button>
         </div>
+        <button class="btn-logout" onclick="App.logout()" style="width: 100%;"><i data-lucide="log-out"></i><span>Sair</span></button>
       </div>
     </aside>
 
