@@ -651,30 +651,16 @@ const SitesPage = {
     }, 4500); // Progress advances every 4.5s while waiting
 
     try {
-      const token = localStorage.getItem('nexus_token') || '';
-      const response = await fetch('/api/sites/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({
-          name: name,
-          description: desc,
-          services: segment,
-          diff: objective,
-          colors: color,
-          prompt: prompt
-        })
+      const data = await API.post('/sites/generate', {
+        name: name,
+        description: desc,
+        services: segment,
+        diff: objective,
+        colors: color,
+        prompt: prompt
       });
 
       clearInterval(progressInterval);
-
-      if (!response.ok) {
-        throw new Error('Falha ao gerar o site na API.');
-      }
-
-      const data = await response.json();
 
       // Finish all progress steps
       progressSteps.forEach((step, idx) => {
