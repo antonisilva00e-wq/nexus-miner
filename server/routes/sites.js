@@ -113,7 +113,7 @@ REGRAS DE ESTRUTURA E CONTEÚDO:
           'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
-          model: 'claude-3-5-sonnet-20240620',
+          model: 'claude-opus-4-5',
           max_tokens: 8192,
           temperature: 0.2,
           system: systemPrompt,
@@ -155,7 +155,7 @@ REGRAS DE ESTRUTURA E CONTEÚDO:
     // GEMINI (1.5 Pro)
     } else {
       console.log('[AI] Usando Google Gemini 1.5 Pro');
-      const response = await nativeFetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`, {
+      const response = await nativeFetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
