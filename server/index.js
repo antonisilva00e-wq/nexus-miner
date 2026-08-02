@@ -53,13 +53,12 @@ async function main() {
       const demoHash = bcrypt.hashSync('demo123', 10);
       db.prepare('INSERT INTO users (id, name, email, username, password_hash, role, active) VALUES (?, ?, ?, ?, ?, ?, ?)').run(demoId, 'Investor Demo', 'demo@nexus.com', 'demo', demoHash, 'manager', 1);
       
-      for(let i=1; i<=15; i++) {
+      for(let i=1; i<=3; i++) {
         const cId = crypto.randomUUID();
-        const plans = ['Mensal', 'Semestral', 'Anual'];
-        const p = plans[Math.floor(Math.random() * plans.length)];
-        const val = p === 'Mensal' ? 197 : p === 'Semestral' ? 997 : 1997;
+        const p = 'Teste Grátis (Trial)';
+        const val = 0; // Zerado para combinar com pré-revenue
         db.prepare('INSERT INTO clients (id, name, email, phone, username, password_hash, plan, price, expiry, active, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').run(
-          cId, `Demo Agency Client ${i}`, `client${i}@demo.com`, '5511999999999', `clientdemo${i}`, demoHash, p, val, '2027-01-01', 1, demoId
+          cId, `Lead Convertido ${i}`, `client${i}@demo.com`, '5511999999999', `clientdemo${i}`, demoHash, p, val, '2027-01-01', 1, demoId
         );
       }
       console.log('[SEED] Conta DEMO e faturamentos fakes criados com sucesso!');

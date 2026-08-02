@@ -32,16 +32,15 @@ async function seedDemo() {
   // Delete old mock data
   rawDb.run(`DELETE FROM clients WHERE created_by = '${dId}'`);
   
-  for(let i=1; i<=15; i++) {
-    const cId = crypto.randomUUID();
-    const plans = ['Mensal', 'Semestral', 'Anual'];
-    const p = plans[Math.floor(Math.random() * plans.length)];
-    const val = p === 'Mensal' ? 197 : p === 'Semestral' ? 997 : 1997;
-    rawDb.run(`
+      for(let i=1; i<=3; i++) {
+        const cId = crypto.randomUUID();
+        const p = 'Teste Grátis (Trial)';
+        const val = 0;
+        rawDb.run(`
       INSERT INTO clients (id, name, email, phone, username, password_hash, plan, price, expiry, active, created_by) 
-      VALUES ('${cId}', 'Demo Agency Client ${i}', 'client${i}@demo.com', '5511999999999', 'clientdemo${i}', '${demoHash}', '${p}', ${val}, '2027-01-01', 1, '${dId}')
+      VALUES ('\${cId}', 'Lead Convertido \${i}', 'client\${i}@demo.com', '5511999999999', 'clientdemo\${i}', '\${demoHash}', '\${p}', \${val}, '2027-01-01', 1, '\${dId}')
     `);
-  }
+      }
 
   saveDatabase();
   console.log('[SEED] Demo Database seeded successfully!');
