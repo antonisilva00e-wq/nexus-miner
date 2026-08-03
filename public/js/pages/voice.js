@@ -1,7 +1,7 @@
 const VoicePage = {
   async render() {
-    document.getElementById('page-title').textContent = 'Agente de Voz IA';
-    document.getElementById('page-subtitle').textContent = 'Automatize suas ligações com um agente inteligente';
+    document.getElementById('page-title').textContent = 'AI Voice Agent';
+    document.getElementById('page-subtitle').textContent = 'Automate your calls with a smart agent';
 
     document.getElementById('page-voice').innerHTML = `
       <div class="voice-dashboard" style="display:grid;gap:1.5rem;grid-template-columns:1fr 350px;">
@@ -19,55 +19,55 @@ const VoicePage = {
                 </div>
                 <div>
                   <h2 style="color:white;font-size:1.25rem;margin:0;text-shadow:0 0 10px rgba(255,255,255,0.2);">Nexus Voice AI</h2>
-                  <p style="color:var(--text-tertiary);font-size:0.85rem;margin:0;">Status: <span style="color:#10b981;">Pronto para configurar</span></p>
+                  <p style="color:var(--text-tertiary);font-size:0.85rem;margin:0;">Status: <span style="color:#10b981;">Ready to configure</span></p>
                 </div>
               </div>
-              <button class="btn btn-primary" onclick="VoicePage.testCall()" style="background:linear-gradient(135deg, #10b981, #059669);border:none;box-shadow:0 0 15px rgba(16,185,129,0.4);"><i data-lucide="phone-call"></i> Testar no Navegador</button>
+              <button class="btn btn-primary" onclick="VoicePage.testCall()" style="background:linear-gradient(135deg, #10b981, #059669);border:none;box-shadow:0 0 15px rgba(16,185,129,0.4);"><i data-lucide="phone-call"></i> Test in Browser</button>
             </div>
             
             <div class="form-group" style="margin-bottom:1.5rem;">
-              <label style="color:var(--text-secondary);font-weight:600;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="file-code-2" style="width:16px;"></i> Cérebro / Prompt do Agente</label>
-              <textarea id="voice-prompt" class="form-control" style="height:150px;font-family:monospace;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);color:#a5b4fc;font-size:0.9rem;" placeholder="Você é o assistente virtual da Nexus Miner..."></textarea>
+              <label style="color:var(--text-secondary);font-weight:600;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="file-code-2" style="width:16px;"></i> Agent Brain / Prompt</label>
+              <textarea id="voice-prompt" class="form-control" style="height:150px;font-family:monospace;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.1);color:#a5b4fc;font-size:0.9rem;" placeholder="You are the virtual assistant for Nexus Miner..."></textarea>
             </div>
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
               <div class="form-group">
-                <label style="color:var(--text-secondary);font-weight:600;">Voz do Agente</label>
+                <label style="color:var(--text-secondary);font-weight:600;">Agent Voice</label>
                 <select id="voice-voice" class="form-control" style="background:rgba(0,0,0,0.2);">
-                  <option value="male_br">Ricardo (Masculino BR)</option>
-                  <option value="female_br">Camila (Feminino BR)</option>
+                  <option value="male_br">Ricardo (Male BR)</option>
+                  <option value="female_br">Camila (Female BR)</option>
                 </select>
               </div>
               <div class="form-group">
-                <label style="color:var(--text-secondary);font-weight:600;">Idioma</label>
+                <label style="color:var(--text-secondary);font-weight:600;">Language</label>
                 <select id="voice-language" class="form-control" style="background:rgba(0,0,0,0.2);">
-                  <option value="pt-BR">Português (Brasil)</option>
+                  <option value="pt-BR">Portuguese (Brazil)</option>
                   <option value="en-US">English (US)</option>
                 </select>
               </div>
             </div>
 
-            <button class="btn btn-primary w-100" onclick="VoicePage.saveConfig()" style="background:linear-gradient(135deg, #6366f1, #4f46e5);border:none;"><i data-lucide="save"></i> Salvar Configurações</button>
+            <button class="btn btn-primary w-100" onclick="VoicePage.saveConfig()" style="background:linear-gradient(135deg, #6366f1, #4f46e5);border:none;"><i data-lucide="save"></i> Save Settings</button>
           </div>
           
           <!-- Histórico de Chamadas -->
           <div class="card">
             <div class="card-header">
-              <h3 style="display:flex;align-items:center;gap:0.5rem;"><i data-lucide="history"></i> Últimas Ligações</h3>
+              <h3 style="display:flex;align-items:center;gap:0.5rem;"><i data-lucide="history"></i> Recent Calls</h3>
             </div>
             <div class="table-responsive">
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Data</th>
-                    <th>Telefone</th>
-                    <th>Duração</th>
-                    <th>Desfecho</th>
-                    <th>Ações</th>
+                    <th>Date</th>
+                    <th>Phone</th>
+                    <th>Duration</th>
+                    <th>Outcome</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody id="voice-calls-list">
-                  <tr><td colspan="5" style="text-align:center;color:var(--text-tertiary);padding:2rem;">Nenhuma ligação registrada</td></tr>
+                  <tr><td colspan="5" style="text-align:center;color:var(--text-tertiary);padding:2rem;">No calls recorded</td></tr>
                 </tbody>
               </table>
             </div>
@@ -77,18 +77,18 @@ const VoicePage = {
         <!-- Lado Direito: Analytics e Status -->
         <div class="voice-sidebar">
           <div class="card" style="margin-bottom:1.5rem;">
-            <h3 style="margin-bottom:1rem;font-size:1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="activity"></i> Analytics de Voz</h3>
+            <h3 style="margin-bottom:1rem;font-size:1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="activity"></i> Voice Analytics</h3>
             <div style="display:grid;gap:1rem;">
               <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid rgba(255,255,255,0.05);">
-                <p style="margin:0;color:var(--text-tertiary);font-size:0.8rem;">Minutos Falados (Mês)</p>
+                <p style="margin:0;color:var(--text-tertiary);font-size:0.8rem;">Minutes Spoken (Month)</p>
                 <h4 style="margin:0;color:white;font-size:1.5rem;" id="voice-stat-minutes">0</h4>
               </div>
               <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid rgba(255,255,255,0.05);">
-                <p style="margin:0;color:var(--text-tertiary);font-size:0.8rem;">Ligações Atendidas</p>
+                <p style="margin:0;color:var(--text-tertiary);font-size:0.8rem;">Calls Answered</p>
                 <h4 style="margin:0;color:#10b981;font-size:1.5rem;" id="voice-stat-calls">0</h4>
               </div>
               <div style="background:rgba(255,255,255,0.03);padding:1rem;border-radius:8px;border:1px solid rgba(255,255,255,0.05);">
-                <p style="margin:0;color:var(--text-tertiary);font-size:0.8rem;">Custo Estimado</p>
+                <p style="margin:0;color:var(--text-tertiary);font-size:0.8rem;">Estimated Cost</p>
                 <h4 style="margin:0;color:#ef4444;font-size:1.5rem;" id="voice-stat-cost">R$ 0,00</h4>
               </div>
             </div>
@@ -96,16 +96,16 @@ const VoicePage = {
 
           <!-- Integração -->
           <div class="card">
-            <h3 style="margin-bottom:1rem;font-size:1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="link"></i> Provedor de Telefonia</h3>
+            <h3 style="margin-bottom:1rem;font-size:1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="link"></i> Telephony Provider</h3>
             <div class="form-group">
-              <label>Chave da API (Vapi.ai / Bland.ai)</label>
+              <label>API Key (Vapi.ai / Bland.ai)</label>
               <input type="password" id="voice-api-key" class="form-control" placeholder="sk-...">
             </div>
             <div class="form-group">
-              <label>ID do Agente / Número</label>
+              <label>Agent ID / Number</label>
               <input type="text" id="voice-agent-id" class="form-control" placeholder="agent_...">
             </div>
-            <button class="btn btn-sm btn-secondary w-100" onclick="VoicePage.saveProvider()"><i data-lucide="save"></i> Salvar Integração</button>
+            <button class="btn btn-sm btn-secondary w-100" onclick="VoicePage.saveProvider()"><i data-lucide="save"></i> Save Integration</button>
           </div>
         </div>
       </div>
@@ -136,7 +136,7 @@ const VoicePage = {
             <td>${c.duration}s</td>
             <td><span class="badge ${c.outcome === 'success' ? 'badge-primary' : 'badge-secondary'}">${c.outcome}</span></td>
             <td>
-              <button class="btn btn-sm btn-secondary" onclick="VoicePage.viewTranscript('${c.id}')"><i data-lucide="file-text"></i> Transcrição</button>
+              <button class="btn btn-sm btn-secondary" onclick="VoicePage.viewTranscript('${c.id}')"><i data-lucide="file-text"></i> Transcript</button>
             </td>
           </tr>
         `).join('');
@@ -154,9 +154,9 @@ const VoicePage = {
 
     try {
       await API.post('/voice-agent/config', { prompt, voice, language });
-      showToast('Configurações do Agente salvas com sucesso!', 'success');
+      showToast('Agent settings saved successfully!', 'success');
     } catch (err) {
-      showToast('Erro ao salvar configurações: ' + err.message, 'danger');
+      showToast('Error saving settings: ' + err.message, 'danger');
     }
   },
 
@@ -166,9 +166,9 @@ const VoicePage = {
 
     try {
       await API.post('/voice-agent/provider', { providerKey, agentId });
-      showToast('Integração de telefonia atualizada!', 'success');
+      showToast('Telephony integration updated!', 'success');
     } catch (err) {
-      showToast('Erro ao salvar provedor: ' + err.message, 'danger');
+      showToast('Error saving provider: ' + err.message, 'danger');
     }
   },
 
@@ -177,11 +177,11 @@ const VoicePage = {
     const agentId = document.getElementById('voice-agent-id').value;
 
     if (!publicKey || !agentId) {
-      return showToast('Por favor, preencha a Chave da API e o ID do Agente antes de testar.', 'warning');
+      return showToast('Please fill in the API Key and Agent ID before testing.', 'warning');
     }
 
     if (!window.Vapi && !this.vapiClass) {
-      showToast('Carregando motor de voz, aguarde...', 'info');
+      showToast('Loading voice engine, please wait...', 'info');
       
       if (typeof window.exports === 'undefined') {
         window.exports = {};
@@ -195,13 +195,13 @@ const VoicePage = {
         this.vapiClass = globalVapi?.default?.default || globalVapi?.default || globalVapi?.Vapi || globalVapi;
 
         if (typeof this.vapiClass !== 'function') {
-          return showToast('Erro crítico: O pacote de voz não foi iniciado corretamente. (Não é construtor)', 'danger');
+          return showToast('Critical error: The voice package was not initialized correctly. (Not a constructor)', 'danger');
         }
         this.startVapiCall(publicKey, agentId);
       };
 
       script.onerror = () => {
-        showToast('Erro ao carregar o arquivo local do Vapi.', 'danger');
+        showToast('Error loading local Vapi file.', 'danger');
       };
 
       document.head.appendChild(script);
@@ -217,13 +217,13 @@ const VoicePage = {
         this.vapiInstance = new this.vapiClass(publicKey);
 
         this.vapiInstance.on('call-start', () => {
-          showToast('Chamada conectada! Pode falar.', 'success');
+          showToast('Call connected! You may speak.', 'success');
           const statusEl = document.getElementById('vapi-status-text');
-          if (statusEl) { statusEl.textContent = 'Conectado! Fale agora...'; statusEl.style.color = '#10b981'; }
+          if (statusEl) { statusEl.textContent = 'Connected! Speak now...'; statusEl.style.color = '#10b981'; }
         });
 
         this.vapiInstance.on('call-end', () => {
-          showToast('Chamada encerrada.', 'info');
+          showToast('Call ended.', 'info');
           Modal.close();
         });
 
@@ -234,7 +234,7 @@ const VoicePage = {
           try { console.error('Vapi Error JSON:', JSON.stringify(e, null, 2)); } catch(_) {}
 
           // Extrair mensagem legivel
-          let errorMsg = 'Erro desconhecido';
+          let errorMsg = 'Unknown error';
           try {
             if (typeof e === 'string') {
               errorMsg = e;
@@ -249,25 +249,25 @@ const VoicePage = {
             } else if (e) {
               errorMsg = JSON.stringify(e);
             }
-          } catch(_) { errorMsg = 'Erro ao processar resposta do Vapi'; }
+          } catch(_) { errorMsg = 'Error processing Vapi response'; }
 
-          showToast('Erro Vapi: ' + errorMsg, 'danger');
+          showToast('Vapi Error: ' + errorMsg, 'danger');
           console.warn('[Voice] Dica: Verifique no console F12 o "Vapi Error JSON" para mais detalhes.');
           Modal.close();
         });
       }
 
       Modal.open(
-        '🎙️ Teste WebRTC (Navegador)',
+        '🎙️ WebRTC Test (Browser)',
         `<div style="text-align:center;padding:2rem;">
           <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;margin:0 auto 2rem auto;animation:pulse 2s infinite;box-shadow:0 0 30px rgba(16,185,129,0.4);">
             <i data-lucide="mic" style="color:white;width:40px;height:40px;"></i>
           </div>
-          <h3 id="vapi-status-text" style="color:white;margin-bottom:1rem;">Iniciando chamada...</h3>
-          <p style="color:var(--text-tertiary);margin-bottom:2rem;">Permita o acesso ao microfone no navegador.</p>
-          <button class="btn btn-danger" onclick="VoicePage.endVapiCall()"><i data-lucide="phone-off"></i> Desligar</button>
+          <h3 id="vapi-status-text" style="color:white;margin-bottom:1rem;">Starting call...</h3>
+          <p style="color:var(--text-tertiary);margin-bottom:2rem;">Allow microphone access in your browser.</p>
+          <button class="btn btn-danger" onclick="VoicePage.endVapiCall()"><i data-lucide="phone-off"></i> Hang up</button>
         </div>`,
-        `<button class="btn btn-secondary" onclick="VoicePage.endVapiCall()">Cancelar</button>`
+        `<button class="btn btn-secondary" onclick="VoicePage.endVapiCall()">Cancel</button>`
       );
       lucide.createIcons();
 
@@ -279,7 +279,7 @@ const VoicePage = {
 
     } catch (err) {
       console.error('[Voice] Erro ao iniciar Vapi:', err);
-      showToast('Erro ao iniciar Vapi: ' + (err.message || err), 'danger');
+      showToast('Error starting Vapi: ' + (err.message || err), 'danger');
     }
   },
 
@@ -291,6 +291,6 @@ const VoicePage = {
   },
 
   async viewTranscript(id) {
-    showToast('Carregando transcrição...', 'info');
+    showToast('Loading transcript...', 'info');
   }
 };
