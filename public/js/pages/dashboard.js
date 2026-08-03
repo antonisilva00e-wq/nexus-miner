@@ -53,8 +53,8 @@ async render() {
       // Atualiza o titulo imediatamente
       const titleEl = document.getElementById('page-title');
       const subtitleEl = document.getElementById('page-subtitle');
-      if (titleEl) titleEl.textContent = 'Painel Premium';
-      if (subtitleEl) subtitleEl.textContent = 'Visao geral do sistema';
+      if (titleEl) titleEl.textContent = 'Premium Dashboard';
+      if (subtitleEl) subtitleEl.textContent = 'System overview';
 
       // Destroi charts e mostra skeletons de forma SINCRONA - antes de qualquer fetch
       try { Charts.destroyAll(); } catch(e) { console.warn('[Dashboard] destroyAll falhou:', e); }
@@ -80,10 +80,10 @@ async render() {
       if (!overview) {
         el.innerHTML = `<div class="empty-state" style="padding:3rem;text-align:center;">
           <i data-lucide="wifi-off" style="width:48px;height:48px;color:var(--accent-primary);margin-bottom:1rem;"></i>
-          <p style="font-size:1.1rem;color:white;margin-bottom:0.5rem;">Erro ao carregar dados</p>
-          <span style="color:var(--text-secondary);font-size:0.9rem;">O servidor pode estar iniciando. Aguarde 30 segundos e tente novamente.</span>
+          <p style="font-size:1.1rem;color:white;margin-bottom:0.5rem;">Error loading data</p>
+          <span style="color:var(--text-secondary);font-size:0.9rem;">The server may be starting. Wait 30 seconds and try again.</span>
           <br><button class="btn btn-primary" style="margin-top:1.5rem;" onclick="DashboardPage.render()">
-            <i data-lucide="refresh-cw"></i> Tentar Novamente
+            <i data-lucide="refresh-cw"></i> Try Again
           </button>
         </div>`;
         if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -111,11 +111,11 @@ async render() {
           <!-- Header -->
           <div class="vision-header">
             <div class="vision-header-left">
-              <h1 class="vision-title">Visão Geral</h1>
-              <p class="vision-subtitle">Acompanhe o desempenho do seu negócio em tempo real</p>
+              <h1 class="vision-title">Overview</h1>
+              <p class="vision-subtitle">Track your business performance in real time</p>
             </div>
             <div class="vision-header-right">
-              <span class="vision-date-badge"><i data-lucide="calendar"></i> Período: ${period === '7d' ? '7 dias' : period === '30d' ? '30 dias' : period === '90d' ? '90 dias' : '12 meses'}</span>
+              <span class="vision-date-badge"><i data-lucide="calendar"></i> Period: ${period === '7d' ? '7 days' : period === '30d' ? '30 days' : period === '90d' ? '90 days' : '12 months'}</span>
               <div class="vision-period-tabs">
                 <button class="vpb ${period === '7d' ? 'active' : ''}" onclick="DashboardPage.setPeriod('7d')">7d</button>
                 <button class="vpb ${period === '30d' ? 'active' : ''}" onclick="DashboardPage.setPeriod('30d')">30d</button>
@@ -131,12 +131,12 @@ async render() {
             <div class="vision-kpi-card">
               <div class="vkpi-header">
                 <div class="vkpi-icon-wrap vkpi-green"><i data-lucide="dollar-sign"></i></div>
-                <span class="vkpi-label">Receita Total</span>
+                <span class="vkpi-label">Total Revenue</span>
               </div>
               <div class="vkpi-value">R$ ${overview.mrr.toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
               <div class="vkpi-change ${overview.trends.leads >= 0 ? 'up' : 'down'}">
                 <i data-lucide="${overview.trends.leads >= 0 ? 'arrow-up' : 'arrow-down'}"></i>
-                ${overview.trends.leads >= 0 ? '+' : ''}${overview.trends.leads}% vs período anterior
+                ${overview.trends.leads >= 0 ? '+' : ''}${overview.trends.leads}% vs previous period
               </div>
               <div class="vkpi-sparkline-wrap"><canvas class="sparkline-canvas" id="spark-mrr"></canvas></div>
             </div>
@@ -144,11 +144,11 @@ async render() {
             <div class="vision-kpi-card">
               <div class="vkpi-header">
                 <div class="vkpi-icon-wrap vkpi-blue"><i data-lucide="target"></i></div>
-                <span class="vkpi-label">Total de Leads</span>
+                <span class="vkpi-label">Total Leads</span>
               </div>
               <div class="vkpi-value">${overview.totalLeads.toLocaleString('pt-BR')}</div>
               <div class="vkpi-change neutral">
-                <i data-lucide="activity"></i> leads capturados
+                <i data-lucide="activity"></i> leads captured
               </div>
               <div class="vkpi-sparkline-wrap"><canvas class="sparkline-canvas" id="spark-leads"></canvas></div>
             </div>
@@ -156,11 +156,11 @@ async render() {
             <div class="vision-kpi-card">
               <div class="vkpi-header">
                 <div class="vkpi-icon-wrap vkpi-purple"><i data-lucide="users"></i></div>
-                <span class="vkpi-label">Clientes Ativos</span>
+                <span class="vkpi-label">Active Clients</span>
               </div>
               <div class="vkpi-value">${overview.activeClients}</div>
               <div class="vkpi-change up">
-                <i data-lucide="arrow-up"></i> de ${overview.totalClients} cadastrados
+                <i data-lucide="arrow-up"></i> of ${overview.totalClients} registered
               </div>
               <div class="vkpi-sparkline-wrap"><canvas class="sparkline-canvas" id="spark-clients"></canvas></div>
             </div>
@@ -168,11 +168,11 @@ async render() {
             <div class="vision-kpi-card">
               <div class="vkpi-header">
                 <div class="vkpi-icon-wrap vkpi-orange"><i data-lucide="trending-up"></i></div>
-                <span class="vkpi-label">Ticket Médio</span>
+                <span class="vkpi-label">Average Ticket</span>
               </div>
               <div class="vkpi-value">R$ ${overview.mrr > 0 && overview.activeClients > 0 ? (overview.mrr / overview.activeClients).toLocaleString('pt-BR', {minimumFractionDigits:2}) : '0,00'}</div>
               <div class="vkpi-change up">
-                <i data-lucide="arrow-up"></i> ${overview.conversionRate}% conversão
+                <i data-lucide="arrow-up"></i> ${overview.conversionRate}% conversion
               </div>
               <div class="vkpi-sparkline-wrap"><canvas class="sparkline-canvas" id="spark-ticket"></canvas></div>
             </div>
@@ -183,9 +183,9 @@ async render() {
             <!-- Revenue Line Chart -->
             <div class="vision-chart-card vision-chart-large">
               <div class="vchart-header">
-                <div class="vchart-title">Receita</div>
+                <div class="vchart-title">Revenue</div>
                 <div class="vchart-actions">
-                  <span class="vchart-badge">Mensal ▾</span>
+                  <span class="vchart-badge">Monthly ▾</span>
                 </div>
               </div>
               <div class="vchart-body"><canvas id="chart-leads-line"></canvas></div>
@@ -194,16 +194,16 @@ async render() {
             <!-- Funil de Vendas -->
             <div class="vision-chart-card">
               <div class="vchart-header">
-                <div class="vchart-title">Funil de Vendas</div>
+                <div class="vchart-title">Sales Funnel</div>
               </div>
               <div class="vision-funnel" id="vision-funnel-container">
                 ${(() => {
                   const funnelData = [
                     { label: 'Leads', value: overview.totalLeads, color: '#6366f1' },
-                    { label: 'Contato', value: Math.round(overview.totalLeads * 0.62), color: '#8b5cf6' },
-                    { label: 'Proposta', value: Math.round(overview.totalLeads * 0.27), color: '#a78bfa' },
-                    { label: 'Negociação', value: Math.round(overview.totalLeads * 0.15), color: '#c4b5fd' },
-                    { label: 'Fechados', value: overview.closedLeads, color: '#34d399' },
+                    { label: 'Contact', value: Math.round(overview.totalLeads * 0.62), color: '#8b5cf6' },
+                    { label: 'Proposal', value: Math.round(overview.totalLeads * 0.27), color: '#a78bfa' },
+                    { label: 'Negotiation', value: Math.round(overview.totalLeads * 0.15), color: '#c4b5fd' },
+                    { label: 'Closed', value: overview.closedLeads, color: '#34d399' },
                   ];
                   const max = funnelData[0].value || 1;
                   return funnelData.map((f, i) => {
@@ -219,7 +219,7 @@ async render() {
                         <span class="vfunnel-val">${f.value.toLocaleString('pt-BR')}</span>
                       </div>
                     </div>`;
-                  }).join('') + `<div class="vfunnel-rate">Taxa de conversão geral: <strong>${overview.conversionRate}%</strong></div>`;
+                  }).join('') + `<div class="vfunnel-rate">Overall conversion rate: <strong>${overview.conversionRate}%</strong></div>`;
                 })()}
               </div>
             </div>
@@ -229,20 +229,20 @@ async render() {
           <div class="vision-mid-row">
             <!-- Taxa de Conversão Donut -->
             <div class="vision-chart-card">
-              <div class="vchart-header"><div class="vchart-title">Taxa de Conversão</div></div>
+              <div class="vchart-header"><div class="vchart-title">Conversion Rate</div></div>
               <div class="vdonut-wrap">
                 <div class="vchart-body vdonut-body"><canvas id="chart-conversion-donut"></canvas></div>
                 <div class="vdonut-center">${overview.conversionRate}%</div>
               </div>
               <div class="vdonut-meta">
-                <div class="vdonut-stat"><span>${overview.closedLeads}</span><small>Fechados</small></div>
+                <div class="vdonut-stat"><span>${overview.closedLeads}</span><small>Closed</small></div>
                 <div class="vdonut-stat"><span>${overview.totalLeads}</span><small>Leads</small></div>
               </div>
             </div>
 
             <!-- Origem dos Leads -->
             <div class="vision-chart-card">
-              <div class="vchart-header"><div class="vchart-title">Origem dos Leads</div></div>
+              <div class="vchart-header"><div class="vchart-title">Lead Sources</div></div>
               <div class="vorigens-wrap">
                 <div class="vchart-body" style="height:200px;"><canvas id="chart-leads-month"></canvas></div>
               </div>
@@ -250,7 +250,7 @@ async render() {
 
             <!-- Atividades Recentes -->
             <div class="vision-chart-card">
-              <div class="vchart-header"><div class="vchart-title">Atividades Recentes</div></div>
+              <div class="vchart-header"><div class="vchart-title">Recent Activities</div></div>
               <div class="vactivities" id="vision-activity-feed"></div>
             </div>
           </div>
@@ -260,12 +260,12 @@ async render() {
             <!-- Leads Table -->
             <div class="vision-chart-card vision-chart-large">
               <div class="vchart-header">
-                <div class="vchart-title">Leads Recentes</div>
-                <button class="vchart-badge" onclick="App.navigateTo('leads')">Ver Todos os Leads →</button>
+                <div class="vchart-title">Recent Leads</div>
+                <button class="vchart-badge" onclick="App.navigateTo('leads')">See All Leads →</button>
               </div>
               <div class="vleads-table-wrap">
                 <table class="vleads-table">
-                  <thead><tr><th>LEAD</th><th>ORIGEM</th><th>VALOR POTENCIAL</th><th>STATUS</th></tr></thead>
+                  <thead><tr><th>LEAD</th><th>SOURCE</th><th>POTENTIAL VALUE</th><th>STATUS</th></tr></thead>
                   <tbody id="vision-leads-tbody"></tbody>
                 </table>
               </div>
@@ -273,7 +273,7 @@ async render() {
 
             <!-- Receita por Produto -->
             <div class="vision-chart-card">
-              <div class="vchart-header"><div class="vchart-title">Receita por Produto/Serviço</div></div>
+              <div class="vchart-header"><div class="vchart-title">Revenue by Product/Service</div></div>
               <div id="vision-produto-list" class="vproduto-list"></div>
             </div>
           </div>
@@ -284,7 +284,7 @@ async render() {
             <div class="vision-chart-card vision-chart-large">
               <div class="vchart-header">
                 <div>
-                  <div class="vchart-title">Previsão de Receita</div>
+                  <div class="vchart-title">Revenue Forecast</div>
                   <div class="vchart-subtitle">R$ ${(overview.mrr * 1.15).toLocaleString('pt-BR', {minimumFractionDigits:2})}</div>
                 </div>
               </div>
@@ -294,27 +294,27 @@ async render() {
             <!-- Insights IA -->
             <div class="vision-chart-card">
               <div class="vchart-header">
-                <div class="vchart-title">✨ Insights Inteligentes</div>
+                <div class="vchart-title">✨ Smart Insights</div>
               </div>
               <div class="vinsights-list">
                 <div class="vinsight-item">
                   <div class="vinsight-dot dot-green"></div>
-                  <p>A taxa de conversão cresceu ${overview.conversionRate > 5 ? overview.conversionRate : '5'}% este período — acima da média do setor.</p>
+                  <p>The conversion rate grew ${overview.conversionRate > 5 ? overview.conversionRate : '5'}% this period — above the industry average.</p>
                 </div>
                 <div class="vinsight-item">
                   <div class="vinsight-dot dot-blue"></div>
-                  <p>${overview.totalLeads} leads captados. Foque nos ${overview.totalLeads - overview.closedLeads} ainda em aberto para maximizar receita.</p>
+                  <p>${overview.totalLeads} leads captured. Focus on the ${overview.totalLeads - overview.closedLeads} still open to maximize revenue.</p>
                 </div>
                 <div class="vinsight-item">
                   <div class="vinsight-dot dot-purple"></div>
-                  <p>Com ${overview.activeClients} clientes ativos, seu MRR estimado é R$ ${overview.mrr.toLocaleString('pt-BR', {minimumFractionDigits:2})}.</p>
+                  <p>With ${overview.activeClients} active clients, your estimated MRR is R$ ${overview.mrr.toLocaleString('pt-BR', {minimumFractionDigits:2})}.</p>
                 </div>
                 <div class="vinsight-item">
                   <div class="vinsight-dot dot-orange"></div>
-                  <p>Qualifique leads com score acima de 70 para aumentar a taxa de fechamento em até 40%.</p>
+                  <p>Qualify leads with a score above 70 to increase the closing rate by up to 40%.</p>
                 </div>
               </div>
-              <button class="vision-insight-btn" onclick="App.navigateTo('leads')">Ver Todos os Insights →</button>
+              <button class="vision-insight-btn" onclick="App.navigateTo('leads')">See All Insights →</button>
             </div>
           </div>
 
@@ -330,7 +330,7 @@ async render() {
       const lcLabels = leadsChart?.data?.map(d => d.period) || [];
       const lcData   = leadsChart?.data?.map(d => d.count) || [];
       if (lcLabels.length) {
-        Charts.createLine('chart-leads-line', lcLabels, lcData, 'Receita');
+        Charts.createLine('chart-leads-line', lcLabels, lcData, 'Revenue');
       }
 
       // Origem dos Leads (bar)
@@ -341,14 +341,14 @@ async render() {
       // Conversion donut
       const convVal = overview.conversionRate || 0;
       Charts.createDoughnut('chart-conversion-donut',
-        ['Convertidos', 'Em aberto'],
+        ['Converted', 'Open'],
         [convVal, Math.max(100 - convVal, 0)]
       );
 
       // Forecast chart (line with purple gradient)
       if (lcLabels.length) {
         const forecastData = lcData.map((v, i) => Math.round(v * (1 + 0.05 * (i + 1))));
-        Charts.createLine('chart-forecast', lcLabels, forecastData, 'Previsão');
+        Charts.createLine('chart-forecast', lcLabels, forecastData, 'Forecast');
       }
 
       // Sparklines
@@ -368,12 +368,12 @@ async render() {
           ? acts.slice(0,6).map(a => `<div class="vact-item">
               <div class="vact-avatar">${(a.user || 'U').charAt(0).toUpperCase()}</div>
               <div class="vact-info">
-                <div class="vact-name">${a.user || 'Sistema'}</div>
-                <div class="vact-desc">${a.description || a.action || 'Atividade registrada'}</div>
+                <div class="vact-name">${a.user || 'System'}</div>
+                <div class="vact-desc">${a.description || a.action || 'Activity recorded'}</div>
               </div>
-              <div class="vact-time">${a.timeAgo || 'agora'}</div>
+              <div class="vact-time">${a.timeAgo || 'just now'}</div>
             </div>`).join('')
-          : `<div class="empty-placeholder">Nenhuma atividade recente</div>`;
+          : `<div class="empty-placeholder">No recent activity</div>`;
       }
 
       // Leads table
@@ -387,12 +387,12 @@ async render() {
               const color = statusColors[st] || '#94a3b8';
               return `<tr>
                 <td><div class="vlead-name">${l.name || l.nome || 'Lead'}</div></td>
-                <td><span class="vlead-origem">${l.origem || 'Orgânico'}</span></td>
+                <td><span class="vlead-origem">${l.origem || 'Organic'}</span></td>
                 <td class="vlead-valor">R$ ${(l.valor_potencial || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-                <td><span class="vlead-status" style="color:${color};border-color:${color}20;background:${color}15;">${l.status || 'Novo'}</span></td>
+                <td><span class="vlead-status" style="color:${color};border-color:${color}20;background:${color}15;">${l.status || 'New'}</span></td>
               </tr>`;
             }).join('')
-          : `<tr><td colspan="4" class="empty-placeholder">Nenhum lead recente</td></tr>`;
+          : `<tr><td colspan="4" class="empty-placeholder">No recent leads</td></tr>`;
       }
 
       // Receita por Produto
@@ -400,11 +400,11 @@ async render() {
       if (prodEl) {
         const colors = ['#6366f1','#22d3ee','#34d399','#f59e0b','#f43f5e'];
         const produtos = [
-          { name: 'Plano Premium', value: overview.mrr * 0.4 },
-          { name: 'Consultoria',   value: overview.mrr * 0.25 },
-          { name: 'Treinamento',   value: overview.mrr * 0.18 },
-          { name: 'Suporte',       value: overview.mrr * 0.1 },
-          { name: 'Outros',        value: overview.mrr * 0.07 },
+          { name: 'Premium Plan', value: overview.mrr * 0.4 },
+          { name: 'Consulting',   value: overview.mrr * 0.25 },
+          { name: 'Training',     value: overview.mrr * 0.18 },
+          { name: 'Support',      value: overview.mrr * 0.1 },
+          { name: 'Others',       value: overview.mrr * 0.07 },
         ];
         prodEl.innerHTML = produtos.map((p, i) => `
           <div class="vprod-item">
@@ -437,10 +437,10 @@ async render() {
         el.innerHTML = `
           <div class="empty-state">
             <i data-lucide="alert-triangle"></i>
-            <p>Erro ao carregar dashboard</p>
+            <p>Error loading dashboard</p>
             <span class="text-secondary text-sm">${err.message}</span>
             <button class="btn btn-primary" style="margin-top:1rem;" onclick="DashboardPage.render()">
-              <i data-lucide="refresh-cw"></i> Tentar Novamente
+              <i data-lucide="refresh-cw"></i> Try Again
             </button>
           </div>
         `;
@@ -453,10 +453,10 @@ async render() {
       const pageEl = document.getElementById('page-dashboard');
       if (pageEl) pageEl.innerHTML = `
         <div style="padding:3rem;text-align:center;color:white;">
-          <p style="font-size:1.2rem;margin-bottom:0.5rem;">&#9888; Erro critico no dashboard</p>
+          <p style="font-size:1.2rem;margin-bottom:0.5rem;">&#9888; Critical dashboard error</p>
           <p style="color:#9ca3af;font-size:0.9rem;margin-bottom:1rem;">${outerErr.message}</p>
           <button onclick="DashboardPage.render()" style="padding:0.6rem 1.5rem;background:#6366f1;color:white;border:none;border-radius:8px;cursor:pointer;font-size:0.9rem;">
-            Tentar Novamente
+            Try Again
           </button>
         </div>`;
     }
@@ -590,7 +590,7 @@ async render() {
     const container = document.getElementById('pipeline-bars');
     if (!container || !data.length) return;
 
-    const stageLabels = { leads: 'Novos Leads', contato: 'Em Contato', proposta: 'Proposta', fechado: 'Fechados', perdido: 'Perdidos' };
+    const stageLabels = { leads: 'New Leads', contato: 'In Contact', proposta: 'Proposal', fechado: 'Closed', perdido: 'Lost' };
 
     container.innerHTML = data.map(d => {
       const pct = total > 0 ? Math.round((d.count / total) * 100) : 0;
@@ -651,7 +651,7 @@ async render() {
         `;
       }).join('');
     } else {
-      container.innerHTML = '<p class="text-tertiary text-sm" style="text-align:center;padding:2rem;">Sem dados geograficos</p>';
+      container.innerHTML = '<p class="text-tertiary text-sm" style="text-align:center;padding:2rem;">No geographical data</p>';
     }
   },
 
@@ -661,18 +661,18 @@ async render() {
 
     if (activities?.length) {
       const colors = { created: '#10b981', updated: '#818cf8', stage_changed: '#22d3ee', deleted: '#f43f5e', login: '#f59e0b' };
-      const labels = { created: 'criou', updated: 'atualizou', stage_changed: 'moveu', deleted: 'removeu', login: 'fez login' };
+      const labels = { created: 'created', updated: 'updated', stage_changed: 'moved', deleted: 'removed', login: 'logged in' };
       feed.innerHTML = activities.map(a => `
         <div class="activity-item">
           <div class="activity-dot" style="background:${colors[a.action] || '#6b7280'}"></div>
           <div>
-            <div class="activity-text"><strong>${escapeHtml(a.user_name || 'Sistema')}</strong> ${escapeHtml(labels[a.action] || a.action)} ${escapeHtml(a.entity_type)}</div>
+            <div class="activity-text"><strong>${escapeHtml(a.user_name || 'System')}</strong> ${escapeHtml(labels[a.action] || a.action)} ${escapeHtml(a.entity_type)}</div>
             <div class="activity-time">${this.timeAgo(a.created_at)}</div>
           </div>
         </div>
       `).join('');
     } else {
-      feed.innerHTML = '<p class="text-tertiary text-sm" style="text-align:center;padding:2rem;">Nenhuma atividade recente</p>';
+      feed.innerHTML = '<p class="text-tertiary text-sm" style="text-align:center;padding:2rem;">No recent activity</p>';
     }
   },
 
@@ -690,7 +690,7 @@ async render() {
             <span class="seller-rank">#${i + 1}</span>
             <div class="seller-info">
               <span class="seller-name">${escapeHtml(s.name)}</span>
-              <span class="seller-stats">${s.lead_count} leads · ${s.closed_count} fechados</span>
+              <span class="seller-stats">${s.lead_count} leads · ${s.closed_count} closed</span>
             </div>
             <div class="seller-bar">
               <div class="seller-bar-fill" style="width:${sellers[0].lead_count > 0 ? (s.lead_count / sellers[0].lead_count * 100) : 0}%;"></div>
@@ -699,7 +699,7 @@ async render() {
         `;
       }).join('');
     } else {
-      list.innerHTML = '<p class="text-tertiary text-sm" style="text-align:center;padding:2rem;">Sem dados de vendedores</p>';
+      list.innerHTML = '<p class="text-tertiary text-sm" style="text-align:center;padding:2rem;">No sales reps data</p>';
     }
   },
 
@@ -707,9 +707,9 @@ async render() {
     const now = new Date();
     const date = new Date(dateStr);
     const diff = Math.floor((now - date) / 1000);
-    if (diff < 60) return 'agora';
-    if (diff < 3600) return `ha ${Math.floor(diff / 60)}min`;
-    if (diff < 86400) return `ha ${Math.floor(diff / 3600)}h`;
-    return `ha ${Math.floor(diff / 86400)}d`;
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
   }
 };
