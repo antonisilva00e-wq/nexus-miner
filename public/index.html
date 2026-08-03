@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexus Miner V2 - ERP de Prospecção B2B</title>
+  <title>Nexus Miner V2 - B2B Prospecting & Agency ERP</title>
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.json">
@@ -101,28 +101,28 @@
         <div class="login-logo">
           <div class="logo-icon-wrapper"><img src="/assets/logo.png" alt="Logo"></div>
           <h1>Nexus Miner</h1>
-          <p>Acesso restrito ao administrador</p>
+          <p>Restricted access - authorized personnel only</p>
         </div>
         <div class="form-group">
-          <label for="login-user">Usuário</label>
+          <label for="login-user">Username</label>
           <div class="input-wrapper">
             <i data-lucide="user"></i>
-            <input type="text" id="login-user" placeholder="Seu usuário" autocomplete="username">
+            <input type="text" id="login-user" placeholder="Your username" autocomplete="username">
           </div>
         </div>
         <div class="form-group">
-          <label for="login-pass">Senha</label>
+          <label for="login-pass">Password</label>
           <div class="input-wrapper">
             <i data-lucide="lock"></i>
-            <input type="password" id="login-pass" placeholder="Sua senha" autocomplete="current-password">
+            <input type="password" id="login-pass" placeholder="Your password" autocomplete="current-password">
           </div>
         </div>
         <div id="login-error" class="login-error"><i data-lucide="alert-circle"></i><span id="login-error-text"></span></div>
         <button type="button" id="btn-login" class="btn-login" style="cursor:pointer;">
-          <i data-lucide="log-in"></i><span id="login-btn-text">Entrar no Painel</span>
+          <i data-lucide="log-in"></i><span id="login-btn-text">Sign In</span>
         </button>
         <div class="login-footer">
-          <p>Nexus Miner &copy; 2026 &bull; Painel Privado</p>
+          <p>Nexus Miner &copy; 2026 &bull; Private Panel</p>
         </div>
       </div>
     </div>
@@ -139,12 +139,12 @@
         var btn = document.getElementById('btn-login');
 
         if (!user || !pass) {
-          errTxt.textContent = 'Preencha usuário e senha';
+          errTxt.textContent = 'Please enter your username and password';
           errEl.classList.add('visible');
           return;
         }
         errEl.classList.remove('visible');
-        btnTxt.textContent = 'Aguarde...';
+        btnTxt.textContent = 'Signing in...';
         btn.disabled = true;
 
         fetch('/api/auth/login', {
@@ -221,36 +221,36 @@
         </div>
       </div>
       <nav class="sidebar-menu">
-        <div class="sidebar-section-label">Principal</div>
+        <div class="sidebar-section-label">Main</div>
         <a href="#/dashboard" class="menu-item" data-page="dashboard"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
-        <a href="#/leads" class="menu-item" data-page="leads"><i data-lucide="search-code"></i><span>Minerar Leads</span></a>
-        <a href="#/map" class="menu-item" data-page="map"><i data-lucide="map-pin"></i><span>Mapa de Leads</span></a>
-        <a href="#/kanban" class="menu-item" data-page="kanban"><i data-lucide="kanban-square"></i><span>Pipeline Kanban</span></a>
+        <a href="#/leads" class="menu-item" data-page="leads"><i data-lucide="search-code"></i><span>Lead Mining</span></a>
+        <a href="#/map" class="menu-item" data-page="map"><i data-lucide="map-pin"></i><span>Lead Map</span></a>
+        <a href="#/kanban" class="menu-item" data-page="kanban"><i data-lucide="kanban-square"></i><span>Sales Pipeline</span></a>
 
-        <div class="sidebar-section-label">Inteligencia</div>
+        <div class="sidebar-section-label">Intelligence</div>
         <a href="#/scoring" class="menu-item" data-page="scoring"><i data-lucide="bar-chart-3"></i><span>Scoring</span></a>
-        <a href="#/enrichment" class="menu-item" data-page="enrichment" onclick="App.navigateTo('enrichment')"><i data-lucide="zap"></i><span>Enriquecer IA</span></a>
-        <a href="#/intelligence" class="menu-item" data-page="intelligence" onclick="App.navigateTo('intelligence')"><i data-lucide="bar-chart-2"></i><span>Inteligência</span></a>
-        <a href="#/sites" class="menu-item" data-page="sites" onclick="App.navigateTo('sites')"><i data-lucide="layout"></i><span>Criador de Sites</span><span class="badge" style="background:#8b5cf6;margin-left:4px;">IA</span></a>
-        <a href="#/sites-prospecting" class="menu-item" data-page="sites-prospecting" onclick="App.navigateTo('sites-prospecting')"><i data-lucide="globe"></i><span>Prospecção</span></a>
+        <a href="#/enrichment" class="menu-item" data-page="enrichment" onclick="App.navigateTo('enrichment')"><i data-lucide="zap"></i><span>AI Enrichment</span></a>
+        <a href="#/intelligence" class="menu-item" data-page="intelligence" onclick="App.navigateTo('intelligence')"><i data-lucide="bar-chart-2"></i><span>Market Intelligence</span></a>
+        <a href="#/sites" class="menu-item" data-page="sites" onclick="App.navigateTo('sites')"><i data-lucide="layout"></i><span>AI Site Builder</span><span class="badge" style="background:#8b5cf6;margin-left:4px;">AI</span></a>
+        <a href="#/sites-prospecting" class="menu-item" data-page="sites-prospecting" onclick="App.navigateTo('sites-prospecting')"><i data-lucide="globe"></i><span>Site Prospecting</span></a>
 
-        <div class="sidebar-section-label">Gestao</div>
-        <a href="#/booking" class="menu-item" data-page="booking"><i data-lucide="calendar"></i><span>Agendamentos</span></a>
-        <a href="#/clients" class="menu-item" data-page="clients"><i data-lucide="users"></i><span>Clientes</span></a>
-        <a href="#/financial" class="menu-item" data-page="financial"><i data-lucide="dollar-sign"></i><span>Financeiro</span></a>
+        <div class="sidebar-section-label">Management</div>
+        <a href="#/booking" class="menu-item" data-page="booking"><i data-lucide="calendar"></i><span>Appointments</span></a>
+        <a href="#/clients" class="menu-item" data-page="clients"><i data-lucide="users"></i><span>Clients</span></a>
+        <a href="#/financial" class="menu-item" data-page="financial"><i data-lucide="dollar-sign"></i><span>Financial</span></a>
 
-        <div class="sidebar-section-label">Comunicacao</div>
+        <div class="sidebar-section-label">Communication</div>
         <a href="#/whatsapp" class="menu-item" data-page="whatsapp"><i data-lucide="message-circle"></i><span>WhatsApp</span></a>
         <a href="#/telegram" class="menu-item" data-page="telegram"><i data-lucide="send"></i><span>Telegram</span></a>
-        <a href="#/voice" class="menu-item" data-page="voice"><i data-lucide="mic"></i><span style="display:flex;align-items:center;gap:4px;">Agente de Voz<span class="badge badge-primary" style="font-size:0.5rem;padding:2px 4px;">IA</span></span></a>
-        <a href="#/reports" class="menu-item" data-page="reports"><i data-lucide="bar-chart-3"></i><span>Relatorios</span></a>
+        <a href="#/voice" class="menu-item" data-page="voice"><i data-lucide="mic"></i><span style="display:flex;align-items:center;gap:4px;">Voice AI Agent<span class="badge badge-primary" style="font-size:0.5rem;padding:2px 4px;">AI</span></span></a>
+        <a href="#/reports" class="menu-item" data-page="reports"><i data-lucide="bar-chart-3"></i><span>Reports</span></a>
 
-        <div class="sidebar-section-label">Sistema</div>
-        <a href="#/automation" class="menu-item" data-page="automation"><i data-lucide="bot"></i><span>Automacao</span></a>
-        <a href="#/plans" class="menu-item" data-page="plans"><i data-lucide="crown"></i><span>Planos</span></a>
-        <a href="#/referrals" class="menu-item" data-page="referrals"><i data-lucide="gift"></i><span>Indicar e Ganhar</span></a>
-        <a href="#/users" class="menu-item admin-only" data-page="users"><i data-lucide="shield"></i><span>Usuarios</span></a>
-        <a href="#/settings" class="menu-item" data-page="settings"><i data-lucide="settings"></i><span>Configuracoes</span></a>
+        <div class="sidebar-section-label">System</div>
+        <a href="#/automation" class="menu-item" data-page="automation"><i data-lucide="bot"></i><span>Automation</span></a>
+        <a href="#/plans" class="menu-item" data-page="plans"><i data-lucide="crown"></i><span>Plans</span></a>
+        <a href="#/referrals" class="menu-item" data-page="referrals"><i data-lucide="gift"></i><span>Referrals</span></a>
+        <a href="#/users" class="menu-item admin-only" data-page="users"><i data-lucide="shield"></i><span>Users</span></a>
+        <a href="#/settings" class="menu-item" data-page="settings"><i data-lucide="settings"></i><span>Settings</span></a>
       </nav>
       <div class="sidebar-footer" style="padding: 1rem 0 0 0; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.04);">
         <div class="user-info" style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; padding: 0 0.25rem;">
@@ -265,7 +265,7 @@
             <i data-lucide="sun" style="width: 18px; height: 18px;"></i>
           </button>
         </div>
-        <button class="btn-logout" onclick="App.logout()" style="width: 100%;"><i data-lucide="log-out"></i><span>Sair</span></button>
+        <button class="btn-logout" onclick="App.logout()" style="width: 100%;"><i data-lucide="log-out"></i><span>Sign Out</span></button>
       </div>
     </aside>
 
@@ -284,7 +284,7 @@
       <div id="page-dashboard" class="page-content" style="min-height:200px;">
         <div id="dash-loading" style="display:flex;align-items:center;justify-content:center;height:300px;flex-direction:column;gap:1rem;">
           <div style="width:48px;height:48px;border:3px solid rgba(99,102,241,0.3);border-top-color:#6366f1;border-radius:50%;animation:spin 1s linear infinite;"></div>
-          <p style="color:var(--text-secondary,#9ca3af);">Carregando dashboard...</p>
+          <p style="color:var(--text-secondary,#9ca3af);">Loading dashboard...</p>
         </div>
       </div>
       <div id="page-leads" class="page-content" style="display:none;"></div>

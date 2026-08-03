@@ -77,23 +77,23 @@ const App = {
     if (!user || !pass) {
       if (errorEl) errorEl.classList.add('visible');
       const errTxt = document.getElementById('login-error-text');
-      if (errTxt) errTxt.textContent = 'Preencha usuario e senha';
+      if (errTxt) errTxt.textContent = 'Please enter your username and password';
       return false;
     }
 
     if (errorEl) errorEl.classList.remove('visible');
-    if (btnText) btnText.textContent = 'Verificando...';
+    if (btnText) btnText.textContent = 'Verifying...';
 
     try {
       await Auth.login(user, pass);
-      if (btnText) btnText.textContent = 'Acesso liberado!';
+      if (btnText) btnText.textContent = 'Access granted!';
       this.showApp();
     } catch (err) {
       alert("Erro ao fazer login: " + err.message);
       if (errorEl) errorEl.classList.add('visible');
       const errTxt = document.getElementById('login-error-text');
-      if (errTxt) errTxt.textContent = err.message || 'Credenciais invalidas';
-      if (btnText) btnText.textContent = 'Entrar no Painel';
+      if (errTxt) errTxt.textContent = err.message || 'Invalid credentials';
+      if (btnText) btnText.textContent = 'Sign In';
     }
     } catch (criticalErr) {
       alert("Erro CRITICO na pagina: " + criticalErr.message);
@@ -120,7 +120,7 @@ const App = {
     if (Auth.isClient()) {
       const blocked = ['automation', 'users', 'financial', 'templates'];
       if (blocked.includes(pageName)) {
-        showToast('Acesso restrito', 'warning');
+        showToast('Restricted access', 'warning');
         return;
       }
     }
@@ -128,7 +128,7 @@ const App = {
     // Only admin can access restricted pages (users)
     const adminOnly = ['users'];
     if (adminOnly.includes(pageName) && !Auth.isAdmin()) {
-      showToast('Apenas o administrador pode acessar esta página', 'warning');
+      showToast('Only administrators can access this page', 'warning');
       return;
     }
 
@@ -170,25 +170,25 @@ const App = {
     // Update header
     const titles = {
       dashboard: 'Dashboard',
-      leads: 'Minerar Leads',
-      kanban: 'Pipeline Kanban',
-      scoring: 'Scoring de Leads',
-      enrichment: 'Enriquecimento IA',
-      booking: 'Agendamentos',
-      intelligence: 'Inteligencia de Mercado',
-      clients: 'Gerenciar Clientes',
-      financial: 'Financeiro',
+      leads: 'Lead Mining',
+      kanban: 'Sales Pipeline',
+      scoring: 'Lead Scoring',
+      enrichment: 'AI Enrichment',
+      booking: 'Appointments',
+      intelligence: 'Market Intelligence',
+      clients: 'Manage Clients',
+      financial: 'Financial',
       whatsapp: 'WhatsApp',
-      reports: 'Relatorios',
-      automation: 'Automacao',
-      plans: 'Planos',
-      referrals: 'Indicar e Ganhar',
-      users: 'Gerenciar Usuarios',
-      settings: 'Configuracoes',
-      map: 'Mapa de Leads',
+      reports: 'Reports',
+      automation: 'Automation',
+      plans: 'Plans',
+      referrals: 'Referrals',
+      users: 'Manage Users',
+      settings: 'Settings',
+      map: 'Lead Map',
       telegram: 'Telegram',
-      sites: 'Criador de Sites IA',
-      'sites-prospecting': 'Prospecção de Sites',
+      sites: 'AI Site Builder',
+      'sites-prospecting': 'Site Prospecting',
     };
     document.getElementById('page-title').textContent = titles[pageName] || pageName;
 
