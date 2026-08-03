@@ -2,33 +2,33 @@ const SitesProspectingPage = {
   allLeads: [],
 
   async render() {
-    document.getElementById('page-title').textContent = 'Prospecção de Sites';
-    document.getElementById('page-subtitle').textContent = 'Encontre leads sem site e gere oportunidades de venda';
+    document.getElementById('page-title').textContent = 'Website Prospecting';
+    document.getElementById('page-subtitle').textContent = 'Find leads without a website and generate sales opportunities';
 
     document.getElementById('page-sites-prospecting').innerHTML = `
       <div class="mining-bar" style="margin-bottom: 20px; display: flex; gap: 10px; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); align-items: center;">
-        <div style="font-weight: 600; color: #fff; margin-right: 10px;"><i data-lucide="radar" style="color: #8b5cf6; margin-right: 5px;"></i> Novo Radar:</div>
-        <input type="text" id="prospect-keyword" placeholder="Ex: Dentista, Advogado..." style="flex: 1; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff;">
-        <input type="text" id="prospect-city" placeholder="Cidade e Estado (Ex: São Paulo, SP)" style="flex: 1; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff;">
+        <div style="font-weight: 600; color: #fff; margin-right: 10px;"><i data-lucide="radar" style="color: #8b5cf6; margin-right: 5px;"></i> New Radar:</div>
+        <input type="text" id="prospect-keyword" placeholder="Ex: Dentist, Lawyer..." style="flex: 1; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff;">
+        <input type="text" id="prospect-city" placeholder="City and State (Ex: New York, NY)" style="flex: 1; padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff;">
         <button class="btn btn-primary" onclick="SitesProspectingPage.mineLeads()" id="btn-prospect-mine" style="background: #8b5cf6; border: none;">
-          <i data-lucide="search"></i> Buscar na Web
+          <i data-lucide="search"></i> Search the Web
         </button>
       </div>
 
       <div class="filters-bar" style="margin-bottom: 20px;">
         <div class="search-box" style="flex: 1;">
           <i data-lucide="filter"></i>
-          <input type="text" id="site-prospect-search" placeholder="Filtrar por nome ou cidade na tabela abaixo..." oninput="SitesProspectingPage.filter()">
+          <input type="text" id="site-prospect-search" placeholder="Filter by name or city in table below..." oninput="SitesProspectingPage.filter()">
         </div>
         <div style="display: flex; gap: 10px;">
           <select id="site-filter-status" onchange="SitesProspectingPage.filter()" style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff;">
-            <option value="all">Todos os Leads</option>
-            <option value="-1">Não Verificado</option>
-            <option value="0">Sem Site (❌)</option>
-            <option value="1">Com Site (✅)</option>
+            <option value="all">All Leads</option>
+            <option value="-1">Unverified</option>
+            <option value="0">No Website (❌)</option>
+            <option value="1">With Website (✅)</option>
           </select>
           <button class="btn btn-primary" onclick="SitesProspectingPage.checkAllUnchecked()">
-            <i data-lucide="refresh-cw"></i> Verificar Pendentes
+            <i data-lucide="refresh-cw"></i> Check Pending
           </button>
         </div>
       </div>
@@ -37,14 +37,14 @@ const SitesProspectingPage = {
         <table class="table" id="sites-prospect-table">
           <thead>
             <tr>
-              <th>Empresa</th>
-              <th>Contato</th>
-              <th>Status do Site</th>
-              <th>Ações</th>
+              <th>Company</th>
+              <th>Contact</th>
+              <th>Website Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="sites-prospect-tbody">
-            <tr><td colspan="4" style="text-align: center; padding: 20px;">Carregando leads...</td></tr>
+            <tr><td colspan="4" style="text-align: center; padding: 20px;">Loading leads...</td></tr>
           </tbody>
         </table>
       </div>
@@ -60,7 +60,7 @@ const SitesProspectingPage = {
       this.allLeads = data.leads || [];
       this.filter();
     } catch (err) {
-      document.getElementById('sites-prospect-tbody').innerHTML = `<tr><td colspan="4" style="text-align: center; color: #ef4444;">Erro ao carregar leads: ${err.message}</td></tr>`;
+      document.getElementById('sites-prospect-tbody').innerHTML = `<tr><td colspan="4" style="text-align: center; color: #ef4444;">Error loading leads: ${err.message}</td></tr>`;
     }
   },
 
@@ -70,18 +70,18 @@ const SitesProspectingPage = {
     const btn = document.getElementById('btn-prospect-mine');
 
     if (!keyword || !city) {
-      return showToast('Preencha o nicho e a cidade.', 'error');
+      return showToast('Please fill in the niche and city.', 'error');
     }
 
     const originalText = btn.innerHTML;
-    btn.innerHTML = '<i data-lucide="loader" class="fa-spin"></i> Buscando...';
+    btn.innerHTML = '<i data-lucide="loader" class="fa-spin"></i> Searching...';
     btn.disabled = true;
     if (window.lucide) lucide.createIcons();
 
     try {
-      showToast('Buscando empresas no Google Maps...', 'info');
+      showToast('Searching companies on Google Maps...', 'info');
       const res = await API.post('/leads/mine', { keyword, city, maxResults: 30 });
-      showToast(`${res.saved} novas empresas encontradas e salvas!`, 'success');
+      showToast(`${res.saved} new companies found and saved!`, 'success');
       
       // Limpar campos
       document.getElementById('prospect-keyword').value = '';
@@ -93,7 +93,7 @@ const SitesProspectingPage = {
       setTimeout(() => this.checkAllUnchecked(), 1000);
       
     } catch (err) {
-      showToast('Erro ao buscar empresas: ' + err.message, 'error');
+      showToast('Error searching companies: ' + err.message, 'error');
     } finally {
       btn.innerHTML = originalText;
       btn.disabled = false;
@@ -121,21 +121,21 @@ const SitesProspectingPage = {
   renderTable(leads) {
     const tbody = document.getElementById('sites-prospect-tbody');
     if (leads.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">Nenhum lead encontrado com esses filtros.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No leads found with these filters.</td></tr>';
       return;
     }
     
     tbody.innerHTML = leads.map(l => {
       const hasWeb = l.has_website !== undefined ? l.has_website : -1;
-      let statusBadge = '<span class="badge" style="background:#64748b;">Não Verificado</span>';
+      let statusBadge = '<span class="badge" style="background:#64748b;">Unverified</span>';
       
       if (hasWeb === 0) {
-        statusBadge = '<span class="badge" style="background:#ef4444;">Sem Site</span>';
+        statusBadge = '<span class="badge" style="background:#ef4444;">No Website</span>';
       } else if (hasWeb === 1) {
         if (l.website_status === 'bad') {
-          statusBadge = '<span class="badge" style="background:#f59e0b;">Site Ruim</span>';
+          statusBadge = '<span class="badge" style="background:#f59e0b;">Bad Website</span>';
         } else {
-          statusBadge = '<span class="badge" style="background:#22c55e;">Com Site</span>';
+          statusBadge = '<span class="badge" style="background:#22c55e;">Has Website</span>';
         }
       }
       
@@ -152,15 +152,15 @@ const SitesProspectingPage = {
           <td>
             <div style="display: flex; align-items: center; gap: 8px;">
               ${statusBadge}
-              <button onclick="SitesProspectingPage.checkSite('${l.id}')" style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;" title="Verificar Site Agora">
+              <button onclick="SitesProspectingPage.checkSite('${l.id}')" style="background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;" title="Check Website Now">
                 <i data-lucide="refresh-cw" style="width:14px;height:14px;" id="icon-check-${l.id}"></i>
               </button>
             </div>
           </td>
           <td>
             <div style="display: flex; gap: 8px;">
-              <button class="btn btn-sm btn-secondary" onclick="SitesProspectingPage.openAbordagem('${l.id}')">Abordar</button>
-              <button class="btn btn-sm" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; color: white;" onclick="SitesProspectingPage.openCriador('${l.name}', '${l.activity}')">Criar Site</button>
+              <button class="btn btn-sm btn-secondary" onclick="SitesProspectingPage.openAbordagem('${l.id}')">Contact</button>
+              <button class="btn btn-sm" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; color: white;" onclick="SitesProspectingPage.openCriador('${l.name}', '${l.activity}')">Create Website</button>
             </div>
           </td>
         </tr>
@@ -181,34 +181,34 @@ const SitesProspectingPage = {
         lead.website_status = res.status;
       }
       this.filter();
-      showToast('Status do site atualizado!', 'success');
+      showToast('Website status updated!', 'success');
     } catch (err) {
-      showToast('Erro ao verificar site', 'danger');
+      showToast('Error checking website', 'danger');
     }
   },
 
   async checkAllUnchecked() {
     const unchecked = this.allLeads.filter(l => (l.has_website === undefined || l.has_website === -1) && l.site);
     if (unchecked.length === 0) {
-      showToast('Não há sites pendentes com URL cadastrada para verificar.', 'info');
+      showToast('No pending websites with registered URL to check.', 'info');
       return;
     }
     
-    showToast(`Iniciando verificação de ${unchecked.length} sites...`, 'info');
+    showToast(`Starting check of ${unchecked.length} websites...`, 'info');
     for (let i = 0; i < unchecked.length; i++) {
       await this.checkSite(unchecked[i].id);
     }
-    showToast('Verificação concluída.', 'success');
+    showToast('Verification completed.', 'success');
   },
   
   openAbordagem(id) {
     const lead = this.allLeads.find(l => l.id === id);
     if (!lead || !lead.phone) {
-      showToast('Este lead não tem telefone cadastrado', 'warning');
+      showToast('This lead does not have a registered phone number', 'warning');
       return;
     }
-    const cleanPhone = lead.phone.replace(/\\D/g, '');
-    const msg = encodeURIComponent(`Olá, encontrei a ${lead.name} na internet, porém vi que vocês não possuem um site (ou o site está fora do ar). O digital é essencial hoje em dia, gostaria de conversar sobre como podemos criar um site incrível para vocês?`);
+    const cleanPhone = lead.phone.replace(/\D/g, '');
+    const msg = encodeURIComponent(`Hello, I found ${lead.name} online, but I noticed you don't have a website (or your website is down). Digital presence is essential nowadays, I would love to talk about how we can create an amazing website for you!`);
     window.open(`https://wa.me/55${cleanPhone}?text=${msg}`, '_blank');
   },
   
