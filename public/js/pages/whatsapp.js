@@ -2,29 +2,29 @@
 const WhatsAppPage = {
   async render() {
     document.getElementById('page-title').textContent = 'WhatsApp';
-    document.getElementById('page-subtitle').textContent = 'Conecte seu aparelho e faça automações';
+    document.getElementById('page-subtitle').textContent = 'Connect your device and set up automations';
 
     document.getElementById('page-whatsapp').innerHTML = `
       <div class="kpi-grid" style="margin-bottom:1.5rem;">
         <div class="kpi-card" id="wa-connection-card">
           <div class="kpi-icon" style="background:linear-gradient(135deg,#25d366,#128c7e);"><i data-lucide="smartphone"></i></div>
           <div class="kpi-info">
-            <span class="kpi-value" id="wa-status" style="font-size:1.2rem;">Carregando...</span>
-            <span class="kpi-label">Status do Aparelho</span>
+            <span class="kpi-value" id="wa-status" style="font-size:1.2rem;">Loading...</span>
+            <span class="kpi-label">Device Status</span>
           </div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon" style="background:linear-gradient(135deg,#818cf8,#6366f1);"><i data-lucide="send"></i></div>
           <div class="kpi-info">
             <span class="kpi-value" id="wa-sent-count">0</span>
-            <span class="kpi-label">Mensagens Enviadas</span>
+            <span class="kpi-label">Sent Messages</span>
           </div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon" style="background:linear-gradient(135deg,#f59e0b,#d97706);"><i data-lucide="file-text"></i></div>
           <div class="kpi-info">
             <span class="kpi-value" id="wa-template-count">0</span>
-            <span class="kpi-label">Templates Salvos</span>
+            <span class="kpi-label">Saved Templates</span>
           </div>
         </div>
       </div>
@@ -32,27 +32,27 @@ const WhatsAppPage = {
       <!-- Conexão do Aparelho -->
       <div class="card" style="margin-bottom:1.5rem;" id="wa-device-section">
         <div class="card-header">
-          <h3><i data-lucide="scan"></i> Conectar Aparelho</h3>
-          <button class="btn btn-sm btn-primary" id="btn-wa-action" onclick="WhatsAppPage.startConnection()">Conectar Agora</button>
+          <h3><i data-lucide="scan"></i> Connect Device</h3>
+          <button class="btn btn-sm btn-primary" id="btn-wa-action" onclick="WhatsAppPage.startConnection()">Connect Now</button>
         </div>
         <div id="wa-connection-area" style="padding: 2rem; text-align: center; display: none;">
           <div id="wa-qr-container"></div>
-          <p id="wa-connection-text" style="margin-top:1rem; color:var(--text-secondary);">Aguardando ação...</p>
+          <p id="wa-connection-text" style="margin-top:1rem; color:var(--text-secondary);">Awaiting action...</p>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
-            <h3><i data-lucide="message-circle"></i> Templates de Mensagem</h3>
-            <button class="btn btn-sm btn-primary" onclick="WhatsAppPage.openTemplateModal()"><i data-lucide="plus"></i> Novo</button>
+            <h3><i data-lucide="message-circle"></i> Message Templates</h3>
+            <button class="btn btn-sm btn-primary" onclick="WhatsAppPage.openTemplateModal()"><i data-lucide="plus"></i> New</button>
           </div>
           <div id="templates-list"></div>
         </div>
         
         <div class="card">
           <div class="card-header">
-            <h3><i data-lucide="history"></i> Últimas Mensagens</h3>
+            <h3><i data-lucide="history"></i> Recent Messages</h3>
           </div>
           <div id="messages-history"></div>
         </div>
@@ -79,7 +79,7 @@ const WhatsAppPage = {
           const text = document.getElementById('wa-connection-text');
           if (qrContainer && data.qr) {
             qrContainer.innerHTML = `<img src="${data.qr}" style="width:220px;height:220px;border-radius:12px;border:4px solid white;" />`;
-            if (text) text.innerHTML = "Abra o WhatsApp no seu celular, vá em <b>Aparelhos Conectados</b> e escaneie este QR Code.";
+            if (text) text.innerHTML = "Open WhatsApp on your phone, go to <b>Linked Devices</b> and scan this QR Code.";
           }
         });
         globalThis.__wa_socket_bound = true;
@@ -95,7 +95,7 @@ const WhatsAppPage = {
       const res = await API.get('/whatsapp/status');
       this.updateUIState(res);
     } catch (e) {
-      document.getElementById('wa-status').textContent = 'Erro';
+      document.getElementById('wa-status').textContent = 'Error';
     }
   },
 
@@ -109,9 +109,9 @@ const WhatsAppPage = {
     if (!statusEl) return; // Page changed
 
     if (data.status === 'connected') {
-      statusEl.textContent = 'Conectado';
+      statusEl.textContent = 'Connected';
       statusEl.style.color = '#10b981';
-      actionBtn.textContent = 'Desconectar';
+      actionBtn.textContent = 'Disconnect';
       actionBtn.className = 'btn btn-sm btn-secondary';
       actionBtn.onclick = () => WhatsAppPage.logoutConnection();
       
@@ -120,29 +120,29 @@ const WhatsAppPage = {
         ? `<img src="${data.user.pic}" style="width:100px;height:100px;border-radius:50%;margin-bottom:1rem;" />` 
         : `<div style="width:100px;height:100px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;"><i data-lucide="check-circle" style="color:white;width:40px;height:40px;"></i></div>`;
       
-      text.innerHTML = `<h3 style="color:white;margin-bottom:0.25rem;">${data.user?.name || 'Aparelho'}</h3><p style="color:var(--text-tertiary);">${data.user?.phone || 'Conectado e pronto'}</p>`;
+      text.innerHTML = `<h3 style="color:white;margin-bottom:0.25rem;">${data.user?.name || 'Device'}</h3><p style="color:var(--text-tertiary);">${data.user?.phone || 'Connected and ready'}</p>`;
       lucide.createIcons();
 
     } else if (data.status === 'connecting' || data.status === 'qr') {
-      statusEl.textContent = data.status === 'qr' ? 'Aguardando QR Code' : 'Conectando...';
+      statusEl.textContent = data.status === 'qr' ? 'Awaiting QR Code' : 'Connecting...';
       statusEl.style.color = '#f59e0b';
-      actionBtn.textContent = 'Desconectar';
+      actionBtn.textContent = 'Disconnect';
       actionBtn.className = 'btn btn-sm btn-secondary';
       actionBtn.onclick = () => WhatsAppPage.logoutConnection();
       
       area.style.display = 'block';
       if (data.status === 'connecting') {
         qrContainer.innerHTML = `<i data-lucide="loader-2" style="width:40px;height:40px;animation:spin 1.5s linear infinite;color:var(--accent-primary);"></i>`;
-        text.innerHTML = 'Inicializando motor do WhatsApp...';
+        text.innerHTML = 'Initializing WhatsApp engine...';
         lucide.createIcons();
       } else if (data.qr) {
         qrContainer.innerHTML = `<img src="${data.qr}" style="width:220px;height:220px;border-radius:12px;border:4px solid white;" />`;
-        text.innerHTML = "Abra o WhatsApp no seu celular, vá em <b>Aparelhos Conectados</b> e escaneie este QR Code.";
+        text.innerHTML = "Open WhatsApp on your phone, go to <b>Linked Devices</b> and scan this QR Code.";
       }
     } else {
-      statusEl.textContent = 'Desconectado';
+      statusEl.textContent = 'Disconnected';
       statusEl.style.color = 'var(--text-secondary)';
-      actionBtn.textContent = 'Conectar Aparelho';
+      actionBtn.textContent = 'Connect Device';
       actionBtn.className = 'btn btn-sm btn-primary';
       actionBtn.onclick = () => WhatsAppPage.startConnection();
       
@@ -156,17 +156,17 @@ const WhatsAppPage = {
       this.updateUIState({ status: 'connecting' });
       await API.post('/whatsapp/start', {});
     } catch (err) {
-      showToast('Erro ao iniciar: ' + err.message, 'danger');
+      showToast('Error starting: ' + err.message, 'danger');
       this.checkStatus();
     }
   },
 
   async logoutConnection() {
-    if (!confirm('Tem certeza que deseja desconectar este aparelho?')) return;
+    if (!confirm('Are you sure you want to disconnect this device?')) return;
     try {
       await API.post('/whatsapp/logout', {});
     } catch (err) {
-      showToast('Erro ao desconectar: ' + err.message, 'danger');
+      showToast('Error disconnecting: ' + err.message, 'danger');
     }
   },
 
@@ -189,7 +189,7 @@ const WhatsAppPage = {
           </div>
         `).join('');
       } else {
-        list.innerHTML = '<p style="color:var(--text-tertiary);text-align:center;padding:2rem;">Nenhum template criado</p>';
+        list.innerHTML = '<p style="color:var(--text-tertiary);text-align:center;padding:2rem;">No templates created</p>';
       }
 
       const hist = document.getElementById('messages-history');
@@ -201,7 +201,7 @@ const WhatsAppPage = {
           </div>
         `).join('');
       } else {
-        hist.innerHTML = '<p style="color:var(--text-tertiary);text-align:center;padding:2rem;">Nenhuma mensagem enviada</p>';
+        hist.innerHTML = '<p style="color:var(--text-tertiary);text-align:center;padding:2rem;">No messages sent</p>';
       }
       lucide.createIcons();
     } catch (err) { console.error(err); }
@@ -209,12 +209,12 @@ const WhatsAppPage = {
 
   openTemplateModal() {
     Modal.open(
-      '<i data-lucide="file-text" style="color:var(--accent-primary);"></i> Novo Template',
-      `<div class="form-group" style="margin-bottom:1rem;"><label>Nome *</label><input type="text" id="tpl-name" required style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-family:var(--font-body);"></div>
-      <div class="form-group" style="margin-bottom:1rem;"><label>Categoria</label><select id="tpl-category" style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;"><option value="followup">Follow-up</option><option value="proposal">Proposta</option><option value="closing">Fechamento</option><option value="custom">Personalizado</option></select></div>
-      <div class="form-group"><label>Conteúdo * (use {nome}, {empresa} para variáveis)</label><textarea id="tpl-content" rows="5" style="width:100%;background:rgba(255,255,255,0.02);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);padding:0.7rem;color:white;font-family:var(--font-body);" placeholder="Olá {nome}, tudo bem?"></textarea></div>`,
-      `<button class="btn btn-secondary" onclick="Modal.close()">Cancelar</button>
-       <button class="btn btn-primary" onclick="WhatsAppPage.saveTemplate()"><i data-lucide="save"></i>Salvar</button>`
+      '<i data-lucide="file-text" style="color:var(--accent-primary);"></i> New Template',
+      `<div class="form-group" style="margin-bottom:1rem;"><label>Name *</label><input type="text" id="tpl-name" required style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-family:var(--font-body);"></div>
+      <div class="form-group" style="margin-bottom:1rem;"><label>Category</label><select id="tpl-category" style="width:100%;padding:0.7rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;"><option value="followup">Follow-up</option><option value="proposal">Proposal</option><option value="closing">Closing</option><option value="custom">Custom</option></select></div>
+      <div class="form-group"><label>Content * (use {nome}, {empresa} for variables)</label><textarea id="tpl-content" rows="5" style="width:100%;background:rgba(255,255,255,0.02);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);padding:0.7rem;color:white;font-family:var(--font-body);" placeholder="Hello {nome}, how are you?"></textarea></div>`,
+      `<button class="btn btn-secondary" onclick="Modal.close()">Cancel</button>
+       <button class="btn btn-primary" onclick="WhatsAppPage.saveTemplate()"><i data-lucide="save"></i>Save</button>`
     );
   },
 
@@ -222,30 +222,30 @@ const WhatsAppPage = {
     const name = document.getElementById('tpl-name').value.trim();
     const content = document.getElementById('tpl-content').value.trim();
     const category = document.getElementById('tpl-category').value;
-    if (!name || !content) return showToast('Nome e conteúdo são obrigatórios', 'warning');
+    if (!name || !content) return showToast('Name and content are required', 'warning');
     try {
       await API.post('/templates', { name, content, category });
-      showToast('Template criado!', 'success');
+      showToast('Template created!', 'success');
       Modal.close();
       await this.loadData();
-    } catch (err) { showToast('Erro: ' + err.message, 'danger'); }
+    } catch (err) { showToast('Error: ' + err.message, 'danger'); }
   },
 
   async deleteTemplate(id) {
-    if (!confirm('Remover template?')) return;
+    if (!confirm('Remove template?')) return;
     try {
       await API.del(`/templates/${id}`);
-      showToast('Template removido', 'success');
+      showToast('Template removed', 'success');
       await this.loadData();
-    } catch (err) { showToast('Erro: ' + err.message, 'danger'); }
+    } catch (err) { showToast('Error: ' + err.message, 'danger'); }
   },
 
   viewTemplate(id, name, content) {
     Modal.open(
       `${escapeHtml(name)}`,
       `<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);padding:1rem;color:var(--text-secondary);white-space:pre-wrap;font-size:0.9rem;">${escapeHtml(content)}</div>`,
-      `<button class="btn btn-secondary" onclick="Modal.close()">Fechar</button>
-       <button class="btn btn-primary" onclick="navigator.clipboard.writeText(\`${content.replace(/`/g, '\\`')}\`);showToast('Copiado!','success');Modal.close();"><i data-lucide="copy"></i>Copiar</button>`
+      `<button class="btn btn-secondary" onclick="Modal.close()">Close</button>
+       <button class="btn btn-primary" onclick="navigator.clipboard.writeText(\`${content.replace(/`/g, '\\`')}\`);showToast('Copied!','success');Modal.close();"><i data-lucide="copy"></i>Copy</button>`
     );
   }
 };
