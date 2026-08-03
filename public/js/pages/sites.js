@@ -1,7 +1,7 @@
 const SitesPage = {
   async render() {
-    document.getElementById('page-title').textContent = 'Criador Inteligente de Landing Pages';
-    document.getElementById('page-subtitle').textContent = 'Crie páginas profissionais com Inteligência Artificial em menos de 30 segundos.';
+    document.getElementById('page-title').textContent = 'Smart Landing Page Builder';
+    document.getElementById('page-subtitle').textContent = 'Create professional pages with Artificial Intelligence in less than 30 seconds.';
     
     // Create Top Bar buttons
     const titleContainer = document.getElementById('page-title').parentElement.parentElement;
@@ -18,10 +18,10 @@ const SitesPage = {
     }
     extraActions.innerHTML = `
       <button class="btn btn-secondary" onclick="SitesPage.switchTab('list')" id="btn-tab-list" style="background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-        <i data-lucide="layout"></i> Meus Sites
+        <i data-lucide="layout"></i> My Sites
       </button>
       <button class="btn btn-primary" onclick="SitesPage.switchTab('new')" id="btn-tab-new" style="background: #8b5cf6; color: #fff; padding: 8px 16px; border-radius: 8px; font-weight: 600; display: flex; align-items: center; gap: 8px; border:none;">
-        <i data-lucide="plus"></i> Novo Projeto
+        <i data-lucide="plus"></i> New Project
       </button>
     `;
     
@@ -253,43 +253,43 @@ const SitesPage = {
         <div class="sites-form">
           <!-- Sec 1: Project Info -->
           <div class="form-section">
-            <h3>Informações do Projeto</h3>
+            <h3>Project Information</h3>
             <div class="form-row">
               <div class="form-group">
-                <label>Nome da Empresa</label>
-                <input type="text" placeholder="Ex: NexusMiner">
+                <label>Company Name</label>
+                <input type="text" placeholder="e.g. NexusMiner">
               </div>
               <div class="form-group">
-                <label>Segmento</label>
+                <label>Segment</label>
                 <select>
-                  <option>Selecione o segmento</option>
-                  <option>Tecnologia / SaaS</option>
-                  <option>Consultoria</option>
-                  <option>Varejo</option>
-                  <option>Saúde</option>
+                  <option>Select segment</option>
+                  <option>Technology / SaaS</option>
+                  <option>Consulting</option>
+                  <option>Retail</option>
+                  <option>Healthcare</option>
                 </select>
               </div>
             </div>
             
             <div class="form-group" style="margin-bottom: 16px;">
-              <label>Descrição e Comandos Especiais para a IA</label>
-              <textarea rows="3" placeholder="Ex: Crie o site na cor vermelha, adicione botão do WhatsApp flutuante, e foque em vendas diretas..."></textarea>
+              <label>Description and Special Commands for AI</label>
+              <textarea rows="3" placeholder="e.g. Create the website in red, add floating WhatsApp button, and focus on direct sales..."></textarea>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label>Público-Alvo</label>
-                <input type="text" placeholder="Ex: Empresários, clínicas...">
+                <label>Target Audience</label>
+                <input type="text" placeholder="e.g. Entrepreneurs, clinics...">
               </div>
               <div class="form-group">
-                <label>Cidade / Estado</label>
-                <input type="text" placeholder="Ex: São Paulo / SP">
+                <label>City / State</label>
+                <input type="text" placeholder="e.g. New York / NY">
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label>Telefone</label>
+                <label>Phone</label>
                 <input type="text" placeholder="(11) 00000-0000">
               </div>
               <div class="form-group">
@@ -303,12 +303,12 @@ const SitesPage = {
 
             <div class="form-row">
               <div class="form-group">
-                <label>E-mail</label>
-                <input type="email" placeholder="contato@empresa.com.br">
+                <label>Email</label>
+                <input type="email" placeholder="contact@company.com">
               </div>
               <div class="form-group">
-                <label>Site opcional</label>
-                <input type="text" placeholder="https://www.empresa.com.br">
+                <label>Optional Website</label>
+                <input type="text" placeholder="https://www.company.com">
               </div>
             </div>
 
@@ -316,14 +316,14 @@ const SitesPage = {
               <div class="form-group">
                 <label>Instagram</label>
                 <div style="position:relative;">
-                  <input type="text" placeholder="@empresa" style="width:100%;">
+                  <input type="text" placeholder="@company" style="width:100%;">
                   <i data-lucide="instagram" style="position:absolute;right:10px;top:10px;width:14px;height:14px;color:rgba(255,255,255,0.4);"></i>
                 </div>
               </div>
               <div class="form-group">
                 <label>Facebook</label>
                 <div style="position:relative;">
-                  <input type="text" placeholder="/empresa" style="width:100%;">
+                  <input type="text" placeholder="/company" style="width:100%;">
                   <i data-lucide="facebook" style="position:absolute;right:10px;top:10px;width:14px;height:14px;color:rgba(255,255,255,0.4);"></i>
                 </div>
               </div>
@@ -331,7 +331,7 @@ const SitesPage = {
 
             <div class="form-row">
               <div class="form-group" style="flex:0.6;">
-                <label>Cores da Marca</label>
+                <label>Brand Colors</label>
                 <div class="color-circles" style="margin-top:4px;">
                   <div class="color-circle active" style="background: #8b5cf6;"></div>
                   <div class="color-circle" style="background: #3b82f6;"></div>
@@ -348,7 +348,7 @@ const SitesPage = {
                 <label>Logo</label>
                 <div style="background:rgba(255,255,255,0.03); border:1px dashed rgba(255,255,255,0.2); border-radius:6px; padding:10px; text-align:center; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
                   <i data-lucide="upload-cloud" style="width:16px;height:16px;color:rgba(255,255,255,0.5);"></i>
-                  <span style="font-size:0.75rem;color:rgba(255,255,255,0.5);">Arraste ou clique para enviar<br>(Max 2MB, .png ou .svg)</span>
+                  <span style="font-size:0.75rem;color:rgba(255,255,255,0.5);">Drag or click to upload<br>(Max 2MB, .png or .svg)</span>
                 </div>
               </div>
             </div>
@@ -356,47 +356,47 @@ const SitesPage = {
 
           <!-- Sec 2: Style -->
           <div class="form-section">
-            <h3>Estilo da Landing Page</h3>
+            <h3>Landing Page Style</h3>
             <div class="pill-group">
-              <div class="pill active">Moderno</div>
-              <div class="pill">Minimalista</div>
-              <div class="pill">Elegante</div>
+              <div class="pill active">Modern</div>
+              <div class="pill">Minimalist</div>
+              <div class="pill">Elegant</div>
               <div class="pill">Premium</div>
-              <div class="pill">Escuro</div>
-              <div class="pill">Claro</div>
-              <div class="pill">Corporativo</div>
+              <div class="pill">Dark</div>
+              <div class="pill">Light</div>
+              <div class="pill">Corporate</div>
             </div>
           </div>
 
           <!-- Sec 3: Objective -->
           <div class="form-section">
-            <h3>Objetivo</h3>
+            <h3>Objective</h3>
             <div class="pill-group">
-              <div class="pill active">Captar Leads</div>
-              <div class="pill">Vender Produto</div>
-              <div class="pill">Agendar Atendimento</div>
+              <div class="pill active">Capture Leads</div>
+              <div class="pill">Sell Product</div>
+              <div class="pill">Schedule Appointment</div>
               <div class="pill">WhatsApp</div>
-              <div class="pill">Catálogo</div>
-              <div class="pill">Portfólio</div>
+              <div class="pill">Catalog</div>
+              <div class="pill">Portfolio</div>
             </div>
           </div>
 
           <!-- Sec 4: AI Toggles -->
           <div class="form-section">
-            <h3>Inteligência Artificial</h3>
+            <h3>Artificial Intelligence</h3>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div>
-                <div class="toggle-row"><span>Criar textos automaticamente</span><div class="toggle-switch"></div></div>
-                <div class="toggle-row"><span>Gerar imagens IA</span><div class="toggle-switch"></div></div>
-                <div class="toggle-row"><span>SEO automático</span><div class="toggle-switch"></div></div>
-                <div class="toggle-row"><span>Botão WhatsApp</span><div class="toggle-switch"></div></div>
+                <div class="toggle-row"><span>Create texts automatically</span><div class="toggle-switch"></div></div>
+                <div class="toggle-row"><span>Generate AI images</span><div class="toggle-switch"></div></div>
+                <div class="toggle-row"><span>Automatic SEO</span><div class="toggle-switch"></div></div>
+                <div class="toggle-row"><span>WhatsApp Button</span><div class="toggle-switch"></div></div>
                 <div class="toggle-row"><span>Google Maps</span><div class="toggle-switch"></div></div>
               </div>
               <div>
-                <div class="toggle-row"><span>CRM inteligente</span><div class="toggle-switch"></div></div>
-                <div class="toggle-row"><span>Depoimentos IA</span><div class="toggle-switch"></div></div>
-                <div class="toggle-row"><span>Animações</span><div class="toggle-switch"></div></div>
-                <div class="toggle-row"><span>Modo Responsivo</span><div class="toggle-switch"></div></div>
+                <div class="toggle-row"><span>Smart CRM</span><div class="toggle-switch"></div></div>
+                <div class="toggle-row"><span>AI Testimonials</span><div class="toggle-switch"></div></div>
+                <div class="toggle-row"><span>Animations</span><div class="toggle-switch"></div></div>
+                <div class="toggle-row"><span>Responsive Mode</span><div class="toggle-switch"></div></div>
               </div>
             </div>
           </div>
@@ -404,7 +404,7 @@ const SitesPage = {
           <!-- Submit Button -->
           <div style="padding: 20px;">
             <button class="btn btn-primary" onclick="SitesPage.generateSite()" style="width: 100%; background: #8b5cf6; border:none; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-              <i data-lucide="zap"></i> Gerar Landing Page com IA
+              <i data-lucide="zap"></i> Generate Landing Page with AI
             </button>
           </div>
         </div>
@@ -470,10 +470,10 @@ const SitesPage = {
 
               <!-- Typography -->
               <h2 style="font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 0 0 8px 0; font-family: var(--font-heading);">
-                Sua Landing Page aparecerá aqui.
+                Your Landing Page will appear here.
               </h2>
               <p style="font-size: 1rem; color: #64748b; margin: 0 0 32px 0; max-width: 440px; margin-inline: auto;">
-                Preencha as informações ao lado e clique em <strong style="color: #8b5cf6;">Gerar Landing Page com IA</strong> para começar.
+                Fill in the information on the left and click <strong style="color: #8b5cf6;">Generate Landing Page with AI</strong> to get started.
               </p>
 
               <!-- Features -->
@@ -482,22 +482,22 @@ const SitesPage = {
                   <div style="width:40px;height:40px;border-radius:50%;background:rgba(139,92,246,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
                     <i data-lucide="sparkles" style="width:18px;height:18px;color:#8b5cf6;"></i>
                   </div>
-                  <h4 style="font-size:0.85rem;font-weight:700;color:#1e293b;margin:0 0 6px;">IA Avançada</h4>
-                  <p style="font-size:0.75rem;color:#64748b;margin:0;">Textos, imagens e estrutura criados pela IA.</p>
+                  <h4 style="font-size:0.85rem;font-weight:700;color:#1e293b;margin:0 0 6px;">Advanced AI</h4>
+                  <p style="font-size:0.75rem;color:#64748b;margin:0;">Texts, images, and structure created by AI.</p>
                 </div>
                 <div style="flex:1; text-align:center;">
                   <div style="width:40px;height:40px;border-radius:50%;background:rgba(139,92,246,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
                     <i data-lucide="zap" style="width:18px;height:18px;color:#8b5cf6;"></i>
                   </div>
-                  <h4 style="font-size:0.85rem;font-weight:700;color:#1e293b;margin:0 0 6px;">Rápido e Inteligente</h4>
-                  <p style="font-size:0.75rem;color:#64748b;margin:0;">Um site completo criado em 30 segundos.</p>
+                  <h4 style="font-size:0.85rem;font-weight:700;color:#1e293b;margin:0 0 6px;">Fast and Smart</h4>
+                  <p style="font-size:0.75rem;color:#64748b;margin:0;">A full website created in 30 seconds.</p>
                 </div>
                 <div style="flex:1; text-align:center;">
                   <div style="width:40px;height:40px;border-radius:50%;background:rgba(139,92,246,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
                     <i data-lucide="bar-chart-2" style="width:18px;height:18px;color:#8b5cf6;"></i>
                   </div>
-                  <h4 style="font-size:0.85rem;font-weight:700;color:#1e293b;margin:0 0 6px;">Otimizado p/ Conversão</h4>
-                  <p style="font-size:0.75rem;color:#64748b;margin:0;">SEO e gatilhos focados em vendas e leads.</p>
+                  <h4 style="font-size:0.85rem;font-weight:700;color:#1e293b;margin:0 0 6px;">Optimized for Conversion</h4>
+                  <p style="font-size:0.75rem;color:#64748b;margin:0;">SEO and triggers focused on sales and leads.</p>
                 </div>
               </div>
 
@@ -506,7 +506,7 @@ const SitesPage = {
 
           <!-- Progress Bar Footer -->
           <div class="progress-bar-container">
-            <p style="font-size:0.75rem; color:rgba(255,255,255,0.7); margin: 0 0 12px 0; font-weight:600;">Progresso da Geração</p>
+            <p style="font-size:0.75rem; color:rgba(255,255,255,0.7); margin: 0 0 12px 0; font-weight:600;">Generation Progress</p>
             <div style="display:flex; align-items:center; justify-content:space-between; position:relative;">
               
               <!-- Background line -->
@@ -517,27 +517,27 @@ const SitesPage = {
                 <div style="width:24px;height:24px;border-radius:50%;background:#8b5cf6;border:4px solid #1a1d27;display:flex;align-items:center;justify-content:center;">
                   <div style="width:6px;height:6px;border-radius:50%;background:#fff;"></div>
                 </div>
-                <span style="font-size:0.65rem;color:#8b5cf6;font-weight:600;">Coletar dados</span>
+                <span style="font-size:0.65rem;color:#8b5cf6;font-weight:600;">Collect data</span>
               </div>
               
               <div style="display:flex; flex-direction:column; align-items:center; gap:8px; z-index:2;">
                 <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.1);border:4px solid #1a1d27;"></div>
-                <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Gerando textos</span>
+                <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Generating copy</span>
               </div>
               
               <div style="display:flex; flex-direction:column; align-items:center; gap:8px; z-index:2;">
                 <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.1);border:4px solid #1a1d27;"></div>
-                <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Criando imagens</span>
+                <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Creating images</span>
               </div>
               
               <div style="display:flex; flex-direction:column; align-items:center; gap:8px; z-index:2;">
                 <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.1);border:4px solid #1a1d27;"></div>
-                <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Otimizando SEO</span>
+                <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Optimizing SEO</span>
               </div>
 
               <div style="display:flex; flex-direction:column; align-items:center; gap:8px; z-index:2;">
                 <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.1);border:4px solid #1a1d27;"></div>
-                <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Finalizando...</span>
+                <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);">Finalizing...</span>
               </div>
 
             </div>
@@ -590,30 +590,30 @@ const SitesPage = {
 
   async loadMySites() {
     const container = document.getElementById('my-sites-grid');
-    container.innerHTML = '<div style="color: #94a3b8;">Carregando seus sites...</div>';
+    container.innerHTML = '<div style="color: #94a3b8;">Loading your sites...</div>';
     try {
       const data = await API.get('/sites');
       if (!data.sites || data.sites.length === 0) {
-        container.innerHTML = '<div style="color: #94a3b8;">Nenhum site criado ainda. Clique em Novo Projeto!</div>';
+        container.innerHTML = '<div style="color: #94a3b8;">No sites created yet. Click on New Project!</div>';
         return;
       }
       container.innerHTML = data.sites.map(s => `
         <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px;">
           <h4 style="margin: 0; color: #fff;">${s.name}</h4>
-          <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">${s.description || 'Sem descrição'}</p>
-          <a href="http://${s.slug}.nexusminer.app" target="_blank" style="color: #8b5cf6; text-decoration: none; font-size: 0.9rem; font-weight: bold; margin-top: auto;"><i data-lucide="external-link" style="width:14px;height:14px;vertical-align:middle;"></i> Acessar Link</a>
+          <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">${s.description || 'No description'}</p>
+          <a href="http://${s.slug}.nexusminer.app" target="_blank" style="color: #8b5cf6; text-decoration: none; font-size: 0.9rem; font-weight: bold; margin-top: auto;"><i data-lucide="external-link" style="width:14px;height:14px;vertical-align:middle;"></i> Access Link</a>
         </div>
       `).join('');
       if (window.lucide) lucide.createIcons();
     } catch(e) {
-      container.innerHTML = '<div style="color: #ef4444;">Erro ao carregar sites.</div>';
+      container.innerHTML = '<div style="color: #ef4444;">Error loading sites.</div>';
     }
   },
   
   async generateSite() {
     const btn = event.currentTarget;
     const originalText = btn.innerHTML;
-    btn.innerHTML = '<i data-lucide="loader" class="fa-spin"></i> Gerando (Pode levar 1 minuto)...';
+    btn.innerHTML = '<i data-lucide="loader" class="fa-spin"></i> Generating (May take 1 minute)...';
     btn.style.opacity = '0.7';
     btn.disabled = true;
     if (window.lucide) lucide.createIcons();
@@ -621,9 +621,9 @@ const SitesPage = {
     // Get input values correctly by index based on the form structure
     const formInputs = document.querySelectorAll('.sites-form input, .sites-form select, .sites-form textarea');
     
-    const name = formInputs[0]?.value || 'Meu Novo Negócio';
+    const name = formInputs[0]?.value || 'My New Business';
     const segment = formInputs[1]?.value || 'SaaS';
-    const desc = formInputs[2]?.value || 'Site incrível gerado pela IA.';
+    const desc = formInputs[2]?.value || 'Awesome website generated by AI.';
     const targetAudience = formInputs[3]?.value || '';
     const cityState = formInputs[4]?.value || '';
     const phone = formInputs[5]?.value || '';
@@ -633,7 +633,7 @@ const SitesPage = {
     const instagram = formInputs[9]?.value || '';
     const facebook = formInputs[10]?.value || '';
 
-    const style = document.querySelector('.pill-group .pill.active')?.textContent || 'Moderno';
+    const style = document.querySelector('.pill-group .pill.active')?.textContent || 'Modern';
     const color = document.querySelector('.color-circle.active')?.style.backgroundColor || '#8b5cf6';
     const objective = document.querySelectorAll('.pill-group')[1]?.querySelector('.active')?.textContent || 'Leads';
 
@@ -647,7 +647,7 @@ const SitesPage = {
       contact: { targetAudience, cityState, phone, whatsapp, email, website, instagram, facebook }
     };
 
-    showToast('Iniciando IA... conectando servidores.', 'info');
+    showToast('Starting AI... connecting servers.', 'info');
 
     // Setup Progress Bar Animation
     const stepTexts = Array.from(document.querySelectorAll('.progress-bar-container span'));
@@ -683,7 +683,7 @@ const SitesPage = {
       });
       if (window.lucide) lucide.createIcons();
 
-      if(data.mocked){ showToast('Chave da IA nao configurada! Usando modelo generico de teste.', 'error'); } else { showToast('Site gerado com sucesso!', 'success'); }
+      if(data.mocked){ showToast('AI key not configured! Using generic test model.', 'error'); } else { showToast('Site generated successfully!', 'success'); }
 
       // Update URL bar
       const urlBar = document.querySelector('.url-bar');
@@ -737,7 +737,7 @@ const SitesPage = {
     } catch (error) {
       clearInterval(progressInterval);
       console.error(error);
-      showToast('Erro ao gerar o site: ' + error.message, 'error');
+      showToast('Error generating site: ' + error.message, 'error');
     } finally {
       btn.innerHTML = originalText;
       btn.style.opacity = '1';
