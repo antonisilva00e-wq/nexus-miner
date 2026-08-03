@@ -3,8 +3,8 @@ const KanbanPage = {
   draggedLead: null,
 
   async render() {
-    document.getElementById('page-title').textContent = 'Pipeline Kanban';
-    document.getElementById('page-subtitle').textContent = 'Arraste os leads entre estagios';
+    document.getElementById('page-title').textContent = 'Kanban Pipeline';
+    document.getElementById('page-subtitle').textContent = 'Drag leads between stages';
 
     document.getElementById('page-kanban').innerHTML = `
       <div class="kanban-board" id="kanban-board">
@@ -28,7 +28,7 @@ const KanbanPage = {
     try {
       const data = await API.get('/pipeline');
       const board = document.getElementById('kanban-board');
-      const stageLabels = { leads: 'Novos Leads', contato: 'Em Contato', proposta: 'Proposta', fechado: 'Fechados', perdido: 'Perdidos' };
+      const stageLabels = { leads: 'New Leads', contato: 'In Contact', proposta: 'Proposal', fechado: 'Closed', perdido: 'Lost' };
       const stageColors = { leads: '#818cf8', contato: '#22d3ee', proposta: '#f59e0b', fechado: '#10b981', perdido: '#f43f5e' };
 
       board.innerHTML = data.stages.map(s => `
@@ -45,7 +45,7 @@ const KanbanPage = {
             ${s.leads.length ? s.leads.map(l => this.renderCard(l, stageColors[s.stage])).join('') : `
               <div style="text-align:center;padding:2rem 1rem;color:var(--text-tertiary);font-size:0.82rem;">
                 <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 0.5rem;display:block;opacity:0.3;"></i>
-                Nenhum lead
+                No leads
               </div>
             `}
           </div>
@@ -56,10 +56,10 @@ const KanbanPage = {
       document.getElementById('kanban-board').innerHTML = `
         <div class="empty-state">
           <i data-lucide="alert-triangle"></i>
-          <p>Erro ao carregar pipeline</p>
+          <p>Error loading pipeline</p>
           <span class="text-secondary text-sm">${err.message}</span>
           <button class="btn btn-primary" style="margin-top:1rem;" onclick="KanbanPage.render()">
-            <i data-lucide="refresh-cw"></i> Tentar Novamente
+            <i data-lucide="refresh-cw"></i> Try Again
           </button>
         </div>
       `;
@@ -78,7 +78,7 @@ const KanbanPage = {
         <div class="kanban-card-company">${escapeHtml(l.activity || '')} ${l.city ? '· ' + escapeHtml(l.city) : ''}</div>
         ${l.phone ? `<div class="kanban-card-phone"><i data-lucide="phone" style="width:12px;height:12px;"></i>${escapeHtml(l.phone)}</div>` : ''}
         <div class="kanban-card-footer">
-          <span class="kanban-card-date" style="color:${urgency};">${days === 0 ? 'Hoje' : `${days}d atras`}</span>
+          <span class="kanban-card-date" style="color:${urgency};">${days === 0 ? 'Today' : `${days}d ago`}</span>
           ${l.assigned_name ? `<span class="kanban-card-assignee">${escapeHtml(l.assigned_name)}</span>` : ''}
         </div>
       </div>
@@ -115,10 +115,10 @@ const KanbanPage = {
 
     try {
       await API.put(`/pipeline/${this.draggedLead}/mover`, { to_stage: toStage });
-      showToast('Lead movido com sucesso!', 'success');
+      showToast('Lead moved successfully!', 'success');
       await this.loadPipeline();
     } catch (err) {
-      showToast('Erro ao mover lead: ' + err.message, 'danger');
+      showToast('Error moving lead: ' + err.message, 'danger');
     }
   }
 };
