@@ -1,14 +1,14 @@
 // Intelligence Page - Market Intelligence Dashboard
 const IntelligencePage = {
   async render() {
-    document.getElementById('page-title').textContent = 'Inteligencia de Mercado';
-    document.getElementById('page-subtitle').textContent = 'Analise competitiva e insights de mercado em tempo real';
+    document.getElementById('page-title').textContent = 'Market Intelligence';
+    document.getElementById('page-subtitle').textContent = 'Competitive analysis and real-time market insights';
 
     document.getElementById('page-intelligence').innerHTML = `
       <div class="card" style="margin-bottom:1.5rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
           <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#3b82f6,#2563eb);display:flex;align-items:center;justify-content:center;"><i data-lucide="brain" style="color:white;width:20px;height:20px;"></i></div>
-          <div><h3 style="color:white;font-size:1.1rem;">Visao Geral do Mercado</h3><p style="color:var(--text-tertiary);font-size:0.8rem;">Insights automaticos baseados nos seus dados</p></div>
+          <div><h3 style="color:white;font-size:1.1rem;">Market Overview</h3><p style="color:var(--text-tertiary);font-size:0.8rem;">Automatic insights based on your data</p></div>
         </div>
         <div id="intelligence-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;"></div>
       </div>
@@ -19,7 +19,7 @@ const IntelligencePage = {
         <div class="card">
           <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
             <div style="width:32px;height:32px;border-radius:8px;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;"><i data-lucide="map-pin" style="color:#8b5cf6;width:16px;height:16px;"></i></div>
-            <h3 style="color:white;font-size:0.95rem;">Leads por Cidade</h3>
+            <h3 style="color:white;font-size:0.95rem;">Leads by City</h3>
           </div>
           <div id="intel-cities"></div>
         </div>
@@ -27,7 +27,7 @@ const IntelligencePage = {
         <div class="card">
           <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
             <div style="width:32px;height:32px;border-radius:8px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;"><i data-lucide="briefcase" style="color:#f59e0b;width:16px;height:16px;"></i></div>
-            <h3 style="color:white;font-size:0.95rem;">Leads por Atividade</h3>
+            <h3 style="color:white;font-size:0.95rem;">Leads by Activity</h3>
           </div>
           <div id="intel-activities"></div>
         </div>
@@ -36,7 +36,7 @@ const IntelligencePage = {
       <div class="card" style="margin-bottom:1.5rem;">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
           <div style="width:32px;height:32px;border-radius:8px;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;"><i data-lucide="target" style="color:#10b981;width:16px;height:16px;"></i></div>
-          <h3 style="color:white;font-size:0.95rem;">Top Nichos por Conversao</h3>
+          <h3 style="color:white;font-size:0.95rem;">Top Niches by Conversion</h3>
         </div>
         <div id="intel-niches"></div>
       </div>
@@ -44,7 +44,7 @@ const IntelligencePage = {
       <div class="card">
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
           <div style="width:32px;height:32px;border-radius:8px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;"><i data-lucide="trending-up" style="color:#3b82f6;width:16px;height:16px;"></i></div>
-          <h3 style="color:white;font-size:0.95rem;">Crescimento Mensal</h3>
+          <h3 style="color:white;font-size:0.95rem;">Monthly Growth</h3>
         </div>
         <div id="intel-growth"></div>
       </div>
@@ -67,11 +67,11 @@ const IntelligencePage = {
             <p style="color:white;font-size:1.5rem;font-weight:700;margin:0;">${data.overview.totalLeads}</p>
           </div>
           <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.12);border-radius:var(--border-radius-md);padding:1rem;">
-            <p style="color:var(--text-tertiary);font-size:0.75rem;margin:0 0 4px;">Clientes Ativos</p>
+            <p style="color:var(--text-tertiary);font-size:0.75rem;margin:0 0 4px;">Active Clients</p>
             <p style="color:#10b981;font-size:1.5rem;font-weight:700;margin:0;">${data.overview.activeClients}</p>
           </div>
           <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.12);border-radius:var(--border-radius-md);padding:1rem;">
-            <p style="color:var(--text-tertiary);font-size:0.75rem;margin:0 0 4px;">Taxa Conversao</p>
+            <p style="color:var(--text-tertiary);font-size:0.75rem;margin:0 0 4px;">Conversion Rate</p>
             <p style="color:#8b5cf6;font-size:1.5rem;font-weight:700;margin:0;">${data.overview.conversionRate}%</p>
           </div>
           <div style="background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.12);border-radius:var(--border-radius-md);padding:1rem;">
@@ -88,7 +88,7 @@ const IntelligencePage = {
           <div class="card">
             <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
               <div style="width:32px;height:32px;border-radius:8px;background:rgba(245,158,11,0.15);display:flex;align-items:center;justify-content:center;"><i data-lucide="lightbulb" style="color:#f59e0b;width:16px;height:16px;"></i></div>
-              <h3 style="color:white;font-size:0.95rem;">Insights da IA</h3>
+              <h3 style="color:white;font-size:0.95rem;">AI Insights</h3>
             </div>
             <div style="display:grid;gap:0.75rem;">
               ${data.insights.map(i => `
