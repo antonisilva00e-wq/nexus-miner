@@ -4,8 +4,8 @@ const MapPage = {
   markers: null,
 
   async render() {
-    document.getElementById('page-title').textContent = 'Mapa Orbital';
-    document.getElementById('page-subtitle').textContent = 'Vista de satélite dos seus prospects pelo Brasil';
+    document.getElementById('page-title').textContent = 'Orbital Map';
+    document.getElementById('page-subtitle').textContent = 'Satellite view of your prospects across Brazil';
 
     document.getElementById('page-map').innerHTML = `
       <style>
@@ -145,25 +145,25 @@ const MapPage = {
           <span style="color:rgba(129,140,248,0.8);font-size:0.75rem;font-family:monospace;letter-spacing:0.05em;">LIVE</span>
         </div>
         <select id="map-filter-state" style="padding:0.6rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-family:var(--font-body);min-width:150px;">
-          <option value="">Todos os estados</option>
+          <option value="">All states</option>
         </select>
         <select id="map-filter-source" style="padding:0.6rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-family:var(--font-body);min-width:150px;">
-          <option value="">Todas as fontes</option>
-          <option value="mineração">Mineração</option>
+          <option value="">All sources</option>
+          <option value="mineração">Mining</option>
           <option value="manual">Manual</option>
           <option value="rfsearch">RF Search</option>
           <option value="cnpj">CNPJ Lookup</option>
         </select>
         <select id="map-filter-stage" style="padding:0.6rem 1rem;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-family:var(--font-body);min-width:150px;">
-          <option value="">Todos os estagios</option>
+          <option value="">All stages</option>
           <option value="leads">Leads</option>
-          <option value="contato">Contato</option>
-          <option value="proposta">Proposta</option>
-          <option value="fechado">Fechado</option>
-          <option value="perdido">Perdido</option>
+          <option value="contato">Contact</option>
+          <option value="proposta">Proposal</option>
+          <option value="fechado">Closed</option>
+          <option value="perdido">Lost</option>
         </select>
-        <button class="btn btn-secondary" onclick="MapPage.fitBounds()" style="margin-left:auto;"><i data-lucide="maximize"></i>Ajustar</button>
-        <button class="btn btn-secondary" onclick="MapPage.toggleView()"><i data-lucide="globe"></i>Alternar</button>
+        <button class="btn btn-secondary" onclick="MapPage.fitBounds()" style="margin-left:auto;"><i data-lucide="maximize"></i>Fit View</button>
+        <button class="btn btn-secondary" onclick="MapPage.toggleView()"><i data-lucide="globe"></i>Toggle View</button>
       </div>
 
       <!-- Stats bar -->
@@ -193,7 +193,7 @@ const MapPage = {
     if (typeof lucide !== 'undefined') lucide.createIcons();
 
     if (!window.L) {
-      document.getElementById('page-map').innerHTML = '<div class="empty-state"><p>Erro: biblioteca do mapa (Leaflet) nao carregou. Verifique sua conexao.</p></div>';
+      document.getElementById('page-map').innerHTML = '<div class="empty-state"><p>Error: Map library (Leaflet) failed to load. Please check your connection.</p></div>';
       return;
     }
 
@@ -204,7 +204,7 @@ const MapPage = {
       this.trackCoords();
     } catch (e) {
       console.error('[MAP] Render error:', e);
-      document.getElementById('page-map').innerHTML = '<div class="empty-state"><p>Erro ao carregar mapa: ' + e.message + '</p><button class="btn btn-primary" onclick="MapPage.render()">Tentar novamente</button></div>';
+      document.getElementById('page-map').innerHTML = '<div class="empty-state"><p>Error loading map: ' + e.message + '</p><button class="btn btn-primary" onclick="MapPage.render()">Try again</button></div>';
     }
   },
 
@@ -335,10 +335,10 @@ const MapPage = {
 
     const stageConfig = {
       leads:     { color: '#818cf8', glow: 'rgba(129,140,248,0.6)', label: 'LEAD' },
-      contato:   { color: '#22d3ee', glow: 'rgba(34,211,238,0.6)',  label: 'CONTATO' },
-      proposta:  { color: '#f59e0b', glow: 'rgba(245,158,11,0.6)', label: 'PROPOSTA' },
-      fechado:   { color: '#10b981', glow: 'rgba(16,185,129,0.6)', label: 'FECHADO' },
-      perdido:   { color: '#f43f5e', glow: 'rgba(244,63,94,0.6)',  label: 'PERDIDO' }
+      contato:   { color: '#22d3ee', glow: 'rgba(34,211,238,0.6)',  label: 'CONTACT' },
+      proposta:  { color: '#f59e0b', glow: 'rgba(245,158,11,0.6)', label: 'PROPOSAL' },
+      fechado:   { color: '#10b981', glow: 'rgba(16,185,129,0.6)', label: 'CLOSED' },
+      perdido:   { color: '#f43f5e', glow: 'rgba(244,63,94,0.6)',  label: 'LOST' }
     };
 
     leads.forEach((lead, i) => {
@@ -393,11 +393,11 @@ const MapPage = {
     const byStage = {};
     leads.forEach(l => { const s = l.pipeline_stage || 'leads'; byStage[s] = (byStage[s]||0)+1; });
     const stageConfig = {
-      leads:     { color: '#818cf8', icon: '📡' },
-      contato:   { color: '#22d3ee', icon: '💬' },
-      proposta:  { color: '#f59e0b', icon: '📋' },
-      fechado:   { color: '#10b981', icon: '✅' },
-      perdido:   { color: '#f43f5e', icon: '❌' }
+      leads:     { color: '#818cf8', icon: '📡', label: 'leads' },
+      contato:   { color: '#22d3ee', icon: '💬', label: 'contact' },
+      proposta:  { color: '#f59e0b', icon: '📋', label: 'proposal' },
+      fechado:   { color: '#10b981', icon: '✅', label: 'closed' },
+      perdido:   { color: '#f43f5e', icon: '❌', label: 'lost' }
     };
 
     document.getElementById('map-stats').innerHTML = `
@@ -407,12 +407,12 @@ const MapPage = {
       </div>
       <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:var(--border-radius-sm);padding:10px 16px;display:flex;align-items:center;gap:10px;">
         <div style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px rgba(16,185,129,0.5);"></div>
-        <span style="color:var(--text-secondary);font-size:0.82rem;"><strong style="color:#fff;">${geocoded}</strong> no mapa</span>
+        <span style="color:var(--text-secondary);font-size:0.82rem;"><strong style="color:#fff;">${geocoded}</strong> on map</span>
       </div>
       ${Object.entries(byStage).map(([s,c]) => `
         <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);padding:10px 16px;display:flex;align-items:center;gap:10px;">
           <span style="font-size:0.9rem;">${(stageConfig[s]||stageConfig.leads).icon}</span>
-          <span style="color:var(--text-secondary);font-size:0.82rem;"><strong style="color:${(stageConfig[s]||stageConfig.leads).color};">${c}</strong> ${s}</span>
+          <span style="color:var(--text-secondary);font-size:0.82rem;"><strong style="color:${(stageConfig[s]||stageConfig.leads).color};">${c}</strong> ${(stageConfig[s]||{}).label || s}</span>
         </div>
       `).join('')}
     `;
