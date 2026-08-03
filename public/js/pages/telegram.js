@@ -8,7 +8,7 @@ const TelegramPage = {
 
   async render() {
     document.getElementById('page-title').textContent = 'Telegram';
-    document.getElementById('page-subtitle').textContent = 'Extração de membros e gestão de grupos';
+    document.getElementById('page-subtitle').textContent = 'Member extraction and group management';
 
     document.getElementById('page-telegram').innerHTML = `
       <div id="telegram-content">
@@ -48,33 +48,33 @@ const TelegramPage = {
         <div style="width:80px;height:80px;margin:0 auto 24px;background:linear-gradient(135deg,#0088cc,#00aaff);border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(0,136,204,0.3);">
           <i data-lucide="send" style="width:40px;height:40px;color:#fff;"></i>
         </div>
-        <h2 style="color:#fff;font-size:1.5rem;margin-bottom:8px;">Conectar Bot do Telegram</h2>
+        <h2 style="color:#fff;font-size:1.5rem;margin-bottom:8px;">Connect Telegram Bot</h2>
         <p style="color:var(--text-secondary);margin-bottom:32px;line-height:1.6;">
-          Crie um bot com <a href="https://t.me/BotFather" target="_blank" style="color:var(--accent-primary);">@BotFather</a> no Telegram,<br>
-          copie o token e cole abaixo para começar a extrair membros.
+          Create a bot with <a href="https://t.me/BotFather" target="_blank" style="color:var(--accent-primary);">@BotFather</a> on Telegram,<br>
+          copy the token and paste below to start extracting members.
         </p>
 
         <div class="card" style="text-align:left;padding:24px;">
           <div class="form-group" style="margin-bottom:16px;">
-            <label style="color:var(--text-secondary);font-size:0.85rem;display:block;margin-bottom:6px;">Token do Bot</label>
+            <label style="color:var(--text-secondary);font-size:0.85rem;display:block;margin-bottom:6px;">Bot Token</label>
             <input type="text" id="tg-bot-token" placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz" style="width:100%;padding:12px 16px;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-family:var(--font-mono);font-size:0.9rem;">
           </div>
           <button class="btn btn-primary" onclick="TelegramPage.connect()" style="width:100%;">
-            <i data-lucide="link"></i> Conectar Bot
+            <i data-lucide="link"></i> Connect Bot
           </button>
         </div>
 
         <div style="margin-top:32px;text-align:left;">
-          <h3 style="color:#fff;font-size:1rem;margin-bottom:12px;">Como criar seu bot:</h3>
+          <h3 style="color:#fff;font-size:1rem;margin-bottom:12px;">How to create your bot:</h3>
           <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-color);border-radius:var(--border-radius);padding:20px;">
             <ol style="color:var(--text-secondary);font-size:0.85rem;line-height:2;padding-left:20px;">
-              <li>Abra o Telegram e busque por <a href="https://t.me/BotFather" target="_blank" style="color:var(--accent-primary);">@BotFather</a></li>
-              <li>Envie <code style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">/newbot</code></li>
-              <li>Dê um nome ao bot (ex: Nexus Miner Extractor)</li>
-              <li>Dê um username (ex: nexus_miner_bot)</li>
-              <li>Copie o token gerado</li>
-              <li>Adicione o bot como <strong style="color:#fff;">ADMINISTRADOR</strong> nos grupos que quer extrair</li>
-              <li>Cole o token aqui e conecte!</li>
+              <li>Open Telegram and search for <a href="https://t.me/BotFather" target="_blank" style="color:var(--accent-primary);">@BotFather</a></li>
+              <li>Send <code style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">/newbot</code></li>
+              <li>Give a name to the bot (e.g., Nexus Miner Extractor)</li>
+              <li>Give a username (e.g., nexus_miner_bot)</li>
+              <li>Copy the generated token</li>
+              <li>Add the bot as an <strong style="color:#fff;">ADMINISTRATOR</strong> in the groups you want to extract</li>
+              <li>Paste the token here and connect!</li>
             </ol>
           </div>
         </div>
@@ -97,19 +97,19 @@ const TelegramPage = {
             </div>
           </div>
           <div style="display:flex;gap:0.5rem;">
-            <span style="background:rgba(16,185,129,0.15);color:#10b981;padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;">CONECTADO</span>
+            <span style="background:rgba(16,185,129,0.15);color:#10b981;padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;">CONNECTED</span>
           </div>
         </div>
         <div class="card" style="flex:1;min-width:250px;padding:20px;">
-          <div style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:8px;">Grupos Encontrados</div>
+          <div style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:8px;">Groups Found</div>
           <div style="color:#fff;font-size:1.5rem;font-weight:700;">${this.groups.length}</div>
           <button class="btn btn-sm btn-secondary" onclick="TelegramPage.loadGroups()" style="margin-top:8px;">
-            <i data-lucide="refresh-cw"></i> Atualizar
+            <i data-lucide="refresh-cw"></i> Refresh
           </button>
         </div>
         <div class="card" style="flex:0;padding:20px;">
           <button class="btn btn-danger btn-sm" onclick="TelegramPage.disconnect()">
-            <i data-lucide="unplug"></i> Desconectar
+            <i data-lucide="unplug"></i> Disconnect
           </button>
         </div>
       </div>
@@ -118,13 +118,13 @@ const TelegramPage = {
       <div class="card" style="padding:20px;margin-bottom:1.5rem;">
         <h3 style="color:#fff;font-size:1rem;margin-bottom:12px;">
           <i data-lucide="hash" style="width:18px;height:18px;display:inline;vertical-align:middle;margin-right:6px;"></i>
-          Buscar por Nicho
+          Search by Niche
         </h3>
         <div id="tg-niches" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;"></div>
         <div style="display:flex;gap:8px;">
-          <input type="text" id="tg-search" placeholder="Ou digite uma palavra-chave..." style="flex:1;padding:10px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-size:0.85rem;">
+          <input type="text" id="tg-search" placeholder="Or type a keyword..." style="flex:1;padding:10px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--border-color);border-radius:var(--border-radius-sm);color:white;font-size:0.85rem;">
           <button class="btn btn-primary" onclick="TelegramPage.searchNiche()">
-            <i data-lucide="search"></i> Buscar
+            <i data-lucide="search"></i> Search
           </button>
         </div>
         <div id="tg-niche-results" style="margin-top:12px;"></div>
@@ -135,14 +135,14 @@ const TelegramPage = {
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
           <h3 style="color:#fff;font-size:1rem;">
             <i data-lucide="users" style="width:18px;height:18px;display:inline;vertical-align:middle;margin-right:6px;"></i>
-            Seus Grupos
+            Your Groups
           </h3>
           <button class="btn btn-sm btn-secondary" onclick="TelegramPage.loadGroups()">
             <i data-lucide="refresh-cw"></i>
           </button>
         </div>
         <div id="tg-groups-list">
-          <p style="color:var(--text-tertiary);text-align:center;padding:2rem;">Clique em "Atualizar" para carregar grupos</p>
+          <p style="color:var(--text-tertiary);text-align:center;padding:2rem;">Click "Refresh" to load groups</p>
         </div>
       </div>
 
@@ -152,11 +152,11 @@ const TelegramPage = {
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
             <h3 style="color:#fff;font-size:1rem;">
               <i data-lucide="download" style="width:18px;height:18px;display:inline;vertical-align:middle;margin-right:6px;"></i>
-              Membros Extraídos
+              Extracted Members
             </h3>
             <div style="display:flex;gap:8px;">
               <button class="btn btn-sm btn-primary" onclick="TelegramPage.exportCSV()">
-                <i data-lucide="file-text"></i> Exportar CSV
+                <i data-lucide="file-text"></i> Export CSV
               </button>
             </div>
           </div>
@@ -171,32 +171,32 @@ const TelegramPage = {
 
   async connect() {
     const token = document.getElementById('tg-bot-token')?.value?.trim();
-    if (!token) { showToast('Cole o token do bot', 'warning'); return; }
+    if (!token) { showToast('Paste the bot token', 'warning'); return; }
 
     try {
       const result = await API.post('/telegram/connect', { botToken: token });
       if (result.ok) {
         this.connected = true;
         this.botInfo = result.bot;
-        showToast('Bot conectado com sucesso!', 'success');
+        showToast('Bot connected successfully!', 'success');
         this.renderContent();
       }
     } catch (err) {
-      showToast(err.message || 'Erro ao conectar', 'error');
+      showToast(err.message || 'Error connecting', 'error');
     }
   },
 
   async disconnect() {
-    if (!confirm('Desconectar o bot?')) return;
+    if (!confirm('Disconnect the bot?')) return;
     try {
       await API.del('/telegram/disconnect');
       this.connected = false;
       this.botInfo = null;
       this.groups = [];
-      showToast('Bot desconectado', 'info');
+      showToast('Bot disconnected', 'info');
       this.renderContent();
     } catch (err) {
-      showToast('Erro: ' + err.message, 'error');
+      showToast('Error: ' + err.message, 'error');
     }
   },
 
@@ -206,7 +206,7 @@ const TelegramPage = {
       this.groups = result.groups || [];
       this.renderGroups();
     } catch (err) {
-      showToast('Erro ao carregar grupos: ' + err.message, 'error');
+      showToast('Error loading groups: ' + err.message, 'error');
     }
   },
 
@@ -215,7 +215,7 @@ const TelegramPage = {
     if (!el) return;
 
     if (this.groups.length === 0) {
-      el.innerHTML = '<p style="color:var(--text-tertiary);text-align:center;padding:2rem;">Nenhum grupo encontrado. Adicione o bot como admin em um grupo e clique em Atualizar.</p>';
+      el.innerHTML = '<p style="color:var(--text-tertiary);text-align:center;padding:2rem;">No groups found. Add the bot as admin in a group and click Refresh.</p>';
       return;
     }
 
@@ -231,7 +231,7 @@ const TelegramPage = {
           </div>
         </div>
         <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();TelegramPage.extractMembers('${g.id}', '${g.name.replace(/'/g, "\\'")}')">
-          <i data-lucide="download"></i> Extrair
+          <i data-lucide="download"></i> Extract
         </button>
       </div>
     `).join('');
@@ -239,17 +239,17 @@ const TelegramPage = {
   },
 
   async extractMembers(chatId, groupName) {
-    showToast('Extraindo membros...', 'info');
+    showToast('Extracting members...', 'info');
     try {
       const result = await API.post('/telegram/extract', { chatId, groupName, limit: 500 });
       if (result.ok) {
         this.extractedMembers = result.members;
         this.selectedGroup = { id: chatId, name: groupName };
-        showToast(`${result.members.length} membros extraídos!`, 'success');
+        showToast(`${result.members.length} members extracted!`, 'success');
         this.renderExtractionResults(result);
       }
     } catch (err) {
-      showToast('Erro: ' + err.message, 'error');
+      showToast('Error: ' + err.message, 'error');
     }
   },
 
@@ -269,7 +269,7 @@ const TelegramPage = {
             <tr style="border-bottom:1px solid var(--border-color);">
               <th style="text-align:left;padding:8px;color:var(--text-secondary);font-size:0.75rem;">ID</th>
               <th style="text-align:left;padding:8px;color:var(--text-secondary);font-size:0.75rem;">Username</th>
-              <th style="text-align:left;padding:8px;color:var(--text-secondary);font-size:0.75rem;">Nome</th>
+              <th style="text-align:left;padding:8px;color:var(--text-secondary);font-size:0.75rem;">Name</th>
             </tr>
           </thead>
           <tbody>
@@ -287,7 +287,7 @@ const TelegramPage = {
   },
 
   async exportCSV() {
-    if (!this.extractedMembers.length) { showToast('Nenhum membro para exportar', 'warning'); return; }
+    if (!this.extractedMembers.length) { showToast('No members to export', 'warning'); return; }
     try {
       const res = await fetch('/api/telegram/export-csv', {
         method: 'POST',
@@ -304,9 +304,9 @@ const TelegramPage = {
       a.download = `telegram-members-${this.selectedGroup?.name || 'export'}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      showToast('CSV exportado!', 'success');
+      showToast('CSV exported!', 'success');
     } catch (err) {
-      showToast('Erro ao exportar: ' + err.message, 'error');
+      showToast('Error exporting: ' + err.message, 'error');
     }
   },
 
@@ -331,18 +331,18 @@ const TelegramPage = {
 
   async searchNiche() {
     const query = document.getElementById('tg-search')?.value?.trim();
-    if (!query) { showToast('Digite uma palavra-chave', 'warning'); return; }
+    if (!query) { showToast('Type a keyword', 'warning'); return; }
 
     const el = document.getElementById('tg-niche-results');
     el.innerHTML = `
       <div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);border-radius:var(--border-radius-sm);padding:16px;">
-        <h4 style="color:#fff;font-size:0.9rem;margin-bottom:8px;">💡 Como encontrar grupos de "${query}":</h4>
+        <h4 style="color:#fff;font-size:0.9rem;margin-bottom:8px;">💡 How to find groups for "${query}":</h4>
         <ol style="color:var(--text-secondary);font-size:0.8rem;line-height:1.8;padding-left:16px;">
-          <li>Abra o Telegram e use a <strong style="color:#fff;">busca</strong> (lupa)</li>
-          <li>Pesquise: <code style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">${query}</code></li>
-          <li>Entre nos grupos relevantes</li>
-          <li>Adicione <strong style="color:#fff;">@${this.botInfo?.username || 'seu_bot'}</strong> como <strong style="color:#10b981;">ADMINISTRADOR</strong></li>
-          <li>Voltando aqui, clique "Atualizar" e extraia os membros!</li>
+          <li>Open Telegram and use the <strong style="color:#fff;">search</strong> (magnifying glass)</li>
+          <li>Search for: <code style="background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:4px;">${query}</code></li>
+          <li>Join relevant groups</li>
+          <li>Add <strong style="color:#fff;">@${this.botInfo?.username || 'your_bot'}</strong> as an <strong style="color:#10b981;">ADMINISTRATOR</strong></li>
+          <li>Returning here, click "Refresh" and extract the members!</li>
         </ol>
       </div>
     `;
