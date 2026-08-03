@@ -1,8 +1,8 @@
 // Reports Page - Advanced Analytics & Metrics
 const ReportsPage = {
   async render() {
-    document.getElementById('page-title').textContent = 'Relatorios';
-    document.getElementById('page-subtitle').textContent = 'Metricas e analises do negocio';
+    document.getElementById('page-title').textContent = 'Reports';
+    document.getElementById('page-subtitle').textContent = 'Business metrics and analytics';
     const el = document.getElementById('page-reports');
     el.innerHTML = '<div class="skeleton-card" style="height:400px;"></div>';
 
@@ -36,11 +36,11 @@ const ReportsPage = {
         <!-- Funil + Scoring -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
           <div class="card" style="padding:1.25rem;">
-            <h3 style="color:white;font-size:1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="filter" style="width:18px;height:18px;color:var(--accent-primary);"></i>Funil de Conversao</h3>
+            <h3 style="color:white;font-size:1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="filter" style="width:18px;height:18px;color:var(--accent-primary);"></i>Conversion Funnel</h3>
             ${this.renderFunnel(data.funnel)}
           </div>
           <div class="card" style="padding:1.25rem;">
-            <h3 style="color:white;font-size:1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="target" style="width:18px;height:18px;color:#f43f5e;"></i>Scoring de Leads</h3>
+            <h3 style="color:white;font-size:1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="target" style="width:18px;height:18px;color:#f43f5e;"></i>Lead Scoring</h3>
             ${this.renderScoring(data.scoring)}
           </div>
         </div>
@@ -52,7 +52,7 @@ const ReportsPage = {
             ${this.renderPipeline(data.pipeline)}
           </div>
           <div class="card" style="padding:1.25rem;">
-            <h3 style="color:white;font-size:1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="database" style="width:18px;height:18px;color:#10b981;"></i>Fontes dos Leads</h3>
+            <h3 style="color:white;font-size:1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="database" style="width:18px;height:18px;color:#10b981;"></i>Lead Sources</h3>
             ${this.renderSources(data.bySource)}
           </div>
         </div>
@@ -60,28 +60,28 @@ const ReportsPage = {
         <!-- Top Cities + Sellers -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
           <div class="card" style="padding:1.25rem;">
-            <h3 style="color:white;font-size:1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="map-pin" style="width:18px;height:18px;color:#f59e0b;"></i>Top Cidades</h3>
+            <h3 style="color:white;font-size:1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="map-pin" style="width:18px;height:18px;color:#f59e0b;"></i>Top Cities</h3>
             ${this.renderCities(data.byCity)}
           </div>
           <div class="card" style="padding:1.25rem;">
-            <h3 style="color:white;font-size:1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="trophy" style="width:18px;height:18px;color:#f59e0b;"></i>Desempenho Vendedores</h3>
+            <h3 style="color:white;font-size:1rem;margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;"><i data-lucide="trophy" style="width:18px;height:18px;color:#f59e0b;"></i>Seller Performance</h3>
             ${this.renderSellers(data.sellerPerf)}
           </div>
         </div>
       `;
       lucide.createIcons();
     } catch (err) {
-      el.innerHTML = `<div class="empty-state"><p>Erro ao carregar relatorios: ${err.message}</p></div>`;
+      el.innerHTML = `<div class="empty-state"><p>Error loading reports: ${err.message}</p></div>`;
     }
   },
 
   renderFunnel(f) {
     const stages = [
-      { label: 'Total de Leads', value: f.total, color: '#818cf8' },
-      { label: 'Contactados', value: f.contacted, color: '#22d3ee' },
-      { label: 'Propostas', value: f.proposal, color: '#f59e0b' },
-      { label: 'Fechados', value: f.closed, color: '#10b981' },
-      { label: 'Perdidos', value: f.lost, color: '#f43f5e' },
+      { label: 'Total Leads', value: f.total, color: '#818cf8' },
+      { label: 'Contacted', value: f.contacted, color: '#22d3ee' },
+      { label: 'Proposals', value: f.proposal, color: '#f59e0b' },
+      { label: 'Closed', value: f.closed, color: '#10b981' },
+      { label: 'Lost', value: f.lost, color: '#f43f5e' },
     ];
     const max = f.total || 1;
     return stages.map(s => `
@@ -98,7 +98,7 @@ const ReportsPage = {
   },
 
   renderScoring(s) {
-    if (!s) return '<p style="color:var(--text-tertiary);">Sem dados de scoring</p>';
+    if (!s) return '<p style="color:var(--text-tertiary);">No scoring data</p>';
     const levels = [
       { label: 'Hot (80+)', value: s.hot, color: '#f43f5e', emoji: '🔥' },
       { label: 'Warm (60-79)', value: s.warm, color: '#f59e0b', emoji: '🌡️' },
@@ -120,7 +120,7 @@ const ReportsPage = {
   },
 
   renderPipeline(stages) {
-    const names = { leads: 'Novos', contato: 'Contato', proposta: 'Proposta', fechado: 'Fechado', perdido: 'Perdido' };
+    const names = { leads: 'New', contato: 'Contact', proposta: 'Proposal', fechado: 'Closed', perdido: 'Perdido' };
     const colors = { leads: '#818cf8', contato: '#22d3ee', proposta: '#f59e0b', fechado: '#10b981', perdido: '#f43f5e' };
     const total = stages.reduce((s, p) => s + p.count, 0) || 1;
     return stages.map(s => `
@@ -155,7 +155,7 @@ const ReportsPage = {
   },
 
   renderSellers(sellers) {
-    if (!sellers.length) return '<p style="color:var(--text-tertiary);text-align:center;">Nenhum vendedor com leads</p>';
+    if (!sellers.length) return '<p style="color:var(--text-tertiary);text-align:center;">No sellers with leads</p>';
     return sellers.map((s, i) => {
       const rate = s.total_leads > 0 ? ((s.closed / s.total_leads) * 100).toFixed(0) : 0;
       return `
@@ -163,7 +163,7 @@ const ReportsPage = {
           <span style="font-size:0.7rem;color:var(--text-tertiary);width:20px;">#${i + 1}</span>
           <div style="flex:1;">
             <span style="font-size:0.82rem;color:white;font-weight:500;">${s.name}</span>
-            <span style="font-size:0.7rem;color:var(--text-tertiary);margin-left:0.5rem;">${s.total_leads} leads · ${s.closed} fechados · ${rate}%</span>
+            <span style="font-size:0.7rem;color:var(--text-tertiary);margin-left:0.5rem;">${s.total_leads} leads · ${s.closed} closed · ${rate}%</span>
           </div>
         </div>
       `;
